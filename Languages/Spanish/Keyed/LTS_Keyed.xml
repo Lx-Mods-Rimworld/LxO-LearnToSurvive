@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+
+  <!-- Stat Names -->
+  <LTS_HaulingSense>Instinto de Acarreo</LTS_HaulingSense>
+  <LTS_WorkAwareness>Conciencia Laboral</LTS_WorkAwareness>
+  <LTS_PathMemory>Memoria de Rutas</LTS_PathMemory>
+  <LTS_CombatInstinct>Instinto de Combate</LTS_CombatInstinct>
+  <LTS_SelfPreservation>Autopreservacion</LTS_SelfPreservation>
+
+  <!-- Tab -->
+  <LTS_Tab_Intelligence>Inteligencia</LTS_Tab_Intelligence>
+  <LTS_Tab_Title>Inteligencia del Colono</LTS_Tab_Title>
+  <LTS_Mastered>DOMINADO</LTS_Mastered>
+  <LTS_NextUnlock>Siguiente (Nv {0})</LTS_NextUnlock>
+  <LTS_TraitModifiers>Modificadores de Aprendizaje:</LTS_TraitModifiers>
+  <LTS_InspectString>Inteligencia Prom.: {0}</LTS_InspectString>
+
+  <!-- Tier Names -->
+  <LTS_Tier_Untrained>Sin Entrenar</LTS_Tier_Untrained>
+  <LTS_Tier_StackCollector>Recolector de Pilas</LTS_Tier_StackCollector>
+  <LTS_Tier_InventoryHauler>Acarreador con Inventario</LTS_Tier_InventoryHauler>
+  <LTS_Tier_ProximityHauler>Acarreador de Proximidad</LTS_Tier_ProximityHauler>
+  <LTS_Tier_RoutePlanner>Planificador de Rutas</LTS_Tier_RoutePlanner>
+  <LTS_Tier_EfficientHauler>Acarreador Eficiente</LTS_Tier_EfficientHauler>
+  <LTS_Tier_Opportunist>Oportunista</LTS_Tier_Opportunist>
+  <LTS_Tier_LogisticsExpert>Experto en Logistica</LTS_Tier_LogisticsExpert>
+  <LTS_Tier_TeamCoordinator>Coordinador de Equipo</LTS_Tier_TeamCoordinator>
+  <LTS_Tier_SupplyMaster>Maestro de Suministros</LTS_Tier_SupplyMaster>
+  <LTS_Tier_HaulingMentor>Mentor de Acarreo</LTS_Tier_HaulingMentor>
+  <LTS_Tier_LocalWorker>Trabajador Local</LTS_Tier_LocalWorker>
+  <LTS_Tier_TidyWorker>Trabajador Ordenado</LTS_Tier_TidyWorker>
+  <LTS_Tier_PreparedWorker>Trabajador Preparado</LTS_Tier_PreparedWorker>
+  <LTS_Tier_TaskChainer>Encadenador de Tareas</LTS_Tier_TaskChainer>
+  <LTS_Tier_SmartWorker>Trabajador Astuto</LTS_Tier_SmartWorker>
+  <LTS_Tier_StationExpert>Experto en Estaciones</LTS_Tier_StationExpert>
+  <LTS_Tier_EfficiencyExpert>Experto en Eficiencia</LTS_Tier_EfficiencyExpert>
+  <LTS_Tier_WorkflowMaster>Maestro del Flujo de Trabajo</LTS_Tier_WorkflowMaster>
+  <LTS_Tier_ColonyBackbone>Pilar de la Colonia</LTS_Tier_ColonyBackbone>
+  <LTS_Tier_WorkMentor>Mentor de Trabajo</LTS_Tier_WorkMentor>
+  <LTS_Tier_PathLearner>Aprendiz de Caminos</LTS_Tier_PathLearner>
+  <LTS_Tier_ShortcutFinder>Buscador de Atajos</LTS_Tier_ShortcutFinder>
+  <LTS_Tier_RoomRespecter>Respetuoso de Salas</LTS_Tier_RoomRespecter>
+  <LTS_Tier_DangerMapper>Mapeador de Peligros</LTS_Tier_DangerMapper>
+  <LTS_Tier_TerrainReader>Lector de Terreno</LTS_Tier_TerrainReader>
+  <LTS_Tier_WeatherRouter>Navegante Climatico</LTS_Tier_WeatherRouter>
+  <LTS_Tier_SocialNavigator>Navegante Social</LTS_Tier_SocialNavigator>
+  <LTS_Tier_KnowledgeSharer>Compartidor de Conocimiento</LTS_Tier_KnowledgeSharer>
+  <LTS_Tier_RouteMaster>Maestro de Rutas</LTS_Tier_RouteMaster>
+  <LTS_Tier_NavigationMentor>Mentor de Navegacion</LTS_Tier_NavigationMentor>
+  <LTS_Tier_HazardAware>Consciente del Peligro</LTS_Tier_HazardAware>
+  <LTS_Tier_CoverSeeker>Buscador de Cobertura</LTS_Tier_CoverSeeker>
+  <LTS_Tier_FireDisciplined>Disciplina de Fuego</LTS_Tier_FireDisciplined>
+  <LTS_Tier_TargetPrioritizer>Priorizador de Objetivos</LTS_Tier_TargetPrioritizer>
+  <LTS_Tier_TacticallyAware>Conciencia Tactica</LTS_Tier_TacticallyAware>
+  <LTS_Tier_CombatRetreater>Repliegue en Combate</LTS_Tier_CombatRetreater>
+  <LTS_Tier_SquadFighter>Combatiente de Escuadra</LTS_Tier_SquadFighter>
+  <LTS_Tier_Suppressor>Supresor</LTS_Tier_Suppressor>
+  <LTS_Tier_BattlefieldVet>Veterano de Batalla</LTS_Tier_BattlefieldVet>
+  <LTS_Tier_CombatCommander>Comandante de Combate</LTS_Tier_CombatCommander>
+  <LTS_Tier_FoodAware>Consciente de la Comida</LTS_Tier_FoodAware>
+  <LTS_Tier_TableSeeker>Buscador de Mesas</LTS_Tier_TableSeeker>
+  <LTS_Tier_NeedAnticipator>Anticipador de Necesidades</LTS_Tier_NeedAnticipator>
+  <LTS_Tier_NeedForecaster>Previsor de Necesidades</LTS_Tier_NeedForecaster>
+  <LTS_Tier_HealthAware>Consciente de la Salud</LTS_Tier_HealthAware>
+  <LTS_Tier_MedicineMatcher>Dosificador de Medicina</LTS_Tier_MedicineMatcher>
+  <LTS_Tier_ComfortOptimizer>Optimizador de Confort</LTS_Tier_ComfortOptimizer>
+  <LTS_Tier_MoodManager>Gestor de Animo</LTS_Tier_MoodManager>
+  <LTS_Tier_SurvivalExpert>Experto en Supervivencia</LTS_Tier_SurvivalExpert>
+  <LTS_Tier_CalmingPresence>Presencia Tranquilizadora</LTS_Tier_CalmingPresence>
+
+  <!-- Ability Descriptions (key pattern: LTS_Ability_{StatType}_{Level}) -->
+  <!-- Hauling Sense -->
+  <LTS_Ability_HaulingSense_1>Recoge 1 objeto cercano extra del mismo tipo</LTS_Ability_HaulingSense_1>
+  <LTS_Ability_HaulingSense_2>Recoge hasta 2 objetos extra, mayor radio</LTS_Ability_HaulingSense_2>
+  <LTS_Ability_HaulingSense_3>Recoge tipos de objetos variados con mismo destino</LTS_Ability_HaulingSense_3>
+  <LTS_Ability_HaulingSense_4>Usa inventario para acarrear varios objetos</LTS_Ability_HaulingSense_4>
+  <LTS_Ability_HaulingSense_5>Prefiere trabajos de acarreo cercanos</LTS_Ability_HaulingSense_5>
+  <LTS_Ability_HaulingSense_6>Mayor preferencia por proximidad</LTS_Ability_HaulingSense_6>
+  <LTS_Ability_HaulingSense_7>Prioriza objetos perecederos</LTS_Ability_HaulingSense_7>
+  <LTS_Ability_HaulingSense_8>Agrupa objetos por almacen de destino</LTS_Ability_HaulingSense_8>
+  <LTS_Ability_HaulingSense_9>Planifica viajes de retorno eficientemente</LTS_Ability_HaulingSense_9>
+  <LTS_Ability_HaulingSense_10>Evita objetos que otros acarreadores buscan</LTS_Ability_HaulingSense_10>
+  <LTS_Ability_HaulingSense_11>Deja objetos en posiciones optimas del almacen</LTS_Ability_HaulingSense_11>
+  <LTS_Ability_HaulingSense_12>Recoge objetos en el camino a otros trabajos</LTS_Ability_HaulingSense_12>
+  <LTS_Ability_HaulingSense_13>Prioriza materiales de construccion</LTS_Ability_HaulingSense_13>
+  <LTS_Ability_HaulingSense_14>Prepara materiales en zonas de construccion</LTS_Ability_HaulingSense_14>
+  <LTS_Ability_HaulingSense_15>Detecta almacenes llenos, busca alternativas</LTS_Ability_HaulingSense_15>
+  <LTS_Ability_HaulingSense_16>Se coordina con acarreadores cercanos</LTS_Ability_HaulingSense_16>
+  <LTS_Ability_HaulingSense_17>Planifica rutas con multiples paradas de recogida y entrega</LTS_Ability_HaulingSense_17>
+  <LTS_Ability_HaulingSense_18>Optimiza lotes segun capacidad de carga</LTS_Ability_HaulingSense_18>
+  <LTS_Ability_HaulingSense_19>Optimizacion de rutas casi perfecta</LTS_Ability_HaulingSense_19>
+  <LTS_Ability_HaulingSense_20>Guia a peones cercanos (+25% XP de acarreo)</LTS_Ability_HaulingSense_20>
+
+  <!-- Work Awareness -->
+  <LTS_Ability_WorkAwareness_1>Busca trabajo del mismo tipo cerca al terminar</LTS_Ability_WorkAwareness_1>
+  <LTS_Ability_WorkAwareness_2>Mayor radio de busqueda de trabajo local</LTS_Ability_WorkAwareness_2>
+  <LTS_Ability_WorkAwareness_3>Considera otros tipos de trabajo cercanos</LTS_Ability_WorkAwareness_3>
+  <LTS_Ability_WorkAwareness_4>Limpia la zona antes de cocinar</LTS_Ability_WorkAwareness_4>
+  <LTS_Ability_WorkAwareness_5>Limpia antes de todo trabajo de precision</LTS_Ability_WorkAwareness_5>
+  <LTS_Ability_WorkAwareness_6>Recoge todos los ingredientes en un viaje</LTS_Ability_WorkAwareness_6>
+  <LTS_Ability_WorkAwareness_7>Prepara herramientas antes de ir a trabajar</LTS_Ability_WorkAwareness_7>
+  <LTS_Ability_WorkAwareness_8>Encadena tareas relacionadas</LTS_Ability_WorkAwareness_8>
+  <LTS_Ability_WorkAwareness_9>Revisa necesidades antes de tareas largas</LTS_Ability_WorkAwareness_9>
+  <LTS_Ability_WorkAwareness_10>Prefiere trabajo interior con mal clima</LTS_Ability_WorkAwareness_10>
+  <LTS_Ability_WorkAwareness_11>Responde mas rapido a tareas urgentes</LTS_Ability_WorkAwareness_11>
+  <LTS_Ability_WorkAwareness_12>Recuerda su estacion preferida (+3% velocidad)</LTS_Ability_WorkAwareness_12>
+  <LTS_Ability_WorkAwareness_13>Verifica suministro de ingredientes antes de fabricar</LTS_Ability_WorkAwareness_13>
+  <LTS_Ability_WorkAwareness_14>Prioriza trabajo que desbloquea a otros</LTS_Ability_WorkAwareness_14>
+  <LTS_Ability_WorkAwareness_15>Leve preferencia por trabajo afin a sus pasiones</LTS_Ability_WorkAwareness_15>
+  <LTS_Ability_WorkAwareness_16>Agrupa tareas similares</LTS_Ability_WorkAwareness_16>
+  <LTS_Ability_WorkAwareness_17>Cocina/fabrica antes de que se agoten los suministros</LTS_Ability_WorkAwareness_17>
+  <LTS_Ability_WorkAwareness_18>Evita duplicar el esfuerzo de otros trabajadores</LTS_Ability_WorkAwareness_18>
+  <LTS_Ability_WorkAwareness_19>Seleccion de tareas casi perfecta</LTS_Ability_WorkAwareness_19>
+  <LTS_Ability_WorkAwareness_20>Guia a peones cercanos (+25% XP trabajo, +8% vel. estacion)</LTS_Ability_WorkAwareness_20>
+
+  <!-- Path Memory -->
+  <LTS_Ability_PathMemory_1>Leve preferencia por caminos conocidos</LTS_Ability_PathMemory_1>
+  <LTS_Ability_PathMemory_2>Mayor preferencia por familiaridad</LTS_Ability_PathMemory_2>
+  <LTS_Ability_PathMemory_3>Recuerda la posicion de las puertas</LTS_Ability_PathMemory_3>
+  <LTS_Ability_PathMemory_4>Descubre atajos entre ubicaciones frecuentes</LTS_Ability_PathMemory_4>
+  <LTS_Ability_PathMemory_5>Evita pasar por dormitorios ajenos</LTS_Ability_PathMemory_5>
+  <LTS_Ability_PathMemory_6>Evita hospitales y celdas de prision</LTS_Ability_PathMemory_6>
+  <LTS_Ability_PathMemory_7>Evita salas del trono y laboratorios</LTS_Ability_PathMemory_7>
+  <LTS_Ability_PathMemory_8>Recuerda ubicaciones peligrosas</LTS_Ability_PathMemory_8>
+  <LTS_Ability_PathMemory_9>Prefiere caminar sobre suelos construidos</LTS_Ability_PathMemory_9>
+  <LTS_Ability_PathMemory_10>Evita barro y agua poco profunda</LTS_Ability_PathMemory_10>
+  <LTS_Ability_PathMemory_11>Usa las puertas mas eficientemente</LTS_Ability_PathMemory_11>
+  <LTS_Ability_PathMemory_12>Prefiere caminos techados con mal clima</LTS_Ability_PathMemory_12>
+  <LTS_Ability_PathMemory_13>Evita zonas de descanso de animales</LTS_Ability_PathMemory_13>
+  <LTS_Ability_PathMemory_14>Ajusta ruta para chance de interaccion social</LTS_Ability_PathMemory_14>
+  <LTS_Ability_PathMemory_15>Evita zonas de trabajo activas</LTS_Ability_PathMemory_15>
+  <LTS_Ability_PathMemory_16>Comparte conocimiento de rutas con colonos cercanos</LTS_Ability_PathMemory_16>
+  <LTS_Ability_PathMemory_17>Siempre elige la ruta mas rapida, no solo la mas corta</LTS_Ability_PathMemory_17>
+  <LTS_Ability_PathMemory_18>Anticipa trafico en puertas, evita congestion</LTS_Ability_PathMemory_18>
+  <LTS_Ability_PathMemory_19>Navegacion casi perfecta en toda situacion</LTS_Ability_PathMemory_19>
+  <LTS_Ability_PathMemory_20>Comparte todo su conocimiento de rutas en la colonia (+25% XP)</LTS_Ability_PathMemory_20>
+
+  <!-- Combat Instinct -->
+  <LTS_Ability_CombatInstinct_1>Sale mas rapido del fuego y el gas</LTS_Ability_CombatInstinct_1>
+  <LTS_Ability_CombatInstinct_2>Esquiva granadas y proyectiles de mortero</LTS_Ability_CombatInstinct_2>
+  <LTS_Ability_CombatInstinct_3>Busca cobertura cercana bajo fuego</LTS_Ability_CombatInstinct_3>
+  <LTS_Ability_CombatInstinct_4>Evalua calidad de cobertura, prefiere cobertura total</LTS_Ability_CombatInstinct_4>
+  <LTS_Ability_CombatInstinct_5>No dispara si un aliado esta directamente en la linea</LTS_Ability_CombatInstinct_5>
+  <LTS_Ability_CombatInstinct_6>Mayor conciencia de fuego amigo</LTS_Ability_CombatInstinct_6>
+  <LTS_Ability_CombatInstinct_7>Evita fuego amigo por completo, se reposiciona para tiro limpio</LTS_Ability_CombatInstinct_7>
+  <LTS_Ability_CombatInstinct_8>Prioriza brechadores, cargadores y luego amenazas cercanas</LTS_Ability_CombatInstinct_8>
+  <LTS_Ability_CombatInstinct_9>Se repliega cuando su salud baja del 40%</LTS_Ability_CombatInstinct_9>
+  <LTS_Ability_CombatInstinct_10>Se reposiciona a mejor cobertura en pausas de combate</LTS_Ability_CombatInstinct_10>
+  <LTS_Ability_CombatInstinct_11>Identifica a los enemigos mas peligrosos</LTS_Ability_CombatInstinct_11>
+  <LTS_Ability_CombatInstinct_12>Se retira bajo 25% de salud, civiles huyen automaticamente</LTS_Ability_CombatInstinct_12>
+  <LTS_Ability_CombatInstinct_13>Mantiene distancia para evitar dano en area</LTS_Ability_CombatInstinct_13>
+  <LTS_Ability_CombatInstinct_14>Cuerpo a cuerpo protege a distancia, distancia mantiene rango optimo</LTS_Ability_CombatInstinct_14>
+  <LTS_Ability_CombatInstinct_15>Coordina fuego con aliados sobre el mismo objetivo</LTS_Ability_CombatInstinct_15>
+  <LTS_Ability_CombatInstinct_16>Los grupos suprimen a enemigos que avanzan</LTS_Ability_CombatInstinct_16>
+  <LTS_Ability_CombatInstinct_17>Flanquea desde multiples angulos</LTS_Ability_CombatInstinct_17>
+  <LTS_Ability_CombatInstinct_18>Se mueve al rango optimo segun su arma</LTS_Ability_CombatInstinct_18>
+  <LTS_Ability_CombatInstinct_19>Conciencia total del campo de batalla</LTS_Ability_CombatInstinct_19>
+  <LTS_Ability_CombatInstinct_20>Comanda peones cercanos (+3 Instinto de Combate, +5% esquiva)</LTS_Ability_CombatInstinct_20>
+
+  <!-- Self-Preservation -->
+  <LTS_Ability_SelfPreservation_1>Prefiere comidas cocinadas sobre comida cruda</LTS_Ability_SelfPreservation_1>
+  <LTS_Ability_SelfPreservation_2>Busca comidas cocinadas en mayor radio</LTS_Ability_SelfPreservation_2>
+  <LTS_Ability_SelfPreservation_3>Busca comida de mayor calidad cuando esta disponible</LTS_Ability_SelfPreservation_3>
+  <LTS_Ability_SelfPreservation_4>Planifica comidas cerca de mesas para evitar penalizacion</LTS_Ability_SelfPreservation_4>
+  <LTS_Ability_SelfPreservation_5>Empieza a comer antes de que el hambre sea critica</LTS_Ability_SelfPreservation_5>
+  <LTS_Ability_SelfPreservation_6>Busca cama antes de caer exhausto</LTS_Ability_SelfPreservation_6>
+  <LTS_Ability_SelfPreservation_7>Elige la fuente de recreacion mas cercana</LTS_Ability_SelfPreservation_7>
+  <LTS_Ability_SelfPreservation_8>Planifica secuencias de actividades para varias necesidades</LTS_Ability_SelfPreservation_8>
+  <LTS_Ability_SelfPreservation_9>Se atiende heridas antes</LTS_Ability_SelfPreservation_9>
+  <LTS_Ability_SelfPreservation_10>Busca botiquin antes de auto-atenderse</LTS_Ability_SelfPreservation_10>
+  <LTS_Ability_SelfPreservation_11>Evita comida podrida e insegura</LTS_Ability_SelfPreservation_11>
+  <LTS_Ability_SelfPreservation_12>Usa medicina apropiada segun gravedad de la herida</LTS_Ability_SelfPreservation_12>
+  <LTS_Ability_SelfPreservation_13>Busca variedad recreativa para maxima felicidad</LTS_Ability_SelfPreservation_13>
+  <LTS_Ability_SelfPreservation_14>Recreacion social cuando la necesidad social es baja</LTS_Ability_SelfPreservation_14>
+  <LTS_Ability_SelfPreservation_15>Busca refugio antes de temperaturas extremas</LTS_Ability_SelfPreservation_15>
+  <LTS_Ability_SelfPreservation_16>Gestiona animo proactivamente cerca del umbral de crisis</LTS_Ability_SelfPreservation_16>
+  <LTS_Ability_SelfPreservation_17>Gestiona consumo de drogas inteligentemente</LTS_Ability_SelfPreservation_17>
+  <LTS_Ability_SelfPreservation_18>Siempre elige la comida optima para nutricion y animo</LTS_Ability_SelfPreservation_18>
+  <LTS_Ability_SelfPreservation_19>Casi cero tiempo perdido en satisfacer necesidades</LTS_Ability_SelfPreservation_19>
+  <LTS_Ability_SelfPreservation_20>Presencia calmante: peones cercanos ganan +3 animo (+25% XP)</LTS_Ability_SelfPreservation_20>
+
+  <!-- Messages -->
+  <LTS_LevelUpMessage>{0} aprendio {1} nivel {2}</LTS_LevelUpMessage>
+  <LTS_WoundedRetreat>{0} se esta retirando por heridas!</LTS_WoundedRetreat>
+  <LTS_BookWritten>{0} termino de escribir "{1}"</LTS_BookWritten>
+  <LTS_BookInspect>Tema: {0}\nAutor: {1}\nCalidad: {2}\nXP por lectura: {3}</LTS_BookInspect>
+
+  <!-- Settings -->
+  <LTS_Settings_StatToggles>Estadisticas de Inteligencia</LTS_Settings_StatToggles>
+  <LTS_Settings_XPMultiplier>Multiplicador de XP</LTS_Settings_XPMultiplier>
+  <LTS_Settings_ShowLevelUp>Mostrar mensajes de subida de nivel</LTS_Settings_ShowLevelUp>
+  <LTS_Settings_LogLevel>Registro de Decisiones</LTS_Settings_LogLevel>
+  <LTS_LogLevel_Off>Desactivado</LTS_LogLevel_Off>
+  <LTS_LogLevel_Summary>Resumen (solo subidas de nivel)</LTS_LogLevel_Summary>
+  <LTS_LogLevel_Decisions>Decisiones (todas las elecciones de IA)</LTS_LogLevel_Decisions>
+  <LTS_LogLevel_Verbose>Detallado (ticks de XP, estadisticas de cache)</LTS_LogLevel_Verbose>
+  <LTS_Settings_Compatibility>Compatibilidad de Mods</LTS_Settings_Compatibility>
+  <LTS_Settings_RespectPUAH>Dejar que Pick Up And Haul gestione el acarreo (omitir nuestros parches de acarreo)</LTS_Settings_RespectPUAH>
+  <LTS_Settings_RespectCS>Dejar que Common Sense gestione la limpieza (omitir nuestros parches de pre-limpieza)</LTS_Settings_RespectCS>
+
+</LanguageData>

@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+
+  <!-- Stat Names -->
+  <LTS_HaulingSense>운반 감각</LTS_HaulingSense>
+  <LTS_WorkAwareness>작업 인식</LTS_WorkAwareness>
+  <LTS_PathMemory>경로 기억</LTS_PathMemory>
+  <LTS_CombatInstinct>전투 본능</LTS_CombatInstinct>
+  <LTS_SelfPreservation>자기 보존</LTS_SelfPreservation>
+
+  <!-- Tab -->
+  <LTS_Tab_Intelligence>지능</LTS_Tab_Intelligence>
+  <LTS_Tab_Title>입식자 지능</LTS_Tab_Title>
+  <LTS_Mastered>완전 숙달</LTS_Mastered>
+  <LTS_NextUnlock>다음 (Lv {0})</LTS_NextUnlock>
+  <LTS_TraitModifiers>학습 속도 보정:</LTS_TraitModifiers>
+  <LTS_InspectString>평균 지능: {0}</LTS_InspectString>
+
+  <!-- Tier Names -->
+  <LTS_Tier_Untrained>미숙련</LTS_Tier_Untrained>
+  <LTS_Tier_StackCollector>묶음 수집가</LTS_Tier_StackCollector>
+  <LTS_Tier_InventoryHauler>소지품 운반자</LTS_Tier_InventoryHauler>
+  <LTS_Tier_ProximityHauler>근거리 운반자</LTS_Tier_ProximityHauler>
+  <LTS_Tier_RoutePlanner>경로 설계자</LTS_Tier_RoutePlanner>
+  <LTS_Tier_EfficientHauler>효율적 운반자</LTS_Tier_EfficientHauler>
+  <LTS_Tier_Opportunist>기회주의자</LTS_Tier_Opportunist>
+  <LTS_Tier_LogisticsExpert>물류 전문가</LTS_Tier_LogisticsExpert>
+  <LTS_Tier_TeamCoordinator>팀 조율자</LTS_Tier_TeamCoordinator>
+  <LTS_Tier_SupplyMaster>보급 달인</LTS_Tier_SupplyMaster>
+  <LTS_Tier_HaulingMentor>운반 멘토</LTS_Tier_HaulingMentor>
+  <LTS_Tier_LocalWorker>근거리 작업자</LTS_Tier_LocalWorker>
+  <LTS_Tier_TidyWorker>정돈된 작업자</LTS_Tier_TidyWorker>
+  <LTS_Tier_PreparedWorker>준비된 작업자</LTS_Tier_PreparedWorker>
+  <LTS_Tier_TaskChainer>작업 연쇄자</LTS_Tier_TaskChainer>
+  <LTS_Tier_SmartWorker>숙련 작업자</LTS_Tier_SmartWorker>
+  <LTS_Tier_StationExpert>작업대 전문가</LTS_Tier_StationExpert>
+  <LTS_Tier_EfficiencyExpert>효율 전문가</LTS_Tier_EfficiencyExpert>
+  <LTS_Tier_WorkflowMaster>작업흐름 달인</LTS_Tier_WorkflowMaster>
+  <LTS_Tier_ColonyBackbone>정착지의 기둥</LTS_Tier_ColonyBackbone>
+  <LTS_Tier_WorkMentor>작업 멘토</LTS_Tier_WorkMentor>
+  <LTS_Tier_PathLearner>경로 학습자</LTS_Tier_PathLearner>
+  <LTS_Tier_ShortcutFinder>지름길 탐색자</LTS_Tier_ShortcutFinder>
+  <LTS_Tier_RoomRespecter>공간 존중자</LTS_Tier_RoomRespecter>
+  <LTS_Tier_DangerMapper>위험 지도사</LTS_Tier_DangerMapper>
+  <LTS_Tier_TerrainReader>지형 판독자</LTS_Tier_TerrainReader>
+  <LTS_Tier_WeatherRouter>기상 경로사</LTS_Tier_WeatherRouter>
+  <LTS_Tier_SocialNavigator>사교적 항해자</LTS_Tier_SocialNavigator>
+  <LTS_Tier_KnowledgeSharer>지식 전파자</LTS_Tier_KnowledgeSharer>
+  <LTS_Tier_RouteMaster>경로 달인</LTS_Tier_RouteMaster>
+  <LTS_Tier_NavigationMentor>길찾기 멘토</LTS_Tier_NavigationMentor>
+  <LTS_Tier_HazardAware>위험 인지자</LTS_Tier_HazardAware>
+  <LTS_Tier_CoverSeeker>엄폐 탐색자</LTS_Tier_CoverSeeker>
+  <LTS_Tier_FireDisciplined>사격 통제자</LTS_Tier_FireDisciplined>
+  <LTS_Tier_TargetPrioritizer>목표 우선자</LTS_Tier_TargetPrioritizer>
+  <LTS_Tier_TacticallyAware>전술적 감각</LTS_Tier_TacticallyAware>
+  <LTS_Tier_CombatRetreater>전투 후퇴자</LTS_Tier_CombatRetreater>
+  <LTS_Tier_SquadFighter>분대 전투원</LTS_Tier_SquadFighter>
+  <LTS_Tier_Suppressor>제압 사수</LTS_Tier_Suppressor>
+  <LTS_Tier_BattlefieldVet>전장의 노련자</LTS_Tier_BattlefieldVet>
+  <LTS_Tier_CombatCommander>전투 지휘관</LTS_Tier_CombatCommander>
+  <LTS_Tier_FoodAware>식사 인지자</LTS_Tier_FoodAware>
+  <LTS_Tier_TableSeeker>식탁 탐색자</LTS_Tier_TableSeeker>
+  <LTS_Tier_NeedAnticipator>욕구 예측자</LTS_Tier_NeedAnticipator>
+  <LTS_Tier_NeedForecaster>욕구 예보자</LTS_Tier_NeedForecaster>
+  <LTS_Tier_HealthAware>건강 인지자</LTS_Tier_HealthAware>
+  <LTS_Tier_MedicineMatcher>약품 선별자</LTS_Tier_MedicineMatcher>
+  <LTS_Tier_ComfortOptimizer>안락 최적화자</LTS_Tier_ComfortOptimizer>
+  <LTS_Tier_MoodManager>기분 관리자</LTS_Tier_MoodManager>
+  <LTS_Tier_SurvivalExpert>생존 전문가</LTS_Tier_SurvivalExpert>
+  <LTS_Tier_CalmingPresence>안정의 존재</LTS_Tier_CalmingPresence>
+
+  <!-- Ability Descriptions (key pattern: LTS_Ability_{StatType}_{Level}) -->
+  <!-- Hauling Sense -->
+  <LTS_Ability_HaulingSense_1>같은 종류의 근처 아이템 1개를 추가로 집음</LTS_Ability_HaulingSense_1>
+  <LTS_Ability_HaulingSense_2>추가 아이템 2개까지, 더 넓은 범위</LTS_Ability_HaulingSense_2>
+  <LTS_Ability_HaulingSense_3>같은 비축 구역으로 가는 다른 종류 아이템도 집음</LTS_Ability_HaulingSense_3>
+  <LTS_Ability_HaulingSense_4>소지품을 활용하여 다중 아이템 운반</LTS_Ability_HaulingSense_4>
+  <LTS_Ability_HaulingSense_5>더 가까운 운반 작업을 선호</LTS_Ability_HaulingSense_5>
+  <LTS_Ability_HaulingSense_6>근접 선호도가 더 강해짐</LTS_Ability_HaulingSense_6>
+  <LTS_Ability_HaulingSense_7>부패하기 쉬운 아이템을 우선 운반</LTS_Ability_HaulingSense_7>
+  <LTS_Ability_HaulingSense_8>목적지 비축 구역별로 아이템을 분류</LTS_Ability_HaulingSense_8>
+  <LTS_Ability_HaulingSense_9>복귀 경로를 효율적으로 계획</LTS_Ability_HaulingSense_9>
+  <LTS_Ability_HaulingSense_10>다른 운반자가 목표로 한 아이템을 회피</LTS_Ability_HaulingSense_10>
+  <LTS_Ability_HaulingSense_11>비축 구역의 최적 위치에 아이템을 내려놓음</LTS_Ability_HaulingSense_11>
+  <LTS_Ability_HaulingSense_12>다른 작업으로 가는 길에 아이템을 주워 감</LTS_Ability_HaulingSense_12>
+  <LTS_Ability_HaulingSense_13>건설 자재를 우선 운반</LTS_Ability_HaulingSense_13>
+  <LTS_Ability_HaulingSense_14>건설 현장에 자재를 미리 배치</LTS_Ability_HaulingSense_14>
+  <LTS_Ability_HaulingSense_15>가득 찬 비축 구역을 감지하고 대안 경로로 이동</LTS_Ability_HaulingSense_15>
+  <LTS_Ability_HaulingSense_16>근처 운반자와 협력</LTS_Ability_HaulingSense_16>
+  <LTS_Ability_HaulingSense_17>다중 수거 및 배달 경로를 계획</LTS_Ability_HaulingSense_17>
+  <LTS_Ability_HaulingSense_18>운반 용량에 맞게 묶음 크기를 최적화</LTS_Ability_HaulingSense_18>
+  <LTS_Ability_HaulingSense_19>거의 완벽한 경로 최적화</LTS_Ability_HaulingSense_19>
+  <LTS_Ability_HaulingSense_20>근처 입식자를 지도 (운반 경험치 +25%)</LTS_Ability_HaulingSense_20>
+
+  <!-- Work Awareness -->
+  <LTS_Ability_WorkAwareness_1>작업 완료 후 근처에서 같은 종류의 작업을 확인</LTS_Ability_WorkAwareness_1>
+  <LTS_Ability_WorkAwareness_2>주변 작업 탐색 범위 확대</LTS_Ability_WorkAwareness_2>
+  <LTS_Ability_WorkAwareness_3>근처의 다른 종류 작업도 고려</LTS_Ability_WorkAwareness_3>
+  <LTS_Ability_WorkAwareness_4>요리 전에 주변을 청소</LTS_Ability_WorkAwareness_4>
+  <LTS_Ability_WorkAwareness_5>모든 정밀 작업 전에 청소</LTS_Ability_WorkAwareness_5>
+  <LTS_Ability_WorkAwareness_6>모든 재료를 한 번에 모아 옴</LTS_Ability_WorkAwareness_6>
+  <LTS_Ability_WorkAwareness_7>작업 전에 도구를 미리 준비</LTS_Ability_WorkAwareness_7>
+  <LTS_Ability_WorkAwareness_8>관련 작업을 연속으로 처리</LTS_Ability_WorkAwareness_8>
+  <LTS_Ability_WorkAwareness_9>긴 작업 시작 전에 욕구를 확인</LTS_Ability_WorkAwareness_9>
+  <LTS_Ability_WorkAwareness_10>악천후 시 실내 작업을 선호</LTS_Ability_WorkAwareness_10>
+  <LTS_Ability_WorkAwareness_11>긴급 작업에 더 빠르게 대응</LTS_Ability_WorkAwareness_11>
+  <LTS_Ability_WorkAwareness_12>선호 작업대를 기억 (속도 +3%)</LTS_Ability_WorkAwareness_12>
+  <LTS_Ability_WorkAwareness_13>제작 전에 재료 재고를 확인</LTS_Ability_WorkAwareness_13>
+  <LTS_Ability_WorkAwareness_14>다른 작업의 병목을 해소하는 작업을 우선</LTS_Ability_WorkAwareness_14>
+  <LTS_Ability_WorkAwareness_15>열정이 있는 작업을 약간 선호</LTS_Ability_WorkAwareness_15>
+  <LTS_Ability_WorkAwareness_16>유사한 작업을 묶어서 처리</LTS_Ability_WorkAwareness_16>
+  <LTS_Ability_WorkAwareness_17>물자가 떨어지기 전에 요리/제작을 시작</LTS_Ability_WorkAwareness_17>
+  <LTS_Ability_WorkAwareness_18>다른 작업자와 중복 작업을 회피</LTS_Ability_WorkAwareness_18>
+  <LTS_Ability_WorkAwareness_19>거의 완벽한 작업 선택 효율</LTS_Ability_WorkAwareness_19>
+  <LTS_Ability_WorkAwareness_20>근처 입식자를 지도 (작업 경험치 +25%, 작업대 속도 +8%)</LTS_Ability_WorkAwareness_20>
+
+  <!-- Path Memory -->
+  <LTS_Ability_PathMemory_1>익숙한 경로를 약간 선호</LTS_Ability_PathMemory_1>
+  <LTS_Ability_PathMemory_2>익숙한 경로 선호도가 강해짐</LTS_Ability_PathMemory_2>
+  <LTS_Ability_PathMemory_3>문 위치를 기억</LTS_Ability_PathMemory_3>
+  <LTS_Ability_PathMemory_4>자주 가는 장소 사이의 지름길을 발견</LTS_Ability_PathMemory_4>
+  <LTS_Ability_PathMemory_5>타인의 침실을 지나가지 않음</LTS_Ability_PathMemory_5>
+  <LTS_Ability_PathMemory_6>병원과 감옥을 우회</LTS_Ability_PathMemory_6>
+  <LTS_Ability_PathMemory_7>왕좌실과 연구실을 우회</LTS_Ability_PathMemory_7>
+  <LTS_Ability_PathMemory_8>위험한 장소를 기억</LTS_Ability_PathMemory_8>
+  <LTS_Ability_PathMemory_9>포장된 바닥 위로 걷는 것을 선호</LTS_Ability_PathMemory_9>
+  <LTS_Ability_PathMemory_10>진흙과 얕은 물을 회피</LTS_Ability_PathMemory_10>
+  <LTS_Ability_PathMemory_11>문을 더 효율적으로 사용</LTS_Ability_PathMemory_11>
+  <LTS_Ability_PathMemory_12>악천후 시 지붕이 있는 경로를 선호</LTS_Ability_PathMemory_12>
+  <LTS_Ability_PathMemory_13>동물 수면 구역을 우회</LTS_Ability_PathMemory_13>
+  <LTS_Ability_PathMemory_14>사교 기회를 고려하여 경로를 조정</LTS_Ability_PathMemory_14>
+  <LTS_Ability_PathMemory_15>활성 작업 구역을 우회</LTS_Ability_PathMemory_15>
+  <LTS_Ability_PathMemory_16>근처 입식자와 경로 지식을 공유</LTS_Ability_PathMemory_16>
+  <LTS_Ability_PathMemory_17>최단 거리가 아닌 최속 경로를 선택</LTS_Ability_PathMemory_17>
+  <LTS_Ability_PathMemory_18>문 앞 혼잡을 예측하고 우회</LTS_Ability_PathMemory_18>
+  <LTS_Ability_PathMemory_19>거의 완벽한 모든 상황의 경로 탐색</LTS_Ability_PathMemory_19>
+  <LTS_Ability_PathMemory_20>정착지 전체에 경로 지식을 공유 (경험치 +25%)</LTS_Ability_PathMemory_20>
+
+  <!-- Combat Instinct -->
+  <LTS_Ability_CombatInstinct_1>화염과 가스에서 더 빠르게 이탈</LTS_Ability_CombatInstinct_1>
+  <LTS_Ability_CombatInstinct_2>수류탄과 박격포탄을 회피</LTS_Ability_CombatInstinct_2>
+  <LTS_Ability_CombatInstinct_3>피격 시 근처 엄폐물을 탐색</LTS_Ability_CombatInstinct_3>
+  <LTS_Ability_CombatInstinct_4>엄폐물의 질을 평가하고 완전 엄폐를 선호</LTS_Ability_CombatInstinct_4>
+  <LTS_Ability_CombatInstinct_5>아군이 사선에 있으면 사격하지 않음</LTS_Ability_CombatInstinct_5>
+  <LTS_Ability_CombatInstinct_6>더 넓은 범위의 아군 오사 인식</LTS_Ability_CombatInstinct_6>
+  <LTS_Ability_CombatInstinct_7>완전한 아군 오사 방지, 명확한 사선 확보를 위해 재배치</LTS_Ability_CombatInstinct_7>
+  <LTS_Ability_CombatInstinct_8>돌파병, 돌격병, 그 다음 가장 가까운 적 순으로 우선 공격</LTS_Ability_CombatInstinct_8>
+  <LTS_Ability_CombatInstinct_9>체력 40% 이하 시 후퇴</LTS_Ability_CombatInstinct_9>
+  <LTS_Ability_CombatInstinct_10>소강 상태 시 더 나은 엄폐물로 재배치</LTS_Ability_CombatInstinct_10>
+  <LTS_Ability_CombatInstinct_11>가장 위험한 적을 식별</LTS_Ability_CombatInstinct_11>
+  <LTS_Ability_CombatInstinct_12>체력 25% 이하 시 자동 후퇴, 비전투원은 자동 도주</LTS_Ability_CombatInstinct_12>
+  <LTS_Ability_CombatInstinct_13>범위 피해를 피하기 위해 간격을 유지</LTS_Ability_CombatInstinct_13>
+  <LTS_Ability_CombatInstinct_14>근접은 원거리를 보호, 원거리는 최적 거리 유지</LTS_Ability_CombatInstinct_14>
+  <LTS_Ability_CombatInstinct_15>아군과 동일 대상에 집중 사격을 조율</LTS_Ability_CombatInstinct_15>
+  <LTS_Ability_CombatInstinct_16>집단으로 전진하는 적을 제압</LTS_Ability_CombatInstinct_16>
+  <LTS_Ability_CombatInstinct_17>여러 방향에서 측면 공격</LTS_Ability_CombatInstinct_17>
+  <LTS_Ability_CombatInstinct_18>장착 무기의 최적 사거리로 이동</LTS_Ability_CombatInstinct_18>
+  <LTS_Ability_CombatInstinct_19>완전한 전장 상황 인식</LTS_Ability_CombatInstinct_19>
+  <LTS_Ability_CombatInstinct_20>근처 입식자를 지휘 (전투 본능 +3, 회피율 +5%)</LTS_Ability_CombatInstinct_20>
+
+  <!-- Self-Preservation -->
+  <LTS_Ability_SelfPreservation_1>날것보다 조리된 식사를 선호</LTS_Ability_SelfPreservation_1>
+  <LTS_Ability_SelfPreservation_2>조리된 식사를 더 넓은 범위에서 탐색</LTS_Ability_SelfPreservation_2>
+  <LTS_Ability_SelfPreservation_3>가능하면 더 높은 품질의 음식을 탐색</LTS_Ability_SelfPreservation_3>
+  <LTS_Ability_SelfPreservation_4>디버프 방지를 위해 식탁 근처에서 식사를 계획</LTS_Ability_SelfPreservation_4>
+  <LTS_Ability_SelfPreservation_5>배고픔이 심각해지기 전에 식사를 시작</LTS_Ability_SelfPreservation_5>
+  <LTS_Ability_SelfPreservation_6>탈진 전에 침대를 찾음</LTS_Ability_SelfPreservation_6>
+  <LTS_Ability_SelfPreservation_7>가장 가까운 오락 시설을 선택</LTS_Ability_SelfPreservation_7>
+  <LTS_Ability_SelfPreservation_8>여러 욕구를 충족하기 위한 활동 순서를 계획</LTS_Ability_SelfPreservation_8>
+  <LTS_Ability_SelfPreservation_9>부상을 더 빨리 자가 치료</LTS_Ability_SelfPreservation_9>
+  <LTS_Ability_SelfPreservation_10>자가 치료 전에 약장을 찾음</LTS_Ability_SelfPreservation_10>
+  <LTS_Ability_SelfPreservation_11>상한 음식과 위험한 음식을 회피</LTS_Ability_SelfPreservation_11>
+  <LTS_Ability_SelfPreservation_12>부상 정도에 맞는 적절한 약품을 사용</LTS_Ability_SelfPreservation_12>
+  <LTS_Ability_SelfPreservation_13>최대 기쁨을 위해 다양한 오락을 추구</LTS_Ability_SelfPreservation_13>
+  <LTS_Ability_SelfPreservation_14>사교 욕구가 낮을 때 사교적 오락을 선택</LTS_Ability_SelfPreservation_14>
+  <LTS_Ability_SelfPreservation_15>극한 기온 전에 실내로 대피</LTS_Ability_SelfPreservation_15>
+  <LTS_Ability_SelfPreservation_16>정신 붕괴 임계점 근처에서 기분을 사전 관리</LTS_Ability_SelfPreservation_16>
+  <LTS_Ability_SelfPreservation_17>약물 복용을 지능적으로 관리</LTS_Ability_SelfPreservation_17>
+  <LTS_Ability_SelfPreservation_18>영양과 기분 모두에 최적의 식사를 선택</LTS_Ability_SelfPreservation_18>
+  <LTS_Ability_SelfPreservation_19>욕구 충족에 낭비되는 시간이 거의 없음</LTS_Ability_SelfPreservation_19>
+  <LTS_Ability_SelfPreservation_20>안정의 존재: 근처 입식자 기분 +3 (경험치 +25%)</LTS_Ability_SelfPreservation_20>
+
+  <!-- Messages -->
+  <LTS_LevelUpMessage>{0}이(가) {1} 레벨 {2}을(를) 습득했습니다</LTS_LevelUpMessage>
+  <LTS_WoundedRetreat>{0}이(가) 부상으로 후퇴합니다!</LTS_WoundedRetreat>
+  <LTS_BookWritten>{0}이(가) "{1}" 집필을 완료했습니다</LTS_BookWritten>
+  <LTS_BookInspect>주제: {0}\n저자: {1}\n품질: {2}\n읽기당 경험치: {3}</LTS_BookInspect>
+
+  <!-- Settings -->
+  <LTS_Settings_StatToggles>지능 스탯</LTS_Settings_StatToggles>
+  <LTS_Settings_XPMultiplier>경험치 배율</LTS_Settings_XPMultiplier>
+  <LTS_Settings_ShowLevelUp>레벨업 메시지 표시</LTS_Settings_ShowLevelUp>
+  <LTS_Settings_LogLevel>판단 기록</LTS_Settings_LogLevel>
+  <LTS_LogLevel_Off>끄기</LTS_LogLevel_Off>
+  <LTS_LogLevel_Summary>요약 (레벨업만)</LTS_LogLevel_Summary>
+  <LTS_LogLevel_Decisions>판단 (모든 AI 선택)</LTS_LogLevel_Decisions>
+  <LTS_LogLevel_Verbose>상세 (경험치 틱, 캐시 통계)</LTS_LogLevel_Verbose>
+  <LTS_Settings_Compatibility>모드 호환성</LTS_Settings_Compatibility>
+  <LTS_Settings_RespectPUAH>Pick Up And Haul이 운반을 처리하도록 허용 (운반 패치 건너뛰기)</LTS_Settings_RespectPUAH>
+  <LTS_Settings_RespectCS>Common Sense가 청소를 처리하도록 허용 (사전 청소 패치 건너뛰기)</LTS_Settings_RespectCS>
+
+</LanguageData>

@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+
+  <!-- Stat Names -->
+  <LTS_HaulingSense>Чутьё носильщика</LTS_HaulingSense>
+  <LTS_WorkAwareness>Осознанность труда</LTS_WorkAwareness>
+  <LTS_PathMemory>Память маршрутов</LTS_PathMemory>
+  <LTS_CombatInstinct>Боевой инстинкт</LTS_CombatInstinct>
+  <LTS_SelfPreservation>Самосохранение</LTS_SelfPreservation>
+
+  <!-- Tab -->
+  <LTS_Tab_Intelligence>Интеллект</LTS_Tab_Intelligence>
+  <LTS_Tab_Title>Интеллект колониста</LTS_Tab_Title>
+  <LTS_Mastered>ОСВОЕНО</LTS_Mastered>
+  <LTS_NextUnlock>Далее (Ур. {0})</LTS_NextUnlock>
+  <LTS_TraitModifiers>Модификаторы скорости обучения:</LTS_TraitModifiers>
+  <LTS_InspectString>Ср. интеллект: {0}</LTS_InspectString>
+
+  <!-- Tier Names -->
+  <LTS_Tier_Untrained>Необученный</LTS_Tier_Untrained>
+  <LTS_Tier_StackCollector>Сборщик стопок</LTS_Tier_StackCollector>
+  <LTS_Tier_InventoryHauler>Носильщик с инвентарём</LTS_Tier_InventoryHauler>
+  <LTS_Tier_ProximityHauler>Ближний носильщик</LTS_Tier_ProximityHauler>
+  <LTS_Tier_RoutePlanner>Планировщик маршрутов</LTS_Tier_RoutePlanner>
+  <LTS_Tier_EfficientHauler>Умелый носильщик</LTS_Tier_EfficientHauler>
+  <LTS_Tier_Opportunist>Приспособленец</LTS_Tier_Opportunist>
+  <LTS_Tier_LogisticsExpert>Эксперт логистики</LTS_Tier_LogisticsExpert>
+  <LTS_Tier_TeamCoordinator>Координатор команды</LTS_Tier_TeamCoordinator>
+  <LTS_Tier_SupplyMaster>Мастер снабжения</LTS_Tier_SupplyMaster>
+  <LTS_Tier_HaulingMentor>Наставник носильщиков</LTS_Tier_HaulingMentor>
+  <LTS_Tier_LocalWorker>Местный работник</LTS_Tier_LocalWorker>
+  <LTS_Tier_TidyWorker>Аккуратный работник</LTS_Tier_TidyWorker>
+  <LTS_Tier_PreparedWorker>Подготовленный работник</LTS_Tier_PreparedWorker>
+  <LTS_Tier_TaskChainer>Цепочник задач</LTS_Tier_TaskChainer>
+  <LTS_Tier_SmartWorker>Смышлёный работник</LTS_Tier_SmartWorker>
+  <LTS_Tier_StationExpert>Эксперт по станциям</LTS_Tier_StationExpert>
+  <LTS_Tier_EfficiencyExpert>Эксперт эффективности</LTS_Tier_EfficiencyExpert>
+  <LTS_Tier_WorkflowMaster>Мастер рабочего процесса</LTS_Tier_WorkflowMaster>
+  <LTS_Tier_ColonyBackbone>Опора колонии</LTS_Tier_ColonyBackbone>
+  <LTS_Tier_WorkMentor>Наставник по труду</LTS_Tier_WorkMentor>
+  <LTS_Tier_PathLearner>Ученик путей</LTS_Tier_PathLearner>
+  <LTS_Tier_ShortcutFinder>Искатель короткого пути</LTS_Tier_ShortcutFinder>
+  <LTS_Tier_RoomRespecter>Уважающий комнаты</LTS_Tier_RoomRespecter>
+  <LTS_Tier_DangerMapper>Картограф опасностей</LTS_Tier_DangerMapper>
+  <LTS_Tier_TerrainReader>Знаток местности</LTS_Tier_TerrainReader>
+  <LTS_Tier_WeatherRouter>Погодный навигатор</LTS_Tier_WeatherRouter>
+  <LTS_Tier_SocialNavigator>Социальный навигатор</LTS_Tier_SocialNavigator>
+  <LTS_Tier_KnowledgeSharer>Делящийся знаниями</LTS_Tier_KnowledgeSharer>
+  <LTS_Tier_RouteMaster>Мастер маршрутов</LTS_Tier_RouteMaster>
+  <LTS_Tier_NavigationMentor>Наставник навигации</LTS_Tier_NavigationMentor>
+  <LTS_Tier_HazardAware>Осознаёт опасность</LTS_Tier_HazardAware>
+  <LTS_Tier_CoverSeeker>Ищущий укрытие</LTS_Tier_CoverSeeker>
+  <LTS_Tier_FireDisciplined>Огневая дисциплина</LTS_Tier_FireDisciplined>
+  <LTS_Tier_TargetPrioritizer>Расставляющий приоритеты</LTS_Tier_TargetPrioritizer>
+  <LTS_Tier_TacticallyAware>Тактическое чутьё</LTS_Tier_TacticallyAware>
+  <LTS_Tier_CombatRetreater>Боевое отступление</LTS_Tier_CombatRetreater>
+  <LTS_Tier_SquadFighter>Боец отряда</LTS_Tier_SquadFighter>
+  <LTS_Tier_Suppressor>Подавитель</LTS_Tier_Suppressor>
+  <LTS_Tier_BattlefieldVet>Боевой ветеран</LTS_Tier_BattlefieldVet>
+  <LTS_Tier_CombatCommander>Боевой командир</LTS_Tier_CombatCommander>
+  <LTS_Tier_FoodAware>Осознаёт голод</LTS_Tier_FoodAware>
+  <LTS_Tier_TableSeeker>Ищущий стол</LTS_Tier_TableSeeker>
+  <LTS_Tier_NeedAnticipator>Предвидящий нужды</LTS_Tier_NeedAnticipator>
+  <LTS_Tier_NeedForecaster>Прогнозист потребностей</LTS_Tier_NeedForecaster>
+  <LTS_Tier_HealthAware>Заботящийся о здоровье</LTS_Tier_HealthAware>
+  <LTS_Tier_MedicineMatcher>Подбирающий лекарства</LTS_Tier_MedicineMatcher>
+  <LTS_Tier_ComfortOptimizer>Оптимизатор комфорта</LTS_Tier_ComfortOptimizer>
+  <LTS_Tier_MoodManager>Управляющий настроением</LTS_Tier_MoodManager>
+  <LTS_Tier_SurvivalExpert>Эксперт выживания</LTS_Tier_SurvivalExpert>
+  <LTS_Tier_CalmingPresence>Успокаивающее присутствие</LTS_Tier_CalmingPresence>
+
+  <!-- Ability Descriptions (key pattern: LTS_Ability_{StatType}_{Level}) -->
+  <!-- Hauling Sense -->
+  <LTS_Ability_HaulingSense_1>Подбирает 1 ближайший предмет того же типа</LTS_Ability_HaulingSense_1>
+  <LTS_Ability_HaulingSense_2>Подбирает до 2 предметов, больший радиус</LTS_Ability_HaulingSense_2>
+  <LTS_Ability_HaulingSense_3>Берёт разные предметы, идущие на один склад</LTS_Ability_HaulingSense_3>
+  <LTS_Ability_HaulingSense_4>Использует инвентарь для переноски нескольких предметов</LTS_Ability_HaulingSense_4>
+  <LTS_Ability_HaulingSense_5>Предпочитает ближайшие задания на переноску</LTS_Ability_HaulingSense_5>
+  <LTS_Ability_HaulingSense_6>Более сильное предпочтение ближних заданий</LTS_Ability_HaulingSense_6>
+  <LTS_Ability_HaulingSense_7>Приоритет скоропортящимся предметам</LTS_Ability_HaulingSense_7>
+  <LTS_Ability_HaulingSense_8>Группирует предметы по складу назначения</LTS_Ability_HaulingSense_8>
+  <LTS_Ability_HaulingSense_9>Эффективно планирует обратные маршруты</LTS_Ability_HaulingSense_9>
+  <LTS_Ability_HaulingSense_10>Избегает предметов, на которые нацелены другие носильщики</LTS_Ability_HaulingSense_10>
+  <LTS_Ability_HaulingSense_11>Складывает предметы в оптимальные ячейки склада</LTS_Ability_HaulingSense_11>
+  <LTS_Ability_HaulingSense_12>Подбирает предметы по пути к другим заданиям</LTS_Ability_HaulingSense_12>
+  <LTS_Ability_HaulingSense_13>Приоритет стройматериалам</LTS_Ability_HaulingSense_13>
+  <LTS_Ability_HaulingSense_14>Заранее доставляет материалы на стройплощадки</LTS_Ability_HaulingSense_14>
+  <LTS_Ability_HaulingSense_15>Обнаруживает заполненные склады, перенаправляет на другие</LTS_Ability_HaulingSense_15>
+  <LTS_Ability_HaulingSense_16>Координирует действия с ближайшими носильщиками</LTS_Ability_HaulingSense_16>
+  <LTS_Ability_HaulingSense_17>Планирует маршруты с несколькими остановками</LTS_Ability_HaulingSense_17>
+  <LTS_Ability_HaulingSense_18>Оптимизирует размер партии под грузоподъёмность</LTS_Ability_HaulingSense_18>
+  <LTS_Ability_HaulingSense_19>Почти идеальная оптимизация маршрутов</LTS_Ability_HaulingSense_19>
+  <LTS_Ability_HaulingSense_20>Обучает ближайших колонистов (+25% опыта переноски)</LTS_Ability_HaulingSense_20>
+
+  <!-- Work Awareness -->
+  <LTS_Ability_WorkAwareness_1>Ищет рядом работу того же типа после завершения</LTS_Ability_WorkAwareness_1>
+  <LTS_Ability_WorkAwareness_2>Увеличенный радиус поиска работы</LTS_Ability_WorkAwareness_2>
+  <LTS_Ability_WorkAwareness_3>Рассматривает другие типы работы поблизости</LTS_Ability_WorkAwareness_3>
+  <LTS_Ability_WorkAwareness_4>Убирает зону перед готовкой</LTS_Ability_WorkAwareness_4>
+  <LTS_Ability_WorkAwareness_5>Убирает перед любой точной работой</LTS_Ability_WorkAwareness_5>
+  <LTS_Ability_WorkAwareness_6>Собирает все ингредиенты за один поход</LTS_Ability_WorkAwareness_6>
+  <LTS_Ability_WorkAwareness_7>Готовит инструменты перед выходом на работу</LTS_Ability_WorkAwareness_7>
+  <LTS_Ability_WorkAwareness_8>Связывает смежные задачи в цепочку</LTS_Ability_WorkAwareness_8>
+  <LTS_Ability_WorkAwareness_9>Проверяет потребности перед долгими задачами</LTS_Ability_WorkAwareness_9>
+  <LTS_Ability_WorkAwareness_10>Предпочитает работу в помещении в плохую погоду</LTS_Ability_WorkAwareness_10>
+  <LTS_Ability_WorkAwareness_11>Быстрее реагирует на срочные задачи</LTS_Ability_WorkAwareness_11>
+  <LTS_Ability_WorkAwareness_12>Запоминает любимое рабочее место (+3% скорости)</LTS_Ability_WorkAwareness_12>
+  <LTS_Ability_WorkAwareness_13>Проверяет запас ингредиентов перед крафтом</LTS_Ability_WorkAwareness_13>
+  <LTS_Ability_WorkAwareness_14>Приоритет работе, разблокирующей других</LTS_Ability_WorkAwareness_14>
+  <LTS_Ability_WorkAwareness_15>Слегка предпочитает работу, к которой есть страсть</LTS_Ability_WorkAwareness_15>
+  <LTS_Ability_WorkAwareness_16>Группирует однотипные задачи вместе</LTS_Ability_WorkAwareness_16>
+  <LTS_Ability_WorkAwareness_17>Начинает готовить/крафтить до того, как запасы кончатся</LTS_Ability_WorkAwareness_17>
+  <LTS_Ability_WorkAwareness_18>Избегает дублирования работы других колонистов</LTS_Ability_WorkAwareness_18>
+  <LTS_Ability_WorkAwareness_19>Почти идеальный выбор задач</LTS_Ability_WorkAwareness_19>
+  <LTS_Ability_WorkAwareness_20>Обучает ближайших колонистов (+25% опыта работы, +8% скорости станции)</LTS_Ability_WorkAwareness_20>
+
+  <!-- Path Memory -->
+  <LTS_Ability_PathMemory_1>Слегка предпочитает знакомые пути</LTS_Ability_PathMemory_1>
+  <LTS_Ability_PathMemory_2>Усиленное предпочтение знакомых путей</LTS_Ability_PathMemory_2>
+  <LTS_Ability_PathMemory_3>Запоминает расположение дверей</LTS_Ability_PathMemory_3>
+  <LTS_Ability_PathMemory_4>Находит короткие пути между частыми точками</LTS_Ability_PathMemory_4>
+  <LTS_Ability_PathMemory_5>Избегает проходить через чужие спальни</LTS_Ability_PathMemory_5>
+  <LTS_Ability_PathMemory_6>Избегает больниц и тюремных камер</LTS_Ability_PathMemory_6>
+  <LTS_Ability_PathMemory_7>Избегает тронных залов и лабораторий</LTS_Ability_PathMemory_7>
+  <LTS_Ability_PathMemory_8>Запоминает опасные места</LTS_Ability_PathMemory_8>
+  <LTS_Ability_PathMemory_9>Предпочитает ходить по построенным полам</LTS_Ability_PathMemory_9>
+  <LTS_Ability_PathMemory_10>Избегает грязи и мелководья</LTS_Ability_PathMemory_10>
+  <LTS_Ability_PathMemory_11>Эффективнее использует двери</LTS_Ability_PathMemory_11>
+  <LTS_Ability_PathMemory_12>Предпочитает крытые пути в плохую погоду</LTS_Ability_PathMemory_12>
+  <LTS_Ability_PathMemory_13>Обходит зоны сна животных</LTS_Ability_PathMemory_13>
+  <LTS_Ability_PathMemory_14>Корректирует путь для шанса общения</LTS_Ability_PathMemory_14>
+  <LTS_Ability_PathMemory_15>Обходит активные рабочие зоны</LTS_Ability_PathMemory_15>
+  <LTS_Ability_PathMemory_16>Делится знаниями маршрутов с ближайшими колонистами</LTS_Ability_PathMemory_16>
+  <LTS_Ability_PathMemory_17>Всегда выбирает самый быстрый, а не кратчайший путь</LTS_Ability_PathMemory_17>
+  <LTS_Ability_PathMemory_18>Предвидит скопления у дверей, избегает заторов</LTS_Ability_PathMemory_18>
+  <LTS_Ability_PathMemory_19>Почти идеальная навигация в любых условиях</LTS_Ability_PathMemory_19>
+  <LTS_Ability_PathMemory_20>Делится всеми знаниями путей с колонией (+25% опыта)</LTS_Ability_PathMemory_20>
+
+  <!-- Combat Instinct -->
+  <LTS_Ability_CombatInstinct_1>Быстрее уходит из огня и газа</LTS_Ability_CombatInstinct_1>
+  <LTS_Ability_CombatInstinct_2>Уклоняется от гранат и миномётных снарядов</LTS_Ability_CombatInstinct_2>
+  <LTS_Ability_CombatInstinct_3>Ищет ближайшее укрытие под обстрелом</LTS_Ability_CombatInstinct_3>
+  <LTS_Ability_CombatInstinct_4>Оценивает качество укрытия, предпочитает полное</LTS_Ability_CombatInstinct_4>
+  <LTS_Ability_CombatInstinct_5>Не стреляет, если союзник на линии огня</LTS_Ability_CombatInstinct_5>
+  <LTS_Ability_CombatInstinct_6>Расширенный контроль дружественного огня</LTS_Ability_CombatInstinct_6>
+  <LTS_Ability_CombatInstinct_7>Полное избежание дружественного огня, меняет позицию для чистого выстрела</LTS_Ability_CombatInstinct_7>
+  <LTS_Ability_CombatInstinct_8>Приоритет: прорыватели, атакующие, затем ближайшие угрозы</LTS_Ability_CombatInstinct_8>
+  <LTS_Ability_CombatInstinct_9>Отступает при здоровье ниже 40%</LTS_Ability_CombatInstinct_9>
+  <LTS_Ability_CombatInstinct_10>Перемещается в лучшее укрытие в затишье</LTS_Ability_CombatInstinct_10>
+  <LTS_Ability_CombatInstinct_11>Определяет самых опасных врагов</LTS_Ability_CombatInstinct_11>
+  <LTS_Ability_CombatInstinct_12>Авто-отступление ниже 25% здоровья, гражданские бегут</LTS_Ability_CombatInstinct_12>
+  <LTS_Ability_CombatInstinct_13>Держит дистанцию для избежания площадного урона</LTS_Ability_CombatInstinct_13>
+  <LTS_Ability_CombatInstinct_14>Ближний бой прикрывает стрелков, стрелки держат дистанцию</LTS_Ability_CombatInstinct_14>
+  <LTS_Ability_CombatInstinct_15>Координирует огонь с союзниками по одной цели</LTS_Ability_CombatInstinct_15>
+  <LTS_Ability_CombatInstinct_16>Группы подавляют наступающих врагов</LTS_Ability_CombatInstinct_16>
+  <LTS_Ability_CombatInstinct_17>Фланкирует с нескольких направлений</LTS_Ability_CombatInstinct_17>
+  <LTS_Ability_CombatInstinct_18>Перемещается на оптимальную дистанцию для оружия</LTS_Ability_CombatInstinct_18>
+  <LTS_Ability_CombatInstinct_19>Полная осведомлённость о поле боя</LTS_Ability_CombatInstinct_19>
+  <LTS_Ability_CombatInstinct_20>Командует ближайшими бойцами (+3 боевого инстинкта, +5% уклонения)</LTS_Ability_CombatInstinct_20>
+
+  <!-- Self-Preservation -->
+  <LTS_Ability_SelfPreservation_1>Предпочитает приготовленную еду сырой</LTS_Ability_SelfPreservation_1>
+  <LTS_Ability_SelfPreservation_2>Ищет приготовленную еду в большем радиусе</LTS_Ability_SelfPreservation_2>
+  <LTS_Ability_SelfPreservation_3>Выбирает еду повыше качеством, если доступна</LTS_Ability_SelfPreservation_3>
+  <LTS_Ability_SelfPreservation_4>Планирует приёмы пищи рядом со столами</LTS_Ability_SelfPreservation_4>
+  <LTS_Ability_SelfPreservation_5>Начинает есть до наступления сильного голода</LTS_Ability_SelfPreservation_5>
+  <LTS_Ability_SelfPreservation_6>Ложится спать до полного истощения</LTS_Ability_SelfPreservation_6>
+  <LTS_Ability_SelfPreservation_7>Выбирает ближайший источник отдыха</LTS_Ability_SelfPreservation_7>
+  <LTS_Ability_SelfPreservation_8>Планирует последовательность действий для нескольких нужд</LTS_Ability_SelfPreservation_8>
+  <LTS_Ability_SelfPreservation_9>Раньше лечит собственные раны</LTS_Ability_SelfPreservation_9>
+  <LTS_Ability_SelfPreservation_10>Ищет аптечку перед самолечением</LTS_Ability_SelfPreservation_10>
+  <LTS_Ability_SelfPreservation_11>Избегает испорченную и опасную еду</LTS_Ability_SelfPreservation_11>
+  <LTS_Ability_SelfPreservation_12>Подбирает лекарства по тяжести ранения</LTS_Ability_SelfPreservation_12>
+  <LTS_Ability_SelfPreservation_13>Ищет разнообразие развлечений для максимальной радости</LTS_Ability_SelfPreservation_13>
+  <LTS_Ability_SelfPreservation_14>Общение в качестве отдыха при низкой потребности в общении</LTS_Ability_SelfPreservation_14>
+  <LTS_Ability_SelfPreservation_15>Ищет укрытие до наступления экстремальных температур</LTS_Ability_SelfPreservation_15>
+  <LTS_Ability_SelfPreservation_16>Активно управляет настроением вблизи порога срыва</LTS_Ability_SelfPreservation_16>
+  <LTS_Ability_SelfPreservation_17>Разумно контролирует приём наркотиков</LTS_Ability_SelfPreservation_17>
+  <LTS_Ability_SelfPreservation_18>Всегда выбирает оптимальную еду по питательности и настроению</LTS_Ability_SelfPreservation_18>
+  <LTS_Ability_SelfPreservation_19>Почти нулевые потери времени на удовлетворение потребностей</LTS_Ability_SelfPreservation_19>
+  <LTS_Ability_SelfPreservation_20>Успокаивающее присутствие: ближайшие колонисты получают +3 настроения (+25% опыта)</LTS_Ability_SelfPreservation_20>
+
+  <!-- Messages -->
+  <LTS_LevelUpMessage>{0} изучил(а) {1}, уровень {2}</LTS_LevelUpMessage>
+  <LTS_WoundedRetreat>{0} отступает из-за ранений!</LTS_WoundedRetreat>
+  <LTS_BookWritten>{0} закончил(а) написание "{1}"</LTS_BookWritten>
+  <LTS_BookInspect>Тема: {0}\nАвтор: {1}\nКачество: {2}\nОпыт за чтение: {3}</LTS_BookInspect>
+
+  <!-- Settings -->
+  <LTS_Settings_StatToggles>Параметры интеллекта</LTS_Settings_StatToggles>
+  <LTS_Settings_XPMultiplier>Множитель получения опыта</LTS_Settings_XPMultiplier>
+  <LTS_Settings_ShowLevelUp>Показывать сообщения о повышении уровня</LTS_Settings_ShowLevelUp>
+  <LTS_Settings_LogLevel>Журнал решений</LTS_Settings_LogLevel>
+  <LTS_LogLevel_Off>Выкл.</LTS_LogLevel_Off>
+  <LTS_LogLevel_Summary>Кратко (только повышения уровня)</LTS_LogLevel_Summary>
+  <LTS_LogLevel_Decisions>Решения (все выборы ИИ)</LTS_LogLevel_Decisions>
+  <LTS_LogLevel_Verbose>Подробно (тики опыта, кэш)</LTS_LogLevel_Verbose>
+  <LTS_Settings_Compatibility>Совместимость модов</LTS_Settings_Compatibility>
+  <LTS_Settings_RespectPUAH>Передать переноску моду Pick Up And Haul (отключить наши патчи переноски)</LTS_Settings_RespectPUAH>
+  <LTS_Settings_RespectCS>Передать уборку моду Common Sense (отключить наши патчи уборки)</LTS_Settings_RespectCS>
+
+</LanguageData>

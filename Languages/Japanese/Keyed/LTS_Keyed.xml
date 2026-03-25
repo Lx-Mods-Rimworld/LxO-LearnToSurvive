@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+
+  <!-- Stat Names -->
+  <LTS_HaulingSense>運搬感覚</LTS_HaulingSense>
+  <LTS_WorkAwareness>作業認識</LTS_WorkAwareness>
+  <LTS_PathMemory>経路記憶</LTS_PathMemory>
+  <LTS_CombatInstinct>戦闘本能</LTS_CombatInstinct>
+  <LTS_SelfPreservation>自己保存</LTS_SelfPreservation>
+
+  <!-- Tab -->
+  <LTS_Tab_Intelligence>知性</LTS_Tab_Intelligence>
+  <LTS_Tab_Title>入植者の知性</LTS_Tab_Title>
+  <LTS_Mastered>習得済</LTS_Mastered>
+  <LTS_NextUnlock>次 (Lv {0})</LTS_NextUnlock>
+  <LTS_TraitModifiers>学習速度補正:</LTS_TraitModifiers>
+  <LTS_InspectString>平均知性: {0}</LTS_InspectString>
+
+  <!-- Tier Names -->
+  <LTS_Tier_Untrained>未訓練</LTS_Tier_Untrained>
+  <LTS_Tier_StackCollector>積荷収集者</LTS_Tier_StackCollector>
+  <LTS_Tier_InventoryHauler>所持品運搬者</LTS_Tier_InventoryHauler>
+  <LTS_Tier_ProximityHauler>近接運搬者</LTS_Tier_ProximityHauler>
+  <LTS_Tier_RoutePlanner>経路立案者</LTS_Tier_RoutePlanner>
+  <LTS_Tier_EfficientHauler>効率運搬者</LTS_Tier_EfficientHauler>
+  <LTS_Tier_Opportunist>機会主義者</LTS_Tier_Opportunist>
+  <LTS_Tier_LogisticsExpert>物流専門家</LTS_Tier_LogisticsExpert>
+  <LTS_Tier_TeamCoordinator>連携調整役</LTS_Tier_TeamCoordinator>
+  <LTS_Tier_SupplyMaster>補給達人</LTS_Tier_SupplyMaster>
+  <LTS_Tier_HaulingMentor>運搬指導者</LTS_Tier_HaulingMentor>
+  <LTS_Tier_LocalWorker>地域作業者</LTS_Tier_LocalWorker>
+  <LTS_Tier_TidyWorker>整頓作業者</LTS_Tier_TidyWorker>
+  <LTS_Tier_PreparedWorker>準備万端の作業者</LTS_Tier_PreparedWorker>
+  <LTS_Tier_TaskChainer>連続作業者</LTS_Tier_TaskChainer>
+  <LTS_Tier_SmartWorker>賢い作業者</LTS_Tier_SmartWorker>
+  <LTS_Tier_StationExpert>作業台専門家</LTS_Tier_StationExpert>
+  <LTS_Tier_EfficiencyExpert>効率専門家</LTS_Tier_EfficiencyExpert>
+  <LTS_Tier_WorkflowMaster>工程達人</LTS_Tier_WorkflowMaster>
+  <LTS_Tier_ColonyBackbone>コロニーの柱</LTS_Tier_ColonyBackbone>
+  <LTS_Tier_WorkMentor>作業指導者</LTS_Tier_WorkMentor>
+  <LTS_Tier_PathLearner>経路学習者</LTS_Tier_PathLearner>
+  <LTS_Tier_ShortcutFinder>近道発見者</LTS_Tier_ShortcutFinder>
+  <LTS_Tier_RoomRespecter>部屋配慮者</LTS_Tier_RoomRespecter>
+  <LTS_Tier_DangerMapper>危険地図作成者</LTS_Tier_DangerMapper>
+  <LTS_Tier_TerrainReader>地形読解者</LTS_Tier_TerrainReader>
+  <LTS_Tier_WeatherRouter>天候経路者</LTS_Tier_WeatherRouter>
+  <LTS_Tier_SocialNavigator>社交的案内者</LTS_Tier_SocialNavigator>
+  <LTS_Tier_KnowledgeSharer>知識共有者</LTS_Tier_KnowledgeSharer>
+  <LTS_Tier_RouteMaster>経路達人</LTS_Tier_RouteMaster>
+  <LTS_Tier_NavigationMentor>案内指導者</LTS_Tier_NavigationMentor>
+  <LTS_Tier_HazardAware>危険察知</LTS_Tier_HazardAware>
+  <LTS_Tier_CoverSeeker>遮蔽探索者</LTS_Tier_CoverSeeker>
+  <LTS_Tier_FireDisciplined>射撃規律</LTS_Tier_FireDisciplined>
+  <LTS_Tier_TargetPrioritizer>標的優先者</LTS_Tier_TargetPrioritizer>
+  <LTS_Tier_TacticallyAware>戦術認識者</LTS_Tier_TacticallyAware>
+  <LTS_Tier_CombatRetreater>戦術撤退者</LTS_Tier_CombatRetreater>
+  <LTS_Tier_SquadFighter>分隊戦闘員</LTS_Tier_SquadFighter>
+  <LTS_Tier_Suppressor>制圧射手</LTS_Tier_Suppressor>
+  <LTS_Tier_BattlefieldVet>歴戦の勇士</LTS_Tier_BattlefieldVet>
+  <LTS_Tier_CombatCommander>戦闘指揮官</LTS_Tier_CombatCommander>
+  <LTS_Tier_FoodAware>食事意識</LTS_Tier_FoodAware>
+  <LTS_Tier_TableSeeker>テーブル探索者</LTS_Tier_TableSeeker>
+  <LTS_Tier_NeedAnticipator>欲求予測者</LTS_Tier_NeedAnticipator>
+  <LTS_Tier_NeedForecaster>欲求予見者</LTS_Tier_NeedForecaster>
+  <LTS_Tier_HealthAware>健康意識</LTS_Tier_HealthAware>
+  <LTS_Tier_MedicineMatcher>薬品選択者</LTS_Tier_MedicineMatcher>
+  <LTS_Tier_ComfortOptimizer>快適最適化者</LTS_Tier_ComfortOptimizer>
+  <LTS_Tier_MoodManager>心情管理者</LTS_Tier_MoodManager>
+  <LTS_Tier_SurvivalExpert>生存専門家</LTS_Tier_SurvivalExpert>
+  <LTS_Tier_CalmingPresence>安心の存在</LTS_Tier_CalmingPresence>
+
+  <!-- Ability Descriptions (key pattern: LTS_Ability_{StatType}_{Level}) -->
+  <!-- Hauling Sense -->
+  <LTS_Ability_HaulingSense_1>近くの同種アイテムを1つ追加で掴む</LTS_Ability_HaulingSense_1>
+  <LTS_Ability_HaulingSense_2>最大2つの追加アイテムを掴む、範囲拡大</LTS_Ability_HaulingSense_2>
+  <LTS_Ability_HaulingSense_3>同じ備蓄場所行きの異なる種類のアイテムを掴む</LTS_Ability_HaulingSense_3>
+  <LTS_Ability_HaulingSense_4>所持品を使って複数アイテムを運搬する</LTS_Ability_HaulingSense_4>
+  <LTS_Ability_HaulingSense_5>より近い運搬作業を優先する</LTS_Ability_HaulingSense_5>
+  <LTS_Ability_HaulingSense_6>近接優先がさらに強化される</LTS_Ability_HaulingSense_6>
+  <LTS_Ability_HaulingSense_7>腐敗しやすいアイテムを優先する</LTS_Ability_HaulingSense_7>
+  <LTS_Ability_HaulingSense_8>搬送先の備蓄場所ごとにアイテムをまとめる</LTS_Ability_HaulingSense_8>
+  <LTS_Ability_HaulingSense_9>帰路を効率的に計画する</LTS_Ability_HaulingSense_9>
+  <LTS_Ability_HaulingSense_10>他の運搬者が狙っているアイテムを避ける</LTS_Ability_HaulingSense_10>
+  <LTS_Ability_HaulingSense_11>備蓄場所の最適な位置にアイテムを置く</LTS_Ability_HaulingSense_11>
+  <LTS_Ability_HaulingSense_12>他の作業への移動中にアイテムを拾う</LTS_Ability_HaulingSense_12>
+  <LTS_Ability_HaulingSense_13>建設資材を優先する</LTS_Ability_HaulingSense_13>
+  <LTS_Ability_HaulingSense_14>建設現場に資材を事前配置する</LTS_Ability_HaulingSense_14>
+  <LTS_Ability_HaulingSense_15>満杯の備蓄場所を検知し、代替場所へ搬送する</LTS_Ability_HaulingSense_15>
+  <LTS_Ability_HaulingSense_16>近くの運搬者と連携する</LTS_Ability_HaulingSense_16>
+  <LTS_Ability_HaulingSense_17>複数箇所の集荷・配送ルートを計画する</LTS_Ability_HaulingSense_17>
+  <LTS_Ability_HaulingSense_18>運搬能力に合わせて積載量を最適化する</LTS_Ability_HaulingSense_18>
+  <LTS_Ability_HaulingSense_19>ほぼ完璧なルート最適化</LTS_Ability_HaulingSense_19>
+  <LTS_Ability_HaulingSense_20>近くの入植者を指導する（運搬経験値+25%）</LTS_Ability_HaulingSense_20>
+
+  <!-- Work Awareness -->
+  <LTS_Ability_WorkAwareness_1>作業完了後、近くの同種作業を確認する</LTS_Ability_WorkAwareness_1>
+  <LTS_Ability_WorkAwareness_2>周辺作業の探索範囲が拡大する</LTS_Ability_WorkAwareness_2>
+  <LTS_Ability_WorkAwareness_3>近くの異なる種類の作業も考慮する</LTS_Ability_WorkAwareness_3>
+  <LTS_Ability_WorkAwareness_4>調理前にエリアを掃除する</LTS_Ability_WorkAwareness_4>
+  <LTS_Ability_WorkAwareness_5>すべての精密作業前に掃除する</LTS_Ability_WorkAwareness_5>
+  <LTS_Ability_WorkAwareness_6>すべての材料を一度に集める</LTS_Ability_WorkAwareness_6>
+  <LTS_Ability_WorkAwareness_7>作業に向かう前に道具を準備する</LTS_Ability_WorkAwareness_7>
+  <LTS_Ability_WorkAwareness_8>関連する作業を連鎖的にこなす</LTS_Ability_WorkAwareness_8>
+  <LTS_Ability_WorkAwareness_9>長時間の作業前に欲求を確認する</LTS_Ability_WorkAwareness_9>
+  <LTS_Ability_WorkAwareness_10>悪天候時は屋内作業を優先する</LTS_Ability_WorkAwareness_10>
+  <LTS_Ability_WorkAwareness_11>緊急作業への対応が速くなる</LTS_Ability_WorkAwareness_11>
+  <LTS_Ability_WorkAwareness_12>好みの作業台を記憶する（速度+3%）</LTS_Ability_WorkAwareness_12>
+  <LTS_Ability_WorkAwareness_13>製作前に材料の在庫を確認する</LTS_Ability_WorkAwareness_13>
+  <LTS_Ability_WorkAwareness_14>他者の作業を解放する作業を優先する</LTS_Ability_WorkAwareness_14>
+  <LTS_Ability_WorkAwareness_15>情熱に合った作業をやや優先する</LTS_Ability_WorkAwareness_15>
+  <LTS_Ability_WorkAwareness_16>類似の作業をまとめて処理する</LTS_Ability_WorkAwareness_16>
+  <LTS_Ability_WorkAwareness_17>物資が切れる前に調理・製作を始める</LTS_Ability_WorkAwareness_17>
+  <LTS_Ability_WorkAwareness_18>他の作業者との重複を避ける</LTS_Ability_WorkAwareness_18>
+  <LTS_Ability_WorkAwareness_19>ほぼ完璧な作業選択効率</LTS_Ability_WorkAwareness_19>
+  <LTS_Ability_WorkAwareness_20>近くの入植者を指導する（作業経験値+25%、作業台速度+8%）</LTS_Ability_WorkAwareness_20>
+
+  <!-- Path Memory -->
+  <LTS_Ability_PathMemory_1>慣れた道をやや優先する</LTS_Ability_PathMemory_1>
+  <LTS_Ability_PathMemory_2>慣れた道への優先度がさらに強まる</LTS_Ability_PathMemory_2>
+  <LTS_Ability_PathMemory_3>ドアの位置を記憶する</LTS_Ability_PathMemory_3>
+  <LTS_Ability_PathMemory_4>よく行く場所間の近道を発見する</LTS_Ability_PathMemory_4>
+  <LTS_Ability_PathMemory_5>他人の寝室を通り抜けない</LTS_Ability_PathMemory_5>
+  <LTS_Ability_PathMemory_6>病室と囚人房を避ける</LTS_Ability_PathMemory_6>
+  <LTS_Ability_PathMemory_7>玉座の間と研究室を避ける</LTS_Ability_PathMemory_7>
+  <LTS_Ability_PathMemory_8>危険な場所を記憶する</LTS_Ability_PathMemory_8>
+  <LTS_Ability_PathMemory_9>舗装された床の上を歩くことを好む</LTS_Ability_PathMemory_9>
+  <LTS_Ability_PathMemory_10>泥地や浅瀬を避ける</LTS_Ability_PathMemory_10>
+  <LTS_Ability_PathMemory_11>ドアをより効率的に使う</LTS_Ability_PathMemory_11>
+  <LTS_Ability_PathMemory_12>悪天候時は屋根のある道を好む</LTS_Ability_PathMemory_12>
+  <LTS_Ability_PathMemory_13>動物の寝床エリアを避ける</LTS_Ability_PathMemory_13>
+  <LTS_Ability_PathMemory_14>社交の機会を考慮して経路を調整する</LTS_Ability_PathMemory_14>
+  <LTS_Ability_PathMemory_15>作業中のゾーンを避ける</LTS_Ability_PathMemory_15>
+  <LTS_Ability_PathMemory_16>近くの入植者と経路知識を共有する</LTS_Ability_PathMemory_16>
+  <LTS_Ability_PathMemory_17>最短ではなく最速の経路を常に選ぶ</LTS_Ability_PathMemory_17>
+  <LTS_Ability_PathMemory_18>ドアの混雑を予測し、渋滞を避ける</LTS_Ability_PathMemory_18>
+  <LTS_Ability_PathMemory_19>あらゆる状況でほぼ完璧な経路選択</LTS_Ability_PathMemory_19>
+  <LTS_Ability_PathMemory_20>経路知識をコロニー全体に共有する（経験値+25%）</LTS_Ability_PathMemory_20>
+
+  <!-- Combat Instinct -->
+  <LTS_Ability_CombatInstinct_1>炎やガスからより速く退避する</LTS_Ability_CombatInstinct_1>
+  <LTS_Ability_CombatInstinct_2>手榴弾や迫撃砲弾を回避する</LTS_Ability_CombatInstinct_2>
+  <LTS_Ability_CombatInstinct_3>砲火を浴びた時に近くの遮蔽物に隠れる</LTS_Ability_CombatInstinct_3>
+  <LTS_Ability_CombatInstinct_4>遮蔽物の質を評価し、完全遮蔽を好む</LTS_Ability_CombatInstinct_4>
+  <LTS_Ability_CombatInstinct_5>射線上に味方がいる場合は撃たない</LTS_Ability_CombatInstinct_5>
+  <LTS_Ability_CombatInstinct_6>味方誤射の警戒範囲が拡大する</LTS_Ability_CombatInstinct_6>
+  <LTS_Ability_CombatInstinct_7>完全な味方誤射回避、射線確保のため移動する</LTS_Ability_CombatInstinct_7>
+  <LTS_Ability_CombatInstinct_8>突破兵、突撃兵、次に最寄りの脅威を優先する</LTS_Ability_CombatInstinct_8>
+  <LTS_Ability_CombatInstinct_9>体力40%以下で後退する</LTS_Ability_CombatInstinct_9>
+  <LTS_Ability_CombatInstinct_10>戦闘の合間により良い遮蔽物へ移動する</LTS_Ability_CombatInstinct_10>
+  <LTS_Ability_CombatInstinct_11>最も危険な敵を識別する</LTS_Ability_CombatInstinct_11>
+  <LTS_Ability_CombatInstinct_12>体力25%以下で自動撤退、非戦闘員は自動逃走</LTS_Ability_CombatInstinct_12>
+  <LTS_Ability_CombatInstinct_13>範囲攻撃を避けるため間隔を保つ</LTS_Ability_CombatInstinct_13>
+  <LTS_Ability_CombatInstinct_14>近接が遠距離を盾で守り、遠距離は最適距離を維持する</LTS_Ability_CombatInstinct_14>
+  <LTS_Ability_CombatInstinct_15>味方と同じ標的に集中砲火する</LTS_Ability_CombatInstinct_15>
+  <LTS_Ability_CombatInstinct_16>集団で前進する敵を制圧射撃する</LTS_Ability_CombatInstinct_16>
+  <LTS_Ability_CombatInstinct_17>複数方向から側面攻撃する</LTS_Ability_CombatInstinct_17>
+  <LTS_Ability_CombatInstinct_18>装備武器の最適射程に移動する</LTS_Ability_CombatInstinct_18>
+  <LTS_Ability_CombatInstinct_19>完全な戦場認識能力</LTS_Ability_CombatInstinct_19>
+  <LTS_Ability_CombatInstinct_20>近くの入植者を指揮する（戦闘本能+3、回避率+5%）</LTS_Ability_CombatInstinct_20>
+
+  <!-- Self-Preservation -->
+  <LTS_Ability_SelfPreservation_1>生の食材より調理済みの食事を好む</LTS_Ability_SelfPreservation_1>
+  <LTS_Ability_SelfPreservation_2>調理済みの食事をより広い範囲で探す</LTS_Ability_SelfPreservation_2>
+  <LTS_Ability_SelfPreservation_3>可能な場合、より高品質な食事を探す</LTS_Ability_SelfPreservation_3>
+  <LTS_Ability_SelfPreservation_4>デバフを避けるためテーブル近くで食事を計画する</LTS_Ability_SelfPreservation_4>
+  <LTS_Ability_SelfPreservation_5>空腹が深刻になる前に食事を始める</LTS_Ability_SelfPreservation_5>
+  <LTS_Ability_SelfPreservation_6>疲労困憊になる前にベッドを探す</LTS_Ability_SelfPreservation_6>
+  <LTS_Ability_SelfPreservation_7>最寄りの娯楽を選ぶ</LTS_Ability_SelfPreservation_7>
+  <LTS_Ability_SelfPreservation_8>複数の欲求を満たす行動を計画する</LTS_Ability_SelfPreservation_8>
+  <LTS_Ability_SelfPreservation_9>傷の自己治療をより早く行う</LTS_Ability_SelfPreservation_9>
+  <LTS_Ability_SelfPreservation_10>自己治療前に薬箱を探す</LTS_Ability_SelfPreservation_10>
+  <LTS_Ability_SelfPreservation_11>腐った食べ物や危険な食べ物を避ける</LTS_Ability_SelfPreservation_11>
+  <LTS_Ability_SelfPreservation_12>傷の重さに応じた薬を使う</LTS_Ability_SelfPreservation_12>
+  <LTS_Ability_SelfPreservation_13>最大の喜びを得るため多様な娯楽を求める</LTS_Ability_SelfPreservation_13>
+  <LTS_Ability_SelfPreservation_14>社交欲求が低い時は交流型の娯楽を選ぶ</LTS_Ability_SelfPreservation_14>
+  <LTS_Ability_SelfPreservation_15>極端な気温になる前に避難所を探す</LTS_Ability_SelfPreservation_15>
+  <LTS_Ability_SelfPreservation_16>精神崩壊閾値付近で心情を積極的に管理する</LTS_Ability_SelfPreservation_16>
+  <LTS_Ability_SelfPreservation_17>ドラッグの摂取を賢く管理する</LTS_Ability_SelfPreservation_17>
+  <LTS_Ability_SelfPreservation_18>栄養と心情の両面で最適な食事を常に選ぶ</LTS_Ability_SelfPreservation_18>
+  <LTS_Ability_SelfPreservation_19>欲求充足に無駄な時間をほぼ費やさない</LTS_Ability_SelfPreservation_19>
+  <LTS_Ability_SelfPreservation_20>安心の存在: 近くの入植者の心情+3（経験値+25%）</LTS_Ability_SelfPreservation_20>
+
+  <!-- Messages -->
+  <LTS_LevelUpMessage>{0}が{1}のレベル{2}を習得した</LTS_LevelUpMessage>
+  <LTS_WoundedRetreat>{0}が負傷により撤退中！</LTS_WoundedRetreat>
+  <LTS_BookWritten>{0}が「{1}」を書き上げた</LTS_BookWritten>
+  <LTS_BookInspect>テーマ: {0}\n著者: {1}\n品質: {2}\n読書時の経験値: {3}</LTS_BookInspect>
+
+  <!-- Settings -->
+  <LTS_Settings_StatToggles>知性ステータス</LTS_Settings_StatToggles>
+  <LTS_Settings_XPMultiplier>経験値倍率</LTS_Settings_XPMultiplier>
+  <LTS_Settings_ShowLevelUp>レベルアップメッセージを表示</LTS_Settings_ShowLevelUp>
+  <LTS_Settings_LogLevel>判断ログ</LTS_Settings_LogLevel>
+  <LTS_LogLevel_Off>オフ</LTS_LogLevel_Off>
+  <LTS_LogLevel_Summary>概要（レベルアップのみ）</LTS_LogLevel_Summary>
+  <LTS_LogLevel_Decisions>判断（すべてのAI選択）</LTS_LogLevel_Decisions>
+  <LTS_LogLevel_Verbose>詳細（経験値更新、キャッシュ統計）</LTS_LogLevel_Verbose>
+  <LTS_Settings_Compatibility>Mod互換性</LTS_Settings_Compatibility>
+  <LTS_Settings_RespectPUAH>Pick Up And Haulに運搬を任せる（運搬パッチを無効化）</LTS_Settings_RespectPUAH>
+  <LTS_Settings_RespectCS>Common Senseに掃除を任せる（事前清掃パッチを無効化）</LTS_Settings_RespectCS>
+
+</LanguageData>

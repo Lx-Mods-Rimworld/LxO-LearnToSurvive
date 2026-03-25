@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+
+  <!-- Stat Names -->
+  <LTS_HaulingSense>搬运直觉</LTS_HaulingSense>
+  <LTS_WorkAwareness>工作意识</LTS_WorkAwareness>
+  <LTS_PathMemory>路径记忆</LTS_PathMemory>
+  <LTS_CombatInstinct>战斗本能</LTS_CombatInstinct>
+  <LTS_SelfPreservation>自我保护</LTS_SelfPreservation>
+
+  <!-- Tab -->
+  <LTS_Tab_Intelligence>智能</LTS_Tab_Intelligence>
+  <LTS_Tab_Title>殖民者智能</LTS_Tab_Title>
+  <LTS_Mastered>已精通</LTS_Mastered>
+  <LTS_NextUnlock>下一级 (Lv {0})</LTS_NextUnlock>
+  <LTS_TraitModifiers>学习速率加成:</LTS_TraitModifiers>
+  <LTS_InspectString>平均智能: {0}</LTS_InspectString>
+
+  <!-- Tier Names -->
+  <LTS_Tier_Untrained>未训练</LTS_Tier_Untrained>
+  <LTS_Tier_StackCollector>堆叠收集者</LTS_Tier_StackCollector>
+  <LTS_Tier_InventoryHauler>背包搬运工</LTS_Tier_InventoryHauler>
+  <LTS_Tier_ProximityHauler>就近搬运工</LTS_Tier_ProximityHauler>
+  <LTS_Tier_RoutePlanner>路线规划者</LTS_Tier_RoutePlanner>
+  <LTS_Tier_EfficientHauler>高效搬运工</LTS_Tier_EfficientHauler>
+  <LTS_Tier_Opportunist>机会主义者</LTS_Tier_Opportunist>
+  <LTS_Tier_LogisticsExpert>物流专家</LTS_Tier_LogisticsExpert>
+  <LTS_Tier_TeamCoordinator>团队协调者</LTS_Tier_TeamCoordinator>
+  <LTS_Tier_SupplyMaster>补给大师</LTS_Tier_SupplyMaster>
+  <LTS_Tier_HaulingMentor>搬运导师</LTS_Tier_HaulingMentor>
+  <LTS_Tier_LocalWorker>本地工人</LTS_Tier_LocalWorker>
+  <LTS_Tier_TidyWorker>整洁工人</LTS_Tier_TidyWorker>
+  <LTS_Tier_PreparedWorker>有备工人</LTS_Tier_PreparedWorker>
+  <LTS_Tier_TaskChainer>任务串联者</LTS_Tier_TaskChainer>
+  <LTS_Tier_SmartWorker>聪慧工人</LTS_Tier_SmartWorker>
+  <LTS_Tier_StationExpert>工位专家</LTS_Tier_StationExpert>
+  <LTS_Tier_EfficiencyExpert>效率专家</LTS_Tier_EfficiencyExpert>
+  <LTS_Tier_WorkflowMaster>工作流大师</LTS_Tier_WorkflowMaster>
+  <LTS_Tier_ColonyBackbone>殖民地支柱</LTS_Tier_ColonyBackbone>
+  <LTS_Tier_WorkMentor>工作导师</LTS_Tier_WorkMentor>
+  <LTS_Tier_PathLearner>路径学徒</LTS_Tier_PathLearner>
+  <LTS_Tier_ShortcutFinder>捷径发现者</LTS_Tier_ShortcutFinder>
+  <LTS_Tier_RoomRespecter>房间礼仪者</LTS_Tier_RoomRespecter>
+  <LTS_Tier_DangerMapper>危险标记者</LTS_Tier_DangerMapper>
+  <LTS_Tier_TerrainReader>地形识别者</LTS_Tier_TerrainReader>
+  <LTS_Tier_WeatherRouter>气候路线者</LTS_Tier_WeatherRouter>
+  <LTS_Tier_SocialNavigator>社交导航者</LTS_Tier_SocialNavigator>
+  <LTS_Tier_KnowledgeSharer>知识分享者</LTS_Tier_KnowledgeSharer>
+  <LTS_Tier_RouteMaster>路线大师</LTS_Tier_RouteMaster>
+  <LTS_Tier_NavigationMentor>导航导师</LTS_Tier_NavigationMentor>
+  <LTS_Tier_HazardAware>危险感知</LTS_Tier_HazardAware>
+  <LTS_Tier_CoverSeeker>寻找掩体</LTS_Tier_CoverSeeker>
+  <LTS_Tier_FireDisciplined>射击纪律</LTS_Tier_FireDisciplined>
+  <LTS_Tier_TargetPrioritizer>目标优先</LTS_Tier_TargetPrioritizer>
+  <LTS_Tier_TacticallyAware>战术意识</LTS_Tier_TacticallyAware>
+  <LTS_Tier_CombatRetreater>战术撤退</LTS_Tier_CombatRetreater>
+  <LTS_Tier_SquadFighter>小队战士</LTS_Tier_SquadFighter>
+  <LTS_Tier_Suppressor>火力压制者</LTS_Tier_Suppressor>
+  <LTS_Tier_BattlefieldVet>沙场老兵</LTS_Tier_BattlefieldVet>
+  <LTS_Tier_CombatCommander>战斗指挥官</LTS_Tier_CombatCommander>
+  <LTS_Tier_FoodAware>食物意识</LTS_Tier_FoodAware>
+  <LTS_Tier_TableSeeker>餐桌寻觅者</LTS_Tier_TableSeeker>
+  <LTS_Tier_NeedAnticipator>需求预判者</LTS_Tier_NeedAnticipator>
+  <LTS_Tier_NeedForecaster>需求预测者</LTS_Tier_NeedForecaster>
+  <LTS_Tier_HealthAware>健康意识</LTS_Tier_HealthAware>
+  <LTS_Tier_MedicineMatcher>药物匹配者</LTS_Tier_MedicineMatcher>
+  <LTS_Tier_ComfortOptimizer>舒适优化者</LTS_Tier_ComfortOptimizer>
+  <LTS_Tier_MoodManager>心情管理者</LTS_Tier_MoodManager>
+  <LTS_Tier_SurvivalExpert>生存专家</LTS_Tier_SurvivalExpert>
+  <LTS_Tier_CalmingPresence>安抚之力</LTS_Tier_CalmingPresence>
+
+  <!-- Ability Descriptions (key pattern: LTS_Ability_{StatType}_{Level}) -->
+  <!-- Hauling Sense -->
+  <LTS_Ability_HaulingSense_1>额外拾取1件附近同类物品</LTS_Ability_HaulingSense_1>
+  <LTS_Ability_HaulingSense_2>额外拾取最多2件物品，搜索范围更大</LTS_Ability_HaulingSense_2>
+  <LTS_Ability_HaulingSense_3>拾取前往同一仓库的不同类型物品</LTS_Ability_HaulingSense_3>
+  <LTS_Ability_HaulingSense_4>利用背包进行多物品搬运</LTS_Ability_HaulingSense_4>
+  <LTS_Ability_HaulingSense_5>优先选择距离较近的搬运任务</LTS_Ability_HaulingSense_5>
+  <LTS_Ability_HaulingSense_6>更强的就近搬运偏好</LTS_Ability_HaulingSense_6>
+  <LTS_Ability_HaulingSense_7>优先搬运易腐物品</LTS_Ability_HaulingSense_7>
+  <LTS_Ability_HaulingSense_8>按目标仓库分组搬运物品</LTS_Ability_HaulingSense_8>
+  <LTS_Ability_HaulingSense_9>高效规划回程路线</LTS_Ability_HaulingSense_9>
+  <LTS_Ability_HaulingSense_10>避免搬运其他人正在处理的物品</LTS_Ability_HaulingSense_10>
+  <LTS_Ability_HaulingSense_11>将物品放置在仓库最佳位置</LTS_Ability_HaulingSense_11>
+  <LTS_Ability_HaulingSense_12>前往其他工作途中顺路拾取物品</LTS_Ability_HaulingSense_12>
+  <LTS_Ability_HaulingSense_13>优先搬运建筑材料</LTS_Ability_HaulingSense_13>
+  <LTS_Ability_HaulingSense_14>提前将材料运至建造工地</LTS_Ability_HaulingSense_14>
+  <LTS_Ability_HaulingSense_15>检测已满仓库，改投其他仓库</LTS_Ability_HaulingSense_15>
+  <LTS_Ability_HaulingSense_16>与附近搬运工协调配合</LTS_Ability_HaulingSense_16>
+  <LTS_Ability_HaulingSense_17>规划多站点取送路线</LTS_Ability_HaulingSense_17>
+  <LTS_Ability_HaulingSense_18>根据负重上限优化批量搬运</LTS_Ability_HaulingSense_18>
+  <LTS_Ability_HaulingSense_19>近乎完美的路线优化</LTS_Ability_HaulingSense_19>
+  <LTS_Ability_HaulingSense_20>指导附近小人（+25%搬运经验）</LTS_Ability_HaulingSense_20>
+
+  <!-- Work Awareness -->
+  <LTS_Ability_WorkAwareness_1>完成工作后检查附近同类任务</LTS_Ability_WorkAwareness_1>
+  <LTS_Ability_WorkAwareness_2>更大的本地工作扫描范围</LTS_Ability_WorkAwareness_2>
+  <LTS_Ability_WorkAwareness_3>考虑附近不同类型的工作</LTS_Ability_WorkAwareness_3>
+  <LTS_Ability_WorkAwareness_4>烹饪前先打扫区域</LTS_Ability_WorkAwareness_4>
+  <LTS_Ability_WorkAwareness_5>所有精密工作前先打扫</LTS_Ability_WorkAwareness_5>
+  <LTS_Ability_WorkAwareness_6>一次性收集所有原料</LTS_Ability_WorkAwareness_6>
+  <LTS_Ability_WorkAwareness_7>出发工作前准备好工具</LTS_Ability_WorkAwareness_7>
+  <LTS_Ability_WorkAwareness_8>将相关任务串联执行</LTS_Ability_WorkAwareness_8>
+  <LTS_Ability_WorkAwareness_9>开始长时间任务前检查需求</LTS_Ability_WorkAwareness_9>
+  <LTS_Ability_WorkAwareness_10>恶劣天气时优先室内工作</LTS_Ability_WorkAwareness_10>
+  <LTS_Ability_WorkAwareness_11>更快响应紧急任务</LTS_Ability_WorkAwareness_11>
+  <LTS_Ability_WorkAwareness_12>记住常用工作台（+3%速度）</LTS_Ability_WorkAwareness_12>
+  <LTS_Ability_WorkAwareness_13>制作前检查原料库存</LTS_Ability_WorkAwareness_13>
+  <LTS_Ability_WorkAwareness_14>优先完成阻塞其他人工作的任务</LTS_Ability_WorkAwareness_14>
+  <LTS_Ability_WorkAwareness_15>略微偏好与热情匹配的工作</LTS_Ability_WorkAwareness_15>
+  <LTS_Ability_WorkAwareness_16>将相似任务批量处理</LTS_Ability_WorkAwareness_16>
+  <LTS_Ability_WorkAwareness_17>在物资耗尽前开始烹饪/制作</LTS_Ability_WorkAwareness_17>
+  <LTS_Ability_WorkAwareness_18>避免与其他工人重复劳动</LTS_Ability_WorkAwareness_18>
+  <LTS_Ability_WorkAwareness_19>近乎完美的任务选择效率</LTS_Ability_WorkAwareness_19>
+  <LTS_Ability_WorkAwareness_20>指导附近小人（+25%工作经验，+8%工作台速度）</LTS_Ability_WorkAwareness_20>
+
+  <!-- Path Memory -->
+  <LTS_Ability_PathMemory_1>略微偏好熟悉的路径</LTS_Ability_PathMemory_1>
+  <LTS_Ability_PathMemory_2>更强的熟悉路径偏好</LTS_Ability_PathMemory_2>
+  <LTS_Ability_PathMemory_3>记住门的位置</LTS_Ability_PathMemory_3>
+  <LTS_Ability_PathMemory_4>发现常去地点之间的捷径</LTS_Ability_PathMemory_4>
+  <LTS_Ability_PathMemory_5>避免穿过他人卧室</LTS_Ability_PathMemory_5>
+  <LTS_Ability_PathMemory_6>避免穿过医院和囚室</LTS_Ability_PathMemory_6>
+  <LTS_Ability_PathMemory_7>避免穿过王座室和实验室</LTS_Ability_PathMemory_7>
+  <LTS_Ability_PathMemory_8>记住危险位置</LTS_Ability_PathMemory_8>
+  <LTS_Ability_PathMemory_9>偏好在铺设地板上行走</LTS_Ability_PathMemory_9>
+  <LTS_Ability_PathMemory_10>避开泥地和浅水区</LTS_Ability_PathMemory_10>
+  <LTS_Ability_PathMemory_11>更高效地使用门</LTS_Ability_PathMemory_11>
+  <LTS_Ability_PathMemory_12>恶劣天气时偏好有屋顶的路径</LTS_Ability_PathMemory_12>
+  <LTS_Ability_PathMemory_13>避开动物休息区</LTS_Ability_PathMemory_13>
+  <LTS_Ability_PathMemory_14>调整路线以增加社交互动机会</LTS_Ability_PathMemory_14>
+  <LTS_Ability_PathMemory_15>避开正在使用的工作区</LTS_Ability_PathMemory_15>
+  <LTS_Ability_PathMemory_16>与附近殖民者分享路径知识</LTS_Ability_PathMemory_16>
+  <LTS_Ability_PathMemory_17>始终选择最快路径，而非最短</LTS_Ability_PathMemory_17>
+  <LTS_Ability_PathMemory_18>预判门口通行流量，避免拥堵</LTS_Ability_PathMemory_18>
+  <LTS_Ability_PathMemory_19>所有情况下近乎完美的路线规划</LTS_Ability_PathMemory_19>
+  <LTS_Ability_PathMemory_20>向全殖民地分享路径知识（+25%经验）</LTS_Ability_PathMemory_20>
+
+  <!-- Combat Instinct -->
+  <LTS_Ability_CombatInstinct_1>更快离开火焰和毒气区域</LTS_Ability_CombatInstinct_1>
+  <LTS_Ability_CombatInstinct_2>躲避手榴弹和迫击炮弹</LTS_Ability_CombatInstinct_2>
+  <LTS_Ability_CombatInstinct_3>被射击时寻找附近掩体</LTS_Ability_CombatInstinct_3>
+  <LTS_Ability_CombatInstinct_4>评估掩体质量，偏好全掩体</LTS_Ability_CombatInstinct_4>
+  <LTS_Ability_CombatInstinct_5>友方直接在射线上时不开火</LTS_Ability_CombatInstinct_5>
+  <LTS_Ability_CombatInstinct_6>更广的友军误伤感知范围</LTS_Ability_CombatInstinct_6>
+  <LTS_Ability_CombatInstinct_7>完全避免友军误伤，移位获取清晰射界</LTS_Ability_CombatInstinct_7>
+  <LTS_Ability_CombatInstinct_8>优先攻击破墙者、冲锋者，其次最近威胁</LTS_Ability_CombatInstinct_8>
+  <LTS_Ability_CombatInstinct_9>生命值低于40%时后撤</LTS_Ability_CombatInstinct_9>
+  <LTS_Ability_CombatInstinct_10>战斗间隙转移至更好的掩体</LTS_Ability_CombatInstinct_10>
+  <LTS_Ability_CombatInstinct_11>识别最危险的敌人</LTS_Ability_CombatInstinct_11>
+  <LTS_Ability_CombatInstinct_12>生命值低于25%自动撤退，平民自动逃离</LTS_Ability_CombatInstinct_12>
+  <LTS_Ability_CombatInstinct_13>保持间距以避免范围伤害</LTS_Ability_CombatInstinct_13>
+  <LTS_Ability_CombatInstinct_14>近战为远程挡枪，远程保持最佳射程</LTS_Ability_CombatInstinct_14>
+  <LTS_Ability_CombatInstinct_15>与友军集火同一目标</LTS_Ability_CombatInstinct_15>
+  <LTS_Ability_CombatInstinct_16>协同压制推进中的敌人</LTS_Ability_CombatInstinct_16>
+  <LTS_Ability_CombatInstinct_17>从多角度实施侧翼包抄</LTS_Ability_CombatInstinct_17>
+  <LTS_Ability_CombatInstinct_18>移动至当前武器的最佳射程</LTS_Ability_CombatInstinct_18>
+  <LTS_Ability_CombatInstinct_19>完整的战场感知能力</LTS_Ability_CombatInstinct_19>
+  <LTS_Ability_CombatInstinct_20>指挥附近小人（+3战斗本能，+5%闪避）</LTS_Ability_CombatInstinct_20>
+
+  <!-- Self-Preservation -->
+  <LTS_Ability_SelfPreservation_1>偏好熟食而非生食</LTS_Ability_SelfPreservation_1>
+  <LTS_Ability_SelfPreservation_2>更大范围搜索熟食</LTS_Ability_SelfPreservation_2>
+  <LTS_Ability_SelfPreservation_3>有条件时选择更高品质的食物</LTS_Ability_SelfPreservation_3>
+  <LTS_Ability_SelfPreservation_4>在餐桌旁进食以避免心情减益</LTS_Ability_SelfPreservation_4>
+  <LTS_Ability_SelfPreservation_5>在饥饿变得严重前开始进食</LTS_Ability_SelfPreservation_5>
+  <LTS_Ability_SelfPreservation_6>在筋疲力尽前寻找床铺</LTS_Ability_SelfPreservation_6>
+  <LTS_Ability_SelfPreservation_7>选择最近的娱乐设施</LTS_Ability_SelfPreservation_7>
+  <LTS_Ability_SelfPreservation_8>规划活动顺序以满足多项需求</LTS_Ability_SelfPreservation_8>
+  <LTS_Ability_SelfPreservation_9>更早自行处理伤口</LTS_Ability_SelfPreservation_9>
+  <LTS_Ability_SelfPreservation_10>自我治疗前先寻找药柜</LTS_Ability_SelfPreservation_10>
+  <LTS_Ability_SelfPreservation_11>避免食用变质和不安全的食物</LTS_Ability_SelfPreservation_11>
+  <LTS_Ability_SelfPreservation_12>根据伤势严重程度使用相应药物</LTS_Ability_SelfPreservation_12>
+  <LTS_Ability_SelfPreservation_13>寻求多样化娱乐以获得最大愉悦</LTS_Ability_SelfPreservation_13>
+  <LTS_Ability_SelfPreservation_14>社交需求低时选择社交娱乐</LTS_Ability_SelfPreservation_14>
+  <LTS_Ability_SelfPreservation_15>极端温度来临前寻找庇护</LTS_Ability_SelfPreservation_15>
+  <LTS_Ability_SelfPreservation_16>接近崩溃阈值时主动管理心情</LTS_Ability_SelfPreservation_16>
+  <LTS_Ability_SelfPreservation_17>智能管理药物摄入</LTS_Ability_SelfPreservation_17>
+  <LTS_Ability_SelfPreservation_18>始终选择营养和心情最优的食物</LTS_Ability_SelfPreservation_18>
+  <LTS_Ability_SelfPreservation_19>满足需求几乎不浪费时间</LTS_Ability_SelfPreservation_19>
+  <LTS_Ability_SelfPreservation_20>安抚之力：附近小人+3心情（+25%经验）</LTS_Ability_SelfPreservation_20>
+
+  <!-- Messages -->
+  <LTS_LevelUpMessage>{0}学会了{1}等级{2}</LTS_LevelUpMessage>
+  <LTS_WoundedRetreat>{0}因伤势过重正在撤退！</LTS_WoundedRetreat>
+  <LTS_BookWritten>{0}完成了《{1}》的写作</LTS_BookWritten>
+  <LTS_BookInspect>主题: {0}\n作者: {1}\n品质: {2}\n每次阅读经验: {3}</LTS_BookInspect>
+
+  <!-- Settings -->
+  <LTS_Settings_StatToggles>智能属性</LTS_Settings_StatToggles>
+  <LTS_Settings_XPMultiplier>经验倍率</LTS_Settings_XPMultiplier>
+  <LTS_Settings_ShowLevelUp>显示升级消息</LTS_Settings_ShowLevelUp>
+  <LTS_Settings_LogLevel>决策日志</LTS_Settings_LogLevel>
+  <LTS_LogLevel_Off>关闭</LTS_LogLevel_Off>
+  <LTS_LogLevel_Summary>摘要（仅升级）</LTS_LogLevel_Summary>
+  <LTS_LogLevel_Decisions>决策（所有AI选择）</LTS_LogLevel_Decisions>
+  <LTS_LogLevel_Verbose>详细（经验刷新、缓存统计）</LTS_LogLevel_Verbose>
+  <LTS_Settings_Compatibility>模组兼容性</LTS_Settings_Compatibility>
+  <LTS_Settings_RespectPUAH>让Pick Up And Haul处理搬运（跳过本模组搬运补丁）</LTS_Settings_RespectPUAH>
+  <LTS_Settings_RespectCS>让Common Sense处理清洁（跳过本模组预清洁补丁）</LTS_Settings_RespectCS>
+
+</LanguageData>
