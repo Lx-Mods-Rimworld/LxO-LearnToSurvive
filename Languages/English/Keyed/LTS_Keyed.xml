@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+
+  <!-- Stat Names -->
+  <LTS_HaulingSense>Hauling Sense</LTS_HaulingSense>
+  <LTS_WorkAwareness>Work Awareness</LTS_WorkAwareness>
+  <LTS_PathMemory>Path Memory</LTS_PathMemory>
+  <LTS_CombatInstinct>Combat Instinct</LTS_CombatInstinct>
+  <LTS_SelfPreservation>Self-Preservation</LTS_SelfPreservation>
+
+  <!-- Tab -->
+  <LTS_Tab_Intelligence>Intelligence</LTS_Tab_Intelligence>
+  <LTS_Tab_Title>Colonist Intelligence</LTS_Tab_Title>
+  <LTS_Mastered>MASTERED</LTS_Mastered>
+  <LTS_NextUnlock>Next (Lv {0})</LTS_NextUnlock>
+  <LTS_TraitModifiers>Learning Rate Modifiers:</LTS_TraitModifiers>
+  <LTS_InspectString>Avg. Intelligence: {0}</LTS_InspectString>
+
+  <!-- Tier Names -->
+  <LTS_Tier_Untrained>Untrained</LTS_Tier_Untrained>
+  <LTS_Tier_StackCollector>Stack Collector</LTS_Tier_StackCollector>
+  <LTS_Tier_InventoryHauler>Inventory Hauler</LTS_Tier_InventoryHauler>
+  <LTS_Tier_ProximityHauler>Proximity Hauler</LTS_Tier_ProximityHauler>
+  <LTS_Tier_RoutePlanner>Route Planner</LTS_Tier_RoutePlanner>
+  <LTS_Tier_EfficientHauler>Efficient Hauler</LTS_Tier_EfficientHauler>
+  <LTS_Tier_Opportunist>Opportunist</LTS_Tier_Opportunist>
+  <LTS_Tier_LogisticsExpert>Logistics Expert</LTS_Tier_LogisticsExpert>
+  <LTS_Tier_TeamCoordinator>Team Coordinator</LTS_Tier_TeamCoordinator>
+  <LTS_Tier_SupplyMaster>Supply Master</LTS_Tier_SupplyMaster>
+  <LTS_Tier_HaulingMentor>Hauling Mentor</LTS_Tier_HaulingMentor>
+  <LTS_Tier_LocalWorker>Local Worker</LTS_Tier_LocalWorker>
+  <LTS_Tier_TidyWorker>Tidy Worker</LTS_Tier_TidyWorker>
+  <LTS_Tier_PreparedWorker>Prepared Worker</LTS_Tier_PreparedWorker>
+  <LTS_Tier_TaskChainer>Task Chainer</LTS_Tier_TaskChainer>
+  <LTS_Tier_SmartWorker>Smart Worker</LTS_Tier_SmartWorker>
+  <LTS_Tier_StationExpert>Station Expert</LTS_Tier_StationExpert>
+  <LTS_Tier_EfficiencyExpert>Efficiency Expert</LTS_Tier_EfficiencyExpert>
+  <LTS_Tier_WorkflowMaster>Workflow Master</LTS_Tier_WorkflowMaster>
+  <LTS_Tier_ColonyBackbone>Colony Backbone</LTS_Tier_ColonyBackbone>
+  <LTS_Tier_WorkMentor>Work Mentor</LTS_Tier_WorkMentor>
+  <LTS_Tier_PathLearner>Path Learner</LTS_Tier_PathLearner>
+  <LTS_Tier_ShortcutFinder>Shortcut Finder</LTS_Tier_ShortcutFinder>
+  <LTS_Tier_RoomRespecter>Room Respecter</LTS_Tier_RoomRespecter>
+  <LTS_Tier_DangerMapper>Danger Mapper</LTS_Tier_DangerMapper>
+  <LTS_Tier_TerrainReader>Terrain Reader</LTS_Tier_TerrainReader>
+  <LTS_Tier_WeatherRouter>Weather Router</LTS_Tier_WeatherRouter>
+  <LTS_Tier_SocialNavigator>Social Navigator</LTS_Tier_SocialNavigator>
+  <LTS_Tier_KnowledgeSharer>Knowledge Sharer</LTS_Tier_KnowledgeSharer>
+  <LTS_Tier_RouteMaster>Route Master</LTS_Tier_RouteMaster>
+  <LTS_Tier_NavigationMentor>Navigation Mentor</LTS_Tier_NavigationMentor>
+  <LTS_Tier_HazardAware>Hazard Aware</LTS_Tier_HazardAware>
+  <LTS_Tier_CoverSeeker>Cover Seeker</LTS_Tier_CoverSeeker>
+  <LTS_Tier_FireDisciplined>Fire Disciplined</LTS_Tier_FireDisciplined>
+  <LTS_Tier_TargetPrioritizer>Target Prioritizer</LTS_Tier_TargetPrioritizer>
+  <LTS_Tier_TacticallyAware>Tactically Aware</LTS_Tier_TacticallyAware>
+  <LTS_Tier_CombatRetreater>Combat Retreater</LTS_Tier_CombatRetreater>
+  <LTS_Tier_SquadFighter>Squad Fighter</LTS_Tier_SquadFighter>
+  <LTS_Tier_Suppressor>Suppressor</LTS_Tier_Suppressor>
+  <LTS_Tier_BattlefieldVet>Battlefield Veteran</LTS_Tier_BattlefieldVet>
+  <LTS_Tier_CombatCommander>Combat Commander</LTS_Tier_CombatCommander>
+  <LTS_Tier_FoodAware>Food Aware</LTS_Tier_FoodAware>
+  <LTS_Tier_TableSeeker>Table Seeker</LTS_Tier_TableSeeker>
+  <LTS_Tier_NeedAnticipator>Need Anticipator</LTS_Tier_NeedAnticipator>
+  <LTS_Tier_NeedForecaster>Need Forecaster</LTS_Tier_NeedForecaster>
+  <LTS_Tier_HealthAware>Health Aware</LTS_Tier_HealthAware>
+  <LTS_Tier_MedicineMatcher>Medicine Matcher</LTS_Tier_MedicineMatcher>
+  <LTS_Tier_ComfortOptimizer>Comfort Optimizer</LTS_Tier_ComfortOptimizer>
+  <LTS_Tier_MoodManager>Mood Manager</LTS_Tier_MoodManager>
+  <LTS_Tier_SurvivalExpert>Survival Expert</LTS_Tier_SurvivalExpert>
+  <LTS_Tier_CalmingPresence>Calming Presence</LTS_Tier_CalmingPresence>
+
+  <!-- Ability Descriptions (key pattern: LTS_Ability_{StatType}_{Level}) -->
+  <!-- Hauling Sense -->
+  <LTS_Ability_HaulingSense_1>Grabs 1 extra nearby item of same type</LTS_Ability_HaulingSense_1>
+  <LTS_Ability_HaulingSense_2>Grabs up to 2 extra items, wider radius</LTS_Ability_HaulingSense_2>
+  <LTS_Ability_HaulingSense_3>Grabs mixed item types going to same stockpile</LTS_Ability_HaulingSense_3>
+  <LTS_Ability_HaulingSense_4>Uses inventory for multi-item hauling</LTS_Ability_HaulingSense_4>
+  <LTS_Ability_HaulingSense_5>Prefers closer hauling jobs</LTS_Ability_HaulingSense_5>
+  <LTS_Ability_HaulingSense_6>Stronger proximity preference</LTS_Ability_HaulingSense_6>
+  <LTS_Ability_HaulingSense_7>Prioritizes perishable items</LTS_Ability_HaulingSense_7>
+  <LTS_Ability_HaulingSense_8>Groups items by destination stockpile</LTS_Ability_HaulingSense_8>
+  <LTS_Ability_HaulingSense_9>Plans return trips efficiently</LTS_Ability_HaulingSense_9>
+  <LTS_Ability_HaulingSense_10>Avoids items other haulers are targeting</LTS_Ability_HaulingSense_10>
+  <LTS_Ability_HaulingSense_11>Drops items at optimal stockpile positions</LTS_Ability_HaulingSense_11>
+  <LTS_Ability_HaulingSense_12>Picks up items along path to other jobs</LTS_Ability_HaulingSense_12>
+  <LTS_Ability_HaulingSense_13>Prioritizes construction materials</LTS_Ability_HaulingSense_13>
+  <LTS_Ability_HaulingSense_14>Pre-stages materials at build sites</LTS_Ability_HaulingSense_14>
+  <LTS_Ability_HaulingSense_15>Detects full stockpiles, routes to alternatives</LTS_Ability_HaulingSense_15>
+  <LTS_Ability_HaulingSense_16>Coordinates with nearby haulers</LTS_Ability_HaulingSense_16>
+  <LTS_Ability_HaulingSense_17>Plans multi-stop pickup and dropoff routes</LTS_Ability_HaulingSense_17>
+  <LTS_Ability_HaulingSense_18>Optimizes batch sizes for carry capacity</LTS_Ability_HaulingSense_18>
+  <LTS_Ability_HaulingSense_19>Near-perfect route optimization</LTS_Ability_HaulingSense_19>
+  <LTS_Ability_HaulingSense_20>Mentors nearby pawns (+25% hauling XP)</LTS_Ability_HaulingSense_20>
+
+  <!-- Work Awareness -->
+  <LTS_Ability_WorkAwareness_1>Checks nearby for same-type work after finishing</LTS_Ability_WorkAwareness_1>
+  <LTS_Ability_WorkAwareness_2>Wider local work scan radius</LTS_Ability_WorkAwareness_2>
+  <LTS_Ability_WorkAwareness_3>Considers different work types nearby</LTS_Ability_WorkAwareness_3>
+  <LTS_Ability_WorkAwareness_4>Cleans area before cooking</LTS_Ability_WorkAwareness_4>
+  <LTS_Ability_WorkAwareness_5>Cleans before all precision work</LTS_Ability_WorkAwareness_5>
+  <LTS_Ability_WorkAwareness_6>Gathers all ingredients in one trip</LTS_Ability_WorkAwareness_6>
+  <LTS_Ability_WorkAwareness_7>Prepares tools before heading to work</LTS_Ability_WorkAwareness_7>
+  <LTS_Ability_WorkAwareness_8>Chains related tasks together</LTS_Ability_WorkAwareness_8>
+  <LTS_Ability_WorkAwareness_9>Checks needs before starting long tasks</LTS_Ability_WorkAwareness_9>
+  <LTS_Ability_WorkAwareness_10>Prefers indoor work in bad weather</LTS_Ability_WorkAwareness_10>
+  <LTS_Ability_WorkAwareness_11>Responds faster to urgent tasks</LTS_Ability_WorkAwareness_11>
+  <LTS_Ability_WorkAwareness_12>Remembers preferred workstation (+3% speed)</LTS_Ability_WorkAwareness_12>
+  <LTS_Ability_WorkAwareness_13>Checks ingredient supply before crafting</LTS_Ability_WorkAwareness_13>
+  <LTS_Ability_WorkAwareness_14>Prioritizes work that unblocks others</LTS_Ability_WorkAwareness_14>
+  <LTS_Ability_WorkAwareness_15>Slightly prefers passion-matching work</LTS_Ability_WorkAwareness_15>
+  <LTS_Ability_WorkAwareness_16>Batches similar tasks together</LTS_Ability_WorkAwareness_16>
+  <LTS_Ability_WorkAwareness_17>Starts cooking/crafting before supplies run out</LTS_Ability_WorkAwareness_17>
+  <LTS_Ability_WorkAwareness_18>Avoids duplicating other workers' efforts</LTS_Ability_WorkAwareness_18>
+  <LTS_Ability_WorkAwareness_19>Near-perfect task selection efficiency</LTS_Ability_WorkAwareness_19>
+  <LTS_Ability_WorkAwareness_20>Mentors nearby pawns (+25% work XP, +8% station speed)</LTS_Ability_WorkAwareness_20>
+
+  <!-- Path Memory -->
+  <LTS_Ability_PathMemory_1>Slightly prefers familiar paths</LTS_Ability_PathMemory_1>
+  <LTS_Ability_PathMemory_2>Stronger familiarity preference</LTS_Ability_PathMemory_2>
+  <LTS_Ability_PathMemory_3>Remembers door positions</LTS_Ability_PathMemory_3>
+  <LTS_Ability_PathMemory_4>Discovers shortcuts between frequent locations</LTS_Ability_PathMemory_4>
+  <LTS_Ability_PathMemory_5>Avoids walking through others' bedrooms</LTS_Ability_PathMemory_5>
+  <LTS_Ability_PathMemory_6>Avoids hospitals and prison cells</LTS_Ability_PathMemory_6>
+  <LTS_Ability_PathMemory_7>Avoids throne rooms and laboratories</LTS_Ability_PathMemory_7>
+  <LTS_Ability_PathMemory_8>Remembers dangerous locations</LTS_Ability_PathMemory_8>
+  <LTS_Ability_PathMemory_9>Prefers walking on constructed floors</LTS_Ability_PathMemory_9>
+  <LTS_Ability_PathMemory_10>Avoids mud and shallow water</LTS_Ability_PathMemory_10>
+  <LTS_Ability_PathMemory_11>Uses doors more efficiently</LTS_Ability_PathMemory_11>
+  <LTS_Ability_PathMemory_12>Prefers roofed paths in bad weather</LTS_Ability_PathMemory_12>
+  <LTS_Ability_PathMemory_13>Avoids animal sleeping areas</LTS_Ability_PathMemory_13>
+  <LTS_Ability_PathMemory_14>Adjusts path for social interaction chance</LTS_Ability_PathMemory_14>
+  <LTS_Ability_PathMemory_15>Avoids active work zones</LTS_Ability_PathMemory_15>
+  <LTS_Ability_PathMemory_16>Shares path knowledge with nearby colonists</LTS_Ability_PathMemory_16>
+  <LTS_Ability_PathMemory_17>Always picks the fastest path, not just shortest</LTS_Ability_PathMemory_17>
+  <LTS_Ability_PathMemory_18>Anticipates door traffic, avoids congestion</LTS_Ability_PathMemory_18>
+  <LTS_Ability_PathMemory_19>Near-perfect routing in all situations</LTS_Ability_PathMemory_19>
+  <LTS_Ability_PathMemory_20>Shares all path knowledge colony-wide (+25% XP)</LTS_Ability_PathMemory_20>
+
+  <!-- Combat Instinct -->
+  <LTS_Ability_CombatInstinct_1>Moves out of fire and gas faster</LTS_Ability_CombatInstinct_1>
+  <LTS_Ability_CombatInstinct_2>Dodges grenades and mortar shells</LTS_Ability_CombatInstinct_2>
+  <LTS_Ability_CombatInstinct_3>Seeks nearby cover when under fire</LTS_Ability_CombatInstinct_3>
+  <LTS_Ability_CombatInstinct_4>Evaluates cover quality, prefers full cover</LTS_Ability_CombatInstinct_4>
+  <LTS_Ability_CombatInstinct_5>Won't fire if ally is directly in the line</LTS_Ability_CombatInstinct_5>
+  <LTS_Ability_CombatInstinct_6>Wider friendly fire awareness</LTS_Ability_CombatInstinct_6>
+  <LTS_Ability_CombatInstinct_7>Full friendly fire avoidance, repositions for clear shot</LTS_Ability_CombatInstinct_7>
+  <LTS_Ability_CombatInstinct_8>Prioritizes breachers, chargers, then closest threats</LTS_Ability_CombatInstinct_8>
+  <LTS_Ability_CombatInstinct_9>Falls back when below 40% health</LTS_Ability_CombatInstinct_9>
+  <LTS_Ability_CombatInstinct_10>Repositions to better cover during lulls</LTS_Ability_CombatInstinct_10>
+  <LTS_Ability_CombatInstinct_11>Identifies most dangerous enemies</LTS_Ability_CombatInstinct_11>
+  <LTS_Ability_CombatInstinct_12>Auto-retreats below 25% health, civilians auto-flee</LTS_Ability_CombatInstinct_12>
+  <LTS_Ability_CombatInstinct_13>Maintains spacing to avoid area damage</LTS_Ability_CombatInstinct_13>
+  <LTS_Ability_CombatInstinct_14>Melee shields ranged, ranged stays at optimal range</LTS_Ability_CombatInstinct_14>
+  <LTS_Ability_CombatInstinct_15>Coordinates fire with allies on same target</LTS_Ability_CombatInstinct_15>
+  <LTS_Ability_CombatInstinct_16>Groups suppress advancing enemies</LTS_Ability_CombatInstinct_16>
+  <LTS_Ability_CombatInstinct_17>Flanks from multiple angles</LTS_Ability_CombatInstinct_17>
+  <LTS_Ability_CombatInstinct_18>Moves to optimal range for equipped weapon</LTS_Ability_CombatInstinct_18>
+  <LTS_Ability_CombatInstinct_19>Full battlefield awareness</LTS_Ability_CombatInstinct_19>
+  <LTS_Ability_CombatInstinct_20>Commands nearby pawns (+3 Combat Instinct, +5% dodge)</LTS_Ability_CombatInstinct_20>
+
+  <!-- Self-Preservation -->
+  <LTS_Ability_SelfPreservation_1>Prefers cooked meals over raw food</LTS_Ability_SelfPreservation_1>
+  <LTS_Ability_SelfPreservation_2>Searches wider for cooked meals</LTS_Ability_SelfPreservation_2>
+  <LTS_Ability_SelfPreservation_3>Seeks higher quality food when available</LTS_Ability_SelfPreservation_3>
+  <LTS_Ability_SelfPreservation_4>Plans meals near tables to avoid debuff</LTS_Ability_SelfPreservation_4>
+  <LTS_Ability_SelfPreservation_5>Starts eating before hunger becomes critical</LTS_Ability_SelfPreservation_5>
+  <LTS_Ability_SelfPreservation_6>Seeks bed before exhaustion hits</LTS_Ability_SelfPreservation_6>
+  <LTS_Ability_SelfPreservation_7>Picks nearest recreation source</LTS_Ability_SelfPreservation_7>
+  <LTS_Ability_SelfPreservation_8>Plans activity sequences for multiple needs</LTS_Ability_SelfPreservation_8>
+  <LTS_Ability_SelfPreservation_9>Self-tends wounds sooner</LTS_Ability_SelfPreservation_9>
+  <LTS_Ability_SelfPreservation_10>Seeks medicine cabinet before self-tending</LTS_Ability_SelfPreservation_10>
+  <LTS_Ability_SelfPreservation_11>Avoids spoiled and unsafe food</LTS_Ability_SelfPreservation_11>
+  <LTS_Ability_SelfPreservation_12>Uses appropriate medicine for wound severity</LTS_Ability_SelfPreservation_12>
+  <LTS_Ability_SelfPreservation_13>Seeks recreation variety for maximum joy</LTS_Ability_SelfPreservation_13>
+  <LTS_Ability_SelfPreservation_14>Social recreation when social need is low</LTS_Ability_SelfPreservation_14>
+  <LTS_Ability_SelfPreservation_15>Seeks shelter before temperature extremes</LTS_Ability_SelfPreservation_15>
+  <LTS_Ability_SelfPreservation_16>Proactively manages mood near break threshold</LTS_Ability_SelfPreservation_16>
+  <LTS_Ability_SelfPreservation_17>Manages drug intake intelligently</LTS_Ability_SelfPreservation_17>
+  <LTS_Ability_SelfPreservation_18>Always picks optimal meal for nutrition and mood</LTS_Ability_SelfPreservation_18>
+  <LTS_Ability_SelfPreservation_19>Near-zero time wasted on need satisfaction</LTS_Ability_SelfPreservation_19>
+  <LTS_Ability_SelfPreservation_20>Calming presence: nearby pawns gain +3 mood (+25% XP)</LTS_Ability_SelfPreservation_20>
+
+  <!-- Messages -->
+  <LTS_LevelUpMessage>{0} learned {1} level {2}</LTS_LevelUpMessage>
+  <LTS_WoundedRetreat>{0} is retreating due to injuries!</LTS_WoundedRetreat>
+  <LTS_BookWritten>{0} finished writing "{1}"</LTS_BookWritten>
+  <LTS_BookInspect>Topic: {0}\nAuthor: {1}\nQuality: {2}\nXP per read: {3}</LTS_BookInspect>
+
+  <!-- Settings -->
+  <LTS_Settings_StatToggles>Intelligence Stats</LTS_Settings_StatToggles>
+  <LTS_Settings_XPMultiplier>XP Rate Multiplier</LTS_Settings_XPMultiplier>
+  <LTS_Settings_ShowLevelUp>Show level-up messages</LTS_Settings_ShowLevelUp>
+  <LTS_Settings_LogLevel>Decision Logging</LTS_Settings_LogLevel>
+  <LTS_LogLevel_Off>Off</LTS_LogLevel_Off>
+  <LTS_LogLevel_Summary>Summary (level-ups only)</LTS_LogLevel_Summary>
+  <LTS_LogLevel_Decisions>Decisions (all AI choices)</LTS_LogLevel_Decisions>
+  <LTS_LogLevel_Verbose>Verbose (XP ticks, cache stats)</LTS_LogLevel_Verbose>
+  <LTS_Settings_Compatibility>Mod Compatibility</LTS_Settings_Compatibility>
+  <LTS_Settings_RespectPUAH>Let Pick Up And Haul handle hauling (skip our hauling patches)</LTS_Settings_RespectPUAH>
+  <LTS_Settings_RespectCS>Let Common Sense handle cleaning (skip our pre-clean patches)</LTS_Settings_RespectCS>
+
+</LanguageData>

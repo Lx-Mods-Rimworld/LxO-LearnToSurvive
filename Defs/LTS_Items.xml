@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <ThingDef ParentName="ResourceBase">
+    <defName>LTS_Book</defName>
+    <label>intelligence book</label>
+    <description>A handwritten book containing practical knowledge about colony life. Reading it provides both joy and learning. Written by an experienced colonist who mastered one of the five intelligence disciplines.</description>
+    <graphicData>
+      <texPath>Things/Item/Resource/Shell/Shell_EMP</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+    <resourceReadoutPriority>Middle</resourceReadoutPriority>
+    <soundInteract>Standard_Drop</soundInteract>
+    <soundDrop>Standard_Drop</soundDrop>
+    <statBases>
+      <MaxHitPoints>100</MaxHitPoints>
+      <MarketValue>50</MarketValue>
+      <Mass>0.3</Mass>
+      <Flammability>1.0</Flammability>
+      <DeteriorationRate>0.5</DeteriorationRate>
+      <Beauty>2</Beauty>
+    </statBases>
+    <stackLimit>1</stackLimit>
+    <thingCategories>
+      <li>Manufactured</li>
+    </thingCategories>
+    <comps>
+      <li Class="LearnToSurvive.CompProperties_Book" />
+    </comps>
+    <tradeability>Sellable</tradeability>
+  </ThingDef>
+
+</Defs>

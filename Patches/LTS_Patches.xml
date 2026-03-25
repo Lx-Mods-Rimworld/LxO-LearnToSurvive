@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+  <!-- Add CompIntelligence to all humanlike pawns -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/ThingDef[race/intelligence = "Humanlike"]/comps</xpath>
+    <value>
+      <li Class="LearnToSurvive.CompProperties_Intelligence" />
+    </value>
+  </Operation>
+
+  <!-- Tab is added via C# in HarmonyInit to ensure it appears last -->
+
+</Patch>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <ThingDef ParentName="BuildingBase">
+    <defName>LTS_WritingSpot</defName>
+    <label>writing spot</label>
+    <description>A designated spot for writing intelligence books. Only colonists who have mastered a discipline (level 20) can write about it. Place this near a table and chair for comfort.</description>
+    <thingClass>Building_WorkTable</thingClass>
+    <altitudeLayer>FloorEmplacement</altitudeLayer>
+    <passability>Standable</passability>
+    <castEdgeShadows>false</castEdgeShadows>
+    <designationCategory>Production</designationCategory>
+    <graphicData>
+      <texPath>Things/Building/Production/CraftingSpot</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+    <statBases>
+      <MaxHitPoints>20</MaxHitPoints>
+      <WorkToBuild>0</WorkToBuild>
+    </statBases>
+    <scatterableOnMapGen>false</scatterableOnMapGen>
+    <useHitPoints>false</useHitPoints>
+    <size>(1,1)</size>
+    <hasInteractionCell>true</hasInteractionCell>
+    <interactionCellOffset>(0,0,-1)</interactionCellOffset>
+    <surfaceType>Item</surfaceType>
+    <inspectorTabs>
+      <li>ITab_Bills</li>
+    </inspectorTabs>
+    <building>
+      <spawnedConceptLearnOpportunity>BillsTab</spawnedConceptLearnOpportunity>
+      <buildingTags>
+        <li>Production</li>
+      </buildingTags>
+    </building>
+    <placeWorkers>
+      <li>PlaceWorker_PreventInteractionSpotOverlap</li>
+    </placeWorkers>
+    <recipes>
+      <li>LTS_WriteBook_HaulingSense</li>
+      <li>LTS_WriteBook_WorkAwareness</li>
+      <li>LTS_WriteBook_PathMemory</li>
+      <li>LTS_WriteBook_CombatInstinct</li>
+      <li>LTS_WriteBook_SelfPreservation</li>
+    </recipes>
+  </ThingDef>
+
+</Defs>

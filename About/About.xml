@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <name>LxO - Learn to Survive</name>
+  <author>Lexxers</author>
+  <url>https://github.com/Lx-Mods-Rimworld/LxO-LearnToSurvive</url>
+  <supportedVersions>
+    <li>1.6</li>
+  </supportedVersions>
+  <packageId>Lexxers.LearnToSurvive</packageId>
+  <description>Your colonists are no longer static. They learn from experience.
+
+Five new intelligence stats that grow over time as pawns perform activities. Level 0 is vanilla behavior. Each level unlocks smarter decisions -- from batch hauling to tactical combat coordination.
+
+HAULING SENSE - Efficient item transport, multi-item carrying, route optimization
+WORK AWARENESS - Task chaining, pre-cleaning, proximity-aware work selection
+PATH MEMORY - Learned shortcuts, room avoidance, weather routing
+COMBAT INSTINCT - Cover seeking, friendly fire avoidance, tactical coordination
+SELF-PRESERVATION - Smart food choices, need anticipation, medicine matching
+
+Skills never decay. Veteran colonists become irreplaceable. Losing one means losing years of learned intelligence.
+
+Level 20 masters can write books to teach others.
+
+Compatible with Pick Up And Haul, Common Sense, Combat Extended, and most other mods.
+
+Free forever. Donations welcome at ko-fi.com/lexxers</description>
+  <modDependencies>
+    <li>
+      <packageId>brrainz.harmony</packageId>
+      <displayName>Harmony</displayName>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
+    </li>
+  </modDependencies>
+  <loadAfter>
+    <li>brrainz.harmony</li>
+    <li>ludeon.rimworld</li>
+  </loadAfter>
+</ModMetaData>

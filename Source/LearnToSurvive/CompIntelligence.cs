@@ -1,0 +1,318 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using RimWorld;
+using Verse;
+
+namespace LearnToSurvive
+{
+    public class CompProperties_Intelligence : CompProperties
+    {
+        public CompProperties_Intelligence()
+        {
+            compClass = typeof(CompIntelligence);
+        }
+    }
+
+    public class CompIntelligence : ThingComp
+    {
+        private Dictionary<StatType, IntelligenceData> stats = new Dictionary<StatType, IntelligenceData>();
+        private bool initialized;
+
+        // Path memory: track visited cells (region IDs for efficiency)
+        public HashSet<int> visitedRegions = new HashSet<int>();
+
+        // Hauling inventory tracking: thingIDs of items we're hauling in inventory
+        public HashSet<int> haulInventoryItems = new HashSet<int>();
+
+        // Workstation loyalty: defName of preferred workstation -> thingID
+        public Dictionary<string, int> preferredStations = new Dictionary<string, int>();
+
+        // Danger memory: cell indices where this pawn was injured, with tick of injury
+        public Dictionary<int, int> dangerMemory = new Dictionary<int, int>();
+
+        // Book read tracking: bookThingID -> times read by this pawn
+        public Dictionary<int, int> booksReadCount = new Dictionary<int, int>();
+
+        // Path XP accumulator (tiles walked since last XP award)
+        public int tilesWalkedAccumulator;
+
+        // Cached trait modifiers
+        private Dictionary<StatType, float> traitModifierCache;
+        private int traitModifierCacheTick = -1;
+
+        // Tick stagger offset for periodic updates
+        private int tickOffset = -1;
+        private const int TickInterval = 250;
+
+        public Pawn Pawn => (Pawn)parent;
+
+        public override void Initialize(CompProperties props)
+        {
+            base.Initialize(props);
+        }
+
+        private void InitializeStats()
+        {
+            if (initialized) return;
+            initialized = true;
+
+            foreach (StatType type in Enum.GetValues(typeof(StatType)))
+            {
+                if (!stats.ContainsKey(type))
+                {
+                    int startLevel = BackstoryMapper.GetStartingLevel(Pawn, type);
+                    stats[type] = new IntelligenceData(type, startLevel);
+                }
+            }
+        }
+
+        public int GetLevel(StatType type)
+        {
+            if (!initialized) InitializeStats();
+            if (!LTSSettings.IsStatEnabled(type)) return 0;
+            return stats.TryGetValue(type, out var data) ? data.level : 0;
+        }
+
+        public IntelligenceData GetStatData(StatType type)
+        {
+            if (!initialized) InitializeStats();
+            return stats.TryGetValue(type, out var data) ? data : null;
+        }
+
+        public void AddXP(StatType type, float baseAmount, string source = null)
+        {
+            if (!initialized) InitializeStats();
+            if (!LTSSettings.IsStatEnabled(type)) return;
+            if (!stats.TryGetValue(type, out var data)) return;
+            if (data.level >= IntelligenceData.MaxLevel) return;
+
+            float modifier = GetTraitModifier(type);
+            float intellectBonus = 1f + (Pawn.skills?.GetSkill(SkillDefOf.Intellectual)?.Level ?? 0) * 0.02f;
+            float mentorBonus = GetMentorBonus(type);
+
+            float totalXP = baseAmount * LTSSettings.xpMultiplier * modifier * intellectBonus * mentorBonus;
+
+            int oldLevel = data.level;
+            bool leveledUp = data.TryAddXP(totalXP);
+
+            LTSLog.XPGain(Pawn, type, baseAmount, totalXP, data.XPProgress, data.level);
+
+            if (leveledUp)
+            {
+                string tierName = IntelligenceData.GetTierName(type, data.level);
+                LTSLog.LevelUp(Pawn, type, oldLevel, data.level, tierName);
+            }
+        }
+
+        private float GetTraitModifier(StatType type)
+        {
+            int tick = Find.TickManager.TicksGame;
+            if (traitModifierCache == null || tick - traitModifierCacheTick > 2500)
+            {
+                traitModifierCache = TraitModifiers.GetAllModifiers(Pawn);
+                traitModifierCacheTick = tick;
+            }
+            return traitModifierCache.TryGetValue(type, out float mod) ? mod : 1f;
+        }
+
+        private float GetMentorBonus(StatType type)
+        {
+            if (Pawn.Map == null) return 1f;
+
+            float bonus = 1f;
+            foreach (Pawn other in Pawn.Map.mapPawns.FreeColonistsSpawned)
+            {
+                if (other == Pawn) continue;
+                if (other.Position.DistanceTo(Pawn.Position) > 10f) continue;
+
+                var otherComp = other.GetComp<CompIntelligence>();
+                if (otherComp == null) continue;
+
+                int otherLevel = otherComp.GetLevel(type);
+                if (otherLevel >= 20)
+                {
+                    float mentorRadius = 10f;
+                    // Kind trait doubles mentor radius
+                    if (other.story?.traits?.HasTrait(TraitDefOf.Kind) == true)
+                        mentorRadius = 20f;
+                    // Abrasive halves it
+                    if (other.story?.traits?.allTraits?.Any(t => t.def.defName == "Abrasive") == true)
+                        mentorRadius = 5f;
+
+                    if (other.Position.DistanceTo(Pawn.Position) <= mentorRadius)
+                    {
+                        bonus = 1.25f;
+                        break;
+                    }
+                }
+            }
+            return bonus;
+        }
+
+        public void RecordDanger(IntVec3 cell)
+        {
+            if (Pawn.Map == null) return;
+            int index = Pawn.Map.cellIndices.CellToIndex(cell);
+            dangerMemory[index] = Find.TickManager.TicksGame;
+        }
+
+        public bool IsDangerCell(IntVec3 cell)
+        {
+            if (Pawn.Map == null) return false;
+            int index = Pawn.Map.cellIndices.CellToIndex(cell);
+            if (!dangerMemory.TryGetValue(index, out int injuryTick)) return false;
+            // Remember danger for 5 days (300,000 ticks)
+            return Find.TickManager.TicksGame - injuryTick < 300000;
+        }
+
+        public int GetBookReadCount(int bookThingID)
+        {
+            return booksReadCount.TryGetValue(bookThingID, out int count) ? count : 0;
+        }
+
+        public void RecordBookRead(int bookThingID)
+        {
+            if (booksReadCount.ContainsKey(bookThingID))
+                booksReadCount[bookThingID]++;
+            else
+                booksReadCount[bookThingID] = 1;
+        }
+
+        public override void CompTick()
+        {
+            base.CompTick();
+
+            if (tickOffset < 0)
+                tickOffset = parent.thingIDNumber % TickInterval;
+
+            if ((Find.TickManager.TicksGame + tickOffset) % TickInterval != 0) return;
+
+            if (!initialized) InitializeStats();
+            if (Pawn.Dead || Pawn.Downed) return;
+
+            // Award passive path XP
+            if (LTSSettings.enablePathMemory && tilesWalkedAccumulator >= 10)
+            {
+                int chunks = tilesWalkedAccumulator / 10;
+                AddXP(StatType.PathMemory, 0.5f * chunks, "walking");
+                tilesWalkedAccumulator = tilesWalkedAccumulator % 10;
+            }
+
+            // Track current region for path familiarity
+            if (LTSSettings.enablePathMemory && Pawn.Map != null && Pawn.Position.InBounds(Pawn.Map))
+            {
+                var region = Pawn.Position.GetRegion(Pawn.Map);
+                if (region != null)
+                    visitedRegions.Add(region.id);
+            }
+
+            // Clean up old danger memory (every 2500 ticks = ~42 seconds)
+            if ((Find.TickManager.TicksGame + tickOffset) % 2500 == 0)
+            {
+                CleanDangerMemory();
+            }
+
+            // Self-preservation: check if needs are being satisfied efficiently
+            if (LTSSettings.enableSelfPreservation)
+            {
+                CheckNeedSatisfaction();
+            }
+        }
+
+        private void CleanDangerMemory()
+        {
+            int currentTick = Find.TickManager.TicksGame;
+            var expired = dangerMemory.Where(kv => currentTick - kv.Value > 300000).Select(kv => kv.Key).ToList();
+            foreach (var key in expired)
+                dangerMemory.Remove(key);
+        }
+
+        private void CheckNeedSatisfaction()
+        {
+            if (Pawn.needs == null) return;
+
+            // Award XP when needs are satisfied above threshold (efficient self-care)
+            var food = Pawn.needs.food;
+            if (food != null && food.CurLevelPercentage > 0.8f && food.CurLevelPercentage < 0.85f)
+            {
+                // Pawn ate before getting too hungry - reward
+                AddXP(StatType.SelfPreservation, 3f, "efficient_eating");
+            }
+
+            var rest = Pawn.needs.rest;
+            if (rest != null && rest.CurLevelPercentage > 0.7f && rest.CurLevelPercentage < 0.75f)
+            {
+                AddXP(StatType.SelfPreservation, 3f, "efficient_rest");
+            }
+        }
+
+        public override void PostExposeData()
+        {
+            base.PostExposeData();
+
+            Scribe_Values.Look(ref initialized, "lts_initialized", false);
+
+            if (Scribe.mode == LoadSaveMode.Saving)
+            {
+                if (!initialized) InitializeStats();
+                var statList = stats.Values.ToList();
+                Scribe_Collections.Look(ref statList, "lts_stats", LookMode.Deep);
+            }
+            else
+            {
+                List<IntelligenceData> statList = null;
+                Scribe_Collections.Look(ref statList, "lts_stats", LookMode.Deep);
+                if (statList != null)
+                {
+                    stats = new Dictionary<StatType, IntelligenceData>();
+                    foreach (var data in statList)
+                        stats[data.statType] = data;
+                }
+            }
+
+            Scribe_Collections.Look(ref visitedRegions, "lts_visitedRegions", LookMode.Value);
+            Scribe_Collections.Look(ref dangerMemory, "lts_dangerMemory", LookMode.Value, LookMode.Value);
+            Scribe_Collections.Look(ref booksReadCount, "lts_booksReadCount", LookMode.Value, LookMode.Value);
+            Scribe_Collections.Look(ref preferredStations, "lts_preferredStations", LookMode.Value, LookMode.Value);
+            Scribe_Values.Look(ref tilesWalkedAccumulator, "lts_tilesWalked", 0);
+
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                if (visitedRegions == null) visitedRegions = new HashSet<int>();
+                if (dangerMemory == null) dangerMemory = new Dictionary<int, int>();
+                if (booksReadCount == null) booksReadCount = new Dictionary<int, int>();
+                if (preferredStations == null) preferredStations = new Dictionary<string, int>();
+                if (stats == null) stats = new Dictionary<StatType, IntelligenceData>();
+                haulInventoryItems = new HashSet<int>();
+                initialized = true;
+                // Ensure all stat types exist
+                foreach (StatType type in Enum.GetValues(typeof(StatType)))
+                {
+                    if (!stats.ContainsKey(type))
+                        stats[type] = new IntelligenceData(type, BackstoryMapper.GetStartingLevel(Pawn, type));
+                }
+            }
+        }
+
+        public override string CompInspectStringExtra()
+        {
+            if (!initialized || Pawn.Dead) return null;
+
+            int avg = 0;
+            int count = 0;
+            foreach (StatType type in Enum.GetValues(typeof(StatType)))
+            {
+                if (LTSSettings.IsStatEnabled(type))
+                {
+                    avg += GetLevel(type);
+                    count++;
+                }
+            }
+            if (count == 0) return null;
+            avg = avg / count;
+
+            return "LTS_InspectString".Translate(avg);
+        }
+    }
+}
