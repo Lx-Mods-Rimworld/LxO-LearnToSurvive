@@ -175,201 +175,127 @@ namespace LearnToSurvive
     }
 
     /// <summary>
-    /// Custom JobDriver for intelligent hauling. Uses vanilla carry/place toils.
-    /// Pawn physically walks to nearby same-type items to merge stacks.
-    /// TargetA = item to haul, TargetB = destination cell, TargetC = next nearby item.
+    /// Smart hauling job: picks up items into INVENTORY (multiple types),
+    /// walks to nearby items until mass capacity is full, then delivers to storage.
+    /// TargetA = first item, TargetB = storage cell, TargetC = current pickup target.
     /// </summary>
     public class JobDriver_SmartHaul : JobDriver
     {
         private const TargetIndex ItemInd = TargetIndex.A;
         private const TargetIndex DestInd = TargetIndex.B;
-        private const TargetIndex ExtraInd = TargetIndex.C;
+        private const TargetIndex NextInd = TargetIndex.C;
 
-        private List<Thing> nearbyItems = new List<Thing>();
-        private int nearbyIndex;
+        // Track which inventory items are haul-items vs personal gear
+        private HashSet<int> haulItemIDs = new HashSet<int>();
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
             return pawn.Reserve(job.targetA, job, 1, -1, null, errorOnFailed);
         }
 
+        private float MassRemaining()
+        {
+            return MassUtility.Capacity(pawn) - MassUtility.GearAndInventoryMass(pawn);
+        }
+
+        /// <summary>
+        /// Drop all tracked haul items from inventory onto the ground near the pawn.
+        /// </summary>
+        private void UnloadHaulItems()
+        {
+            var inv = pawn.inventory.innerContainer;
+            // Iterate backwards to safely remove during iteration
+            for (int i = inv.Count - 1; i >= 0; i--)
+            {
+                Thing item = inv[i];
+                if (!haulItemIDs.Contains(item.thingIDNumber)) continue;
+
+                Thing dropped;
+                if (inv.TryDrop(item, pawn.Position, pawn.Map, ThingPlaceMode.Near, out dropped))
+                {
+                    if (dropped != null && dropped.Spawned)
+                        dropped.SetForbidden(false, false);
+                }
+            }
+            haulItemIDs.Clear();
+        }
+
         protected override IEnumerable<Toil> MakeNewToils()
         {
-            // Fail conditions only BEFORE pickup
+            // Fail conditions for initial target only
             this.FailOnDestroyedOrNull(ItemInd);
             this.FailOnBurningImmobile(ItemInd);
 
-            // 1. Go to the primary item
+            // === 1. Go to the first item (TargetA) ===
             yield return Toils_Goto.GotoThing(ItemInd, PathEndMode.ClosestTouch)
                 .FailOnSomeonePhysicallyInteracting(ItemInd);
 
-            // 2. Pick up using vanilla's StartCarryThing
-            yield return Toils_Haul.StartCarryThing(ItemInd, false, true);
-
-            // 3. Award XP + find nearby items to walk to
-            Toil postPickup = new Toil();
-            postPickup.initAction = () =>
+            // === 2. Pick up first item into INVENTORY ===
+            Toil pickupFirst = new Toil();
+            pickupFirst.initAction = () =>
             {
-                var comp = pawn.GetComp<CompIntelligence>();
-                if (comp == null) return;
-                comp.AddXP(StatType.HaulingSense, 10f, "haul_pickup");
-
-                int level = comp.GetLevel(StatType.HaulingSense);
-                if (level < 1) return;
-
-                Thing carried = pawn.carryTracker.CarriedThing;
-                if (carried == null) return;
-
-                int stackSpace = carried.def.stackLimit - carried.stackCount;
-                if (stackSpace <= 0) return;
-
-                // Calculate mass capacity remaining
-                float massCarried = MassUtility.GearAndInventoryMass(pawn) + carried.GetStatValue(StatDefOf.Mass) * carried.stackCount;
-                float massCapacity = MassUtility.Capacity(pawn);
-                float massRemaining = massCapacity - massCarried;
-                float massPerItem = carried.def.GetStatValueAbstract(StatDefOf.Mass);
-
-                if (massRemaining <= 0f) return;
-
-                // How many more items can we carry by mass?
-                // If item has zero mass, mass is not a constraint
-                int massSpace = massPerItem > 0f ? (int)(massRemaining / massPerItem) : stackSpace;
-                int spaceRemaining = Math.Min(stackSpace, massSpace);
-                if (spaceRemaining <= 0) return;
-
-                // Build list of nearby same-type items to walk to.
-                // Only limit: carry capacity (min of stack limit and mass limit).
-                float radius = HaulingSense.GetGrabRadius(level);
-                nearbyItems.Clear();
-                nearbyIndex = 0;
-
-                foreach (Thing nearby in GenRadial.RadialDistinctThingsAround(
-                    pawn.Position, pawn.Map, radius, true))
-                {
-                    if (spaceRemaining <= 0) break;
-                    if (nearby == carried) continue;
-                    if (nearby.def != carried.def) continue;
-                    if (nearby.Destroyed || !nearby.Spawned) continue;
-                    if (nearby.IsForbidden(pawn)) continue;
-                    if (!pawn.CanReserve(nearby)) continue;
-                    nearbyItems.Add(nearby);
-                    spaceRemaining -= Math.Min(nearby.stackCount, spaceRemaining);
-                }
-            };
-            postPickup.defaultCompleteMode = ToilCompleteMode.Instant;
-            yield return postPickup;
-
-            // 4. Walk-and-merge loop: go to each nearby item and absorb it
-            // Forward-declare findCell so checkNextItem can jump to it
-            Toil findCell = new Toil();
-
-            // -- Walk to the next nearby item --
-            Toil gotoNextItem = new Toil();
-            gotoNextItem.initAction = () =>
-            {
-                Thing target = job.targetC.Thing;
+                Thing target = job.targetA.Thing;
                 if (target == null || target.Destroyed || !target.Spawned)
                 {
-                    nearbyIndex++;
-                    JumpToToil(findCell);
-                }
-                else
-                {
-                    pawn.pather.StartPath(target, PathEndMode.ClosestTouch);
-                }
-            };
-            gotoNextItem.defaultCompleteMode = ToilCompleteMode.PatherArrival;
-            gotoNextItem.AddFailCondition(() =>
-            {
-                Thing t = job.targetC.Thing;
-                return t == null || t.Destroyed;
-            });
-
-            // -- Absorb the item into carried stack --
-            Toil mergeItem = new Toil();
-            mergeItem.initAction = () =>
-            {
-                Thing carried = pawn.carryTracker.CarriedThing;
-                Thing target = job.targetC.Thing;
-                if (carried == null || target == null || target.Destroyed || !target.Spawned)
-                {
-                    nearbyIndex++;
-                    JumpToToil(findCell);
+                    EndJobWith(JobCondition.Incompletable);
                     return;
                 }
 
-                int stackSpace = carried.def.stackLimit - carried.stackCount;
-
-                // Also check mass capacity
-                float massCarried = MassUtility.GearAndInventoryMass(pawn)
-                    + carried.GetStatValue(StatDefOf.Mass) * carried.stackCount;
-                float massRemaining = MassUtility.Capacity(pawn) - massCarried;
-                float massPerItem = carried.def.GetStatValueAbstract(StatDefOf.Mass);
-                int massSpace = massPerItem > 0f ? (int)(massRemaining / massPerItem) : stackSpace;
-
-                int space = Math.Min(stackSpace, massSpace);
-                int take = Math.Min(target.stackCount, space);
-                if (take <= 0)
+                int canTake = MassUtility.CountToPickUpUntilOverEncumbered(pawn, target);
+                if (canTake <= 0)
                 {
-                    nearbyIndex++;
-                    JumpToToil(findCell); // No more capacity, go to storage
+                    EndJobWith(JobCondition.Incompletable);
+                    return;
+                }
+                int toTake = UnityEngine.Mathf.Min(canTake, target.stackCount);
+
+                Thing taken = target.SplitOff(toTake);
+                if (taken == null)
+                {
+                    EndJobWith(JobCondition.Incompletable);
                     return;
                 }
 
-                carried.stackCount += take;
-                if (take >= target.stackCount)
-                    target.Destroy();
+                int idBefore = taken.thingIDNumber;
+                if (pawn.inventory.innerContainer.TryAdd(taken))
+                {
+                    haulItemIDs.Add(taken.thingIDNumber);
+                    // If the item merged into an existing stack, track original ID too
+                    if (taken.thingIDNumber != idBefore)
+                        haulItemIDs.Add(idBefore);
+                }
                 else
-                    target.stackCount -= take;
-
-                nearbyIndex++;
+                {
+                    // Failed to add to inventory -- drop it back
+                    GenPlace.TryPlaceThing(taken, pawn.Position, pawn.Map, ThingPlaceMode.Near);
+                    EndJobWith(JobCondition.Incompletable);
+                    return;
+                }
 
                 var comp = pawn.GetComp<CompIntelligence>();
                 if (comp != null)
-                {
-                    comp.AddXP(StatType.HaulingSense, 3f, "stack_merge");
-                    LTSLog.Decision(pawn, StatType.HaulingSense,
-                        comp.GetLevel(StatType.HaulingSense), "STACK_MERGE",
-                        "merged " + take + "x " + carried.def.label,
-                        "walked to nearby stack and merged",
-                        "remaining_space=" + (carried.def.stackLimit - carried.stackCount));
-                }
+                    comp.AddXP(StatType.HaulingSense, 10f, "haul_pickup");
             };
-            mergeItem.defaultCompleteMode = ToilCompleteMode.Instant;
+            pickupFirst.defaultCompleteMode = ToilCompleteMode.Instant;
+            yield return pickupFirst;
 
-            // Forward-declare wait toil so checkNextItem can reference it
+            // === Forward-declare toils for jump targets ===
+            Toil findCell = new Toil();
+            Toil gotoNextItem = new Toil();
+            Toil pickupNext = new Toil();
             Toil waitForProduction = new Toil();
-            waitForProduction.defaultCompleteMode = ToilCompleteMode.Delay;
-            waitForProduction.defaultDuration = 180; // ~3 seconds game time
 
-            // -- Check: set up the next target or jump to findCell --
-            Toil checkNextItem = new Toil();
-            checkNextItem.initAction = () =>
+            // === 3. Rescan: find nearest haulable item from current position ===
+            Toil rescan = new Toil();
+            rescan.initAction = () =>
             {
-                Thing carried = pawn.carryTracker.CarriedThing;
-                if (carried == null)
+                float massLeft = MassRemaining();
+                if (massLeft <= 0.01f)
                 {
                     JumpToToil(findCell);
                     return;
                 }
 
-                // Check both stack limit AND mass capacity
-                int stackSpace = carried.def.stackLimit - carried.stackCount;
-                float massCarried = MassUtility.GearAndInventoryMass(pawn)
-                    + carried.GetStatValue(StatDefOf.Mass) * carried.stackCount;
-                float massRemaining = MassUtility.Capacity(pawn) - massCarried;
-                float massPerItem = carried.def.GetStatValueAbstract(StatDefOf.Mass);
-                int massSpace = massPerItem > 0f ? (int)(massRemaining / massPerItem) : stackSpace;
-                int canCarryMore = Math.Min(stackSpace, massSpace);
-
-                if (canCarryMore <= 0)
-                {
-                    JumpToToil(findCell);
-                    return;
-                }
-
-                // RESCAN from current position every time (not a stale list).
-                // The pawn may have walked to a new area with different nearby items.
                 var comp = pawn.GetComp<CompIntelligence>();
                 int level = comp?.GetLevel(StatType.HaulingSense) ?? 0;
                 float radius = HaulingSense.GetGrabRadius(level);
@@ -380,11 +306,15 @@ namespace LearnToSurvive
                 foreach (Thing nearby in GenRadial.RadialDistinctThingsAround(
                     pawn.Position, pawn.Map, radius, true))
                 {
-                    if (nearby == carried) continue;
-                    if (nearby.def != carried.def) continue;
+                    if (!nearby.def.EverHaulable) continue;
                     if (nearby.Destroyed || !nearby.Spawned) continue;
                     if (nearby.IsForbidden(pawn)) continue;
+                    if (nearby.IsInValidBestStorage()) continue;
                     if (!pawn.CanReserve(nearby)) continue;
+
+                    // Check mass: can we pick up at least 1?
+                    int canTake = MassUtility.CountToPickUpUntilOverEncumbered(pawn, nearby);
+                    if (canTake <= 0) continue;
 
                     float dist = nearby.Position.DistanceTo(pawn.Position);
                     if (dist < bestDist)
@@ -402,57 +332,150 @@ namespace LearnToSurvive
                     return;
                 }
 
-                // Nothing nearby right now. Check if a worker is producing more nearby.
-                if (IsWorkerProducingNearby(pawn, carried.def, radius))
+                // Nothing found. Check if a worker nearby is producing items.
+                bool workerNearby = false;
+                foreach (Pawn worker in pawn.Map.mapPawns.FreeColonistsSpawned)
                 {
-                    // Worker is active -- wait briefly then rescan
+                    if (worker == pawn) continue;
+                    if (worker.Dead || worker.Downed) continue;
+                    if (worker.Position.DistanceTo(pawn.Position) > radius) continue;
+                    var curJob = worker.CurJob;
+                    if (curJob == null) continue;
+                    if (curJob.def == JobDefOf.Deconstruct || curJob.def == JobDefOf.Mine
+                        || curJob.def == JobDefOf.Harvest || curJob.def == JobDefOf.CutPlant)
+                    {
+                        workerNearby = true;
+                        break;
+                    }
+                }
+
+                if (workerNearby)
+                {
                     JumpToToil(waitForProduction);
                     return;
                 }
 
-                // Nobody producing, go to storage
+                // Nothing to pick up, go deliver
                 JumpToToil(findCell);
             };
-            checkNextItem.defaultCompleteMode = ToilCompleteMode.Instant;
+            rescan.defaultCompleteMode = ToilCompleteMode.Instant;
+            yield return rescan;
 
-            // Post-wait: rescan after waiting
-            Toil postWait = new Toil();
-            postWait.initAction = () =>
+            // === 4. Walk to next item (TargetC) ===
+            gotoNextItem.initAction = () =>
             {
-                JumpToToil(checkNextItem);
+                Thing target = job.targetC.Thing;
+                if (target == null || target.Destroyed || !target.Spawned)
+                {
+                    JumpToToil(rescan);
+                }
+                else
+                {
+                    pawn.pather.StartPath(target, PathEndMode.ClosestTouch);
+                }
             };
-            postWait.defaultCompleteMode = ToilCompleteMode.Instant;
+            gotoNextItem.defaultCompleteMode = ToilCompleteMode.PatherArrival;
+            gotoNextItem.AddFailCondition(() =>
+            {
+                Thing t = job.targetC.Thing;
+                return t == null || t.Destroyed;
+            });
+            yield return gotoNextItem;
 
-            // After merging, loop back to check for more
+            // === 5. Pick up item into inventory ===
+            pickupNext.initAction = () =>
+            {
+                Thing target = job.targetC.Thing;
+                if (target == null || target.Destroyed || !target.Spawned)
+                {
+                    JumpToToil(rescan);
+                    return;
+                }
+
+                int canTake = MassUtility.CountToPickUpUntilOverEncumbered(pawn, target);
+                if (canTake <= 0)
+                {
+                    JumpToToil(findCell);
+                    return;
+                }
+                int toTake = UnityEngine.Mathf.Min(canTake, target.stackCount);
+
+                Thing taken = target.SplitOff(toTake);
+                if (taken == null)
+                {
+                    JumpToToil(rescan);
+                    return;
+                }
+
+                int idBefore = taken.thingIDNumber;
+                if (pawn.inventory.innerContainer.TryAdd(taken))
+                {
+                    haulItemIDs.Add(taken.thingIDNumber);
+                    if (taken.thingIDNumber != idBefore)
+                        haulItemIDs.Add(idBefore);
+                }
+                else
+                {
+                    GenPlace.TryPlaceThing(taken, pawn.Position, pawn.Map, ThingPlaceMode.Near);
+                }
+
+                var comp = pawn.GetComp<CompIntelligence>();
+                if (comp != null)
+                    comp.AddXP(StatType.HaulingSense, 3f, "inv_pickup");
+            };
+            pickupNext.defaultCompleteMode = ToilCompleteMode.Instant;
+            yield return pickupNext;
+
+            // === 6. Loop back to rescan ===
             Toil loopBack = new Toil();
             loopBack.initAction = () =>
             {
-                JumpToToil(checkNextItem);
+                JumpToToil(rescan);
             };
             loopBack.defaultCompleteMode = ToilCompleteMode.Instant;
+            yield return loopBack;
 
-            // Yield all toils in execution order
-            yield return checkNextItem;       // 0: check for next item or wait or go to storage
-            yield return gotoNextItem;        // 1: walk to next item
-            yield return mergeItem;           // 2: absorb item
-            yield return loopBack;            // 3: jump back to check
-            yield return waitForProduction;   // 4: wait 3 seconds
-            yield return postWait;            // 5: rescan after wait
+            // === 7. Wait for production (~3 seconds), then rescan ===
+            waitForProduction.defaultCompleteMode = ToilCompleteMode.Delay;
+            waitForProduction.defaultDuration = 180;
+            yield return waitForProduction;
 
-            // 5. Find best storage cell (findCell was forward-declared above)
+            Toil postWait = new Toil();
+            postWait.initAction = () =>
+            {
+                JumpToToil(rescan);
+            };
+            postWait.defaultCompleteMode = ToilCompleteMode.Instant;
+            yield return postWait;
+
+            // === 8. Find storage cell ===
             findCell.initAction = () =>
             {
-                Thing carried = pawn.carryTracker.CarriedThing;
-                if (carried == null)
+                // Need a representative item to find storage for.
+                // Pick the first haul item in inventory.
+                Thing representative = null;
+                var inv = pawn.inventory.innerContainer;
+                for (int i = 0; i < inv.Count; i++)
                 {
-                    EndJobWith(JobCondition.Incompletable);
+                    if (haulItemIDs.Contains(inv[i].thingIDNumber))
+                    {
+                        representative = inv[i];
+                        break;
+                    }
+                }
+
+                if (representative == null)
+                {
+                    // No haul items in inventory -- nothing to deliver
+                    EndJobWith(JobCondition.Succeeded);
                     return;
                 }
-                IntVec3 storeCell = FindCellWithRoom(carried, pawn);
+
+                IntVec3 storeCell = FindCellWithRoom(representative, pawn);
                 if (!storeCell.IsValid)
                 {
-                    // No valid storage with room -- just drop it here
-                    pawn.carryTracker.TryDropCarriedThing(pawn.Position, ThingPlaceMode.Near, out Thing _);
+                    // No valid storage -- dump everything here
+                    UnloadHaulItems();
                     EndJobWith(JobCondition.Succeeded);
                     return;
                 }
@@ -461,60 +484,36 @@ namespace LearnToSurvive
             findCell.defaultCompleteMode = ToilCompleteMode.Instant;
             yield return findCell;
 
-            // 6. Carry to storage
+            // === 9. Walk to storage ===
             yield return Toils_Goto.GotoCell(DestInd, PathEndMode.OnCell);
 
-            // 7. Place -- robust handler that deals with full stacks
-            Toil placeToil = new Toil();
-            placeToil.initAction = () =>
+            // === 10. Unload all haul-items from inventory ===
+            Toil unloadToil = new Toil();
+            unloadToil.initAction = () =>
             {
-                Thing carried = pawn.carryTracker.CarriedThing;
-                if (carried == null)
-                {
-                    EndJobWith(JobCondition.Succeeded);
-                    return;
-                }
-
                 IntVec3 destCell = job.targetB.Cell;
+                var inv = pawn.inventory.innerContainer;
 
-                // Double-check the cell has room before placing
-                if (!CellHasRoom(destCell, carried, pawn.Map))
+                for (int i = inv.Count - 1; i >= 0; i--)
                 {
-                    Log.Warning("[LearnToSurvive] " + pawn.LabelShort + " arrived at full cell " + destCell
-                        + " - finding new cell for " + carried.stackCount + "x " + carried.def.label);
-                    destCell = FindCellWithRoom(carried, pawn);
-                    if (destCell.IsValid)
-                    {
-                        // Walk to the new cell instead
-                        job.targetB = destCell;
-                        JumpToToil(findCell); // re-run findCell which re-routes to storage
-                        return;
-                    }
-                }
+                    Thing item = inv[i];
+                    if (!haulItemIDs.Contains(item.thingIDNumber)) continue;
 
-                // Try to place at destination
-                if (pawn.carryTracker.TryDropCarriedThing(destCell, ThingPlaceMode.Direct, out Thing dropped))
-                {
-                    if (dropped != null && dropped.Spawned)
-                        dropped.SetForbidden(false, false);
-                }
-                else
-                {
-                    // Direct placement failed -- try nearby
-                    if (pawn.carryTracker.TryDropCarriedThing(destCell, ThingPlaceMode.Near, out dropped))
+                    Thing dropped;
+                    if (inv.TryDrop(item, destCell, pawn.Map, ThingPlaceMode.Near, out dropped))
                     {
                         if (dropped != null && dropped.Spawned)
                             dropped.SetForbidden(false, false);
                     }
-                    else
-                    {
-                        // Last resort: drop at feet
-                        pawn.carryTracker.TryDropCarriedThing(pawn.Position, ThingPlaceMode.Near, out dropped);
-                    }
                 }
+                haulItemIDs.Clear();
+
+                var comp = pawn.GetComp<CompIntelligence>();
+                if (comp != null)
+                    comp.AddXP(StatType.HaulingSense, 5f, "haul_deliver");
             };
-            placeToil.defaultCompleteMode = ToilCompleteMode.Instant;
-            yield return placeToil;
+            unloadToil.defaultCompleteMode = ToilCompleteMode.Instant;
+            yield return unloadToil;
         }
 
         /// <summary>
