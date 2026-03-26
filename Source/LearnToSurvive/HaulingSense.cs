@@ -220,16 +220,28 @@ namespace LearnToSurvive
                 Thing carried = pawn.carryTracker.CarriedThing;
                 if (carried == null) return;
 
-                int space = carried.def.stackLimit - carried.stackCount;
-                if (space <= 0) return;
+                int stackSpace = carried.def.stackLimit - carried.stackCount;
+                if (stackSpace <= 0) return;
+
+                // Calculate mass capacity remaining
+                float massCarried = MassUtility.GearAndInventoryMass(pawn) + carried.GetStatValue(StatDefOf.Mass) * carried.stackCount;
+                float massCapacity = MassUtility.Capacity(pawn);
+                float massRemaining = massCapacity - massCarried;
+                float massPerItem = carried.def.GetStatValueAbstract(StatDefOf.Mass);
+
+                if (massRemaining <= 0f || massPerItem <= 0f) return;
+
+                // How many more items can we carry by mass?
+                int massSpace = (int)(massRemaining / massPerItem);
+                int spaceRemaining = Math.Min(stackSpace, massSpace);
+                if (spaceRemaining <= 0) return;
 
                 // Build list of nearby same-type items to walk to.
-                // Only limit: carry capacity. Pawn walks to every nearby stack until full.
+                // Only limit: carry capacity (min of stack limit and mass limit).
                 float radius = HaulingSense.GetGrabRadius(level);
                 nearbyItems.Clear();
                 nearbyIndex = 0;
 
-                int spaceRemaining = space;
                 foreach (Thing nearby in GenRadial.RadialDistinctThingsAround(
                     pawn.Position, pawn.Map, radius, true))
                 {
@@ -240,7 +252,7 @@ namespace LearnToSurvive
                     if (nearby.IsForbidden(pawn)) continue;
                     if (!pawn.CanReserve(nearby)) continue;
                     nearbyItems.Add(nearby);
-                    spaceRemaining -= nearby.stackCount;
+                    spaceRemaining -= Math.Min(nearby.stackCount, spaceRemaining);
                 }
             };
             postPickup.defaultCompleteMode = ToilCompleteMode.Instant;
@@ -285,12 +297,21 @@ namespace LearnToSurvive
                     return;
                 }
 
-                int space = carried.def.stackLimit - carried.stackCount;
+                int stackSpace = carried.def.stackLimit - carried.stackCount;
+
+                // Also check mass capacity
+                float massCarried = MassUtility.GearAndInventoryMass(pawn)
+                    + carried.GetStatValue(StatDefOf.Mass) * carried.stackCount;
+                float massRemaining = MassUtility.Capacity(pawn) - massCarried;
+                float massPerItem = carried.def.GetStatValueAbstract(StatDefOf.Mass);
+                int massSpace = massPerItem > 0f ? (int)(massRemaining / massPerItem) : stackSpace;
+
+                int space = Math.Min(stackSpace, massSpace);
                 int take = Math.Min(target.stackCount, space);
                 if (take <= 0)
                 {
                     nearbyIndex++;
-                    JumpToToil(findCell);
+                    JumpToToil(findCell); // No more capacity, go to storage
                     return;
                 }
 
@@ -320,7 +341,21 @@ namespace LearnToSurvive
             checkNextItem.initAction = () =>
             {
                 Thing carried = pawn.carryTracker.CarriedThing;
-                if (carried == null || carried.stackCount >= carried.def.stackLimit)
+                if (carried == null)
+                {
+                    JumpToToil(findCell);
+                    return;
+                }
+
+                // Check both stack limit AND mass capacity
+                bool stackFull = carried.stackCount >= carried.def.stackLimit;
+                float massCarried = MassUtility.GearAndInventoryMass(pawn)
+                    + carried.GetStatValue(StatDefOf.Mass) * carried.stackCount;
+                float massRemaining = MassUtility.Capacity(pawn) - massCarried;
+                float massPerItem = carried.def.GetStatValueAbstract(StatDefOf.Mass);
+                bool massFull = massPerItem > 0f && massRemaining < massPerItem;
+
+                if (stackFull || massFull)
                 {
                     JumpToToil(findCell);
                     return;
