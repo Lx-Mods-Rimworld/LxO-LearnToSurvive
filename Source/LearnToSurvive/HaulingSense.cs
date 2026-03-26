@@ -14,11 +14,11 @@ namespace LearnToSurvive
         public static float GetGrabRadius(int level)
         {
             if (level <= 0) return 0f;
-            if (level <= 1) return 5f;
-            if (level <= 3) return 10f;
-            if (level <= 6) return 15f;
-            if (level <= 10) return 25f;
-            return 40f; // Lv11+: entire base
+            if (level <= 1) return 12f;
+            if (level <= 3) return 20f;
+            if (level <= 6) return 30f;
+            if (level <= 10) return 45f;
+            return 60f; // Lv11+: entire base
         }
 
         public static bool UseInventory(int level) => level >= 4;
@@ -229,10 +229,11 @@ namespace LearnToSurvive
                 float massRemaining = massCapacity - massCarried;
                 float massPerItem = carried.def.GetStatValueAbstract(StatDefOf.Mass);
 
-                if (massRemaining <= 0f || massPerItem <= 0f) return;
+                if (massRemaining <= 0f) return;
 
                 // How many more items can we carry by mass?
-                int massSpace = (int)(massRemaining / massPerItem);
+                // If item has zero mass, mass is not a constraint
+                int massSpace = massPerItem > 0f ? (int)(massRemaining / massPerItem) : stackSpace;
                 int spaceRemaining = Math.Min(stackSpace, massSpace);
                 if (spaceRemaining <= 0) return;
 
