@@ -4,7 +4,7 @@
   <JobDef>
     <defName>LTS_SmartHaul</defName>
     <driverClass>LearnToSurvive.JobDriver_SmartHaul</driverClass>
-    <reportString>smart hauling {A}.</reportString>
+    <reportString>smart hauling.</reportString>
     <casualInterruptible>true</casualInterruptible>
     <collideWithPawns>false</collideWithPawns>
     <allowOpportunisticPrefix>true</allowOpportunisticPrefix>
