@@ -32,6 +32,10 @@ namespace LearnToSurvive
             // Manual patches for non-public methods
             ApplyManualPatches(harmony);
 
+            // Add CompIntelligence to all humanlike defs via C# (catches HAR races
+            // that the XML patch might miss)
+            RegisterComp();
+
             if (LTSSettings.logLevel > LogLevel.Off)
             {
                 LTSLog.Initialize();
@@ -157,29 +161,64 @@ namespace LearnToSurvive
             }
         }
 
-        private static void RegisterInspectorTab()
+        private static void RegisterComp()
         {
             int count = 0;
             foreach (var def in DefDatabase<ThingDef>.AllDefs)
             {
                 if (def.race == null || def.race.intelligence != Intelligence.Humanlike) continue;
-                if (def.inspectorTabs == null) continue;
+                if (def.comps == null)
+                {
+                    def.comps = new List<CompProperties>();
+                    Log.Message("[LearnToSurvive] Created comps list for: " + def.defName);
+                }
+                if (def.comps.Any(c => c is CompProperties_Intelligence)) continue;
 
-                var tabType = typeof(ITab_Intelligence);
-                if (def.inspectorTabs.Contains(tabType)) continue;
+                def.comps.Add(new CompProperties_Intelligence());
+                count++;
+            }
+            Log.Message("[LearnToSurvive] CompIntelligence added via C# to " + count + " humanlike ThingDefs.");
+        }
+
+        private static void RegisterInspectorTab()
+        {
+            int count = 0;
+            int skippedAlready = 0;
+            var tabType = typeof(ITab_Intelligence);
+
+            foreach (var def in DefDatabase<ThingDef>.AllDefs)
+            {
+                if (def.race == null || def.race.intelligence != Intelligence.Humanlike) continue;
+
+                // If inspectorTabs is null, initialize it (HAR races may not have it)
+                if (def.inspectorTabs == null)
+                {
+                    def.inspectorTabs = new List<Type>();
+                    Log.Message("[LearnToSurvive] Created inspectorTabs list for: " + def.defName);
+                }
+
+                if (def.inspectorTabs.Contains(tabType))
+                {
+                    skippedAlready++;
+                    continue;
+                }
 
                 def.inspectorTabs.Add(tabType);
 
-                // Also add to the resolved list if it exists
-                if (def.inspectorTabsResolved != null)
-                {
-                    var instance = InspectTabManager.GetSharedInstance(tabType);
-                    if (instance != null && !def.inspectorTabsResolved.Contains(instance))
-                        def.inspectorTabsResolved.Add(instance);
-                }
+                // Also add to the resolved list
+                if (def.inspectorTabsResolved == null)
+                    def.inspectorTabsResolved = new List<InspectTabBase>();
+
+                var instance = InspectTabManager.GetSharedInstance(tabType);
+                if (instance != null && !def.inspectorTabsResolved.Contains(instance))
+                    def.inspectorTabsResolved.Add(instance);
+
                 count++;
+                Log.Message("[LearnToSurvive] Added Intelligence tab to: " + def.defName
+                    + " (type=" + def.GetType().Name + ")");
             }
-            Log.Message("[LearnToSurvive] Added Intelligence tab to " + count + " humanlike ThingDefs.");
+            Log.Message("[LearnToSurvive] Intelligence tab added to " + count
+                + " ThingDefs. Already had it: " + skippedAlready);
         }
     }
 
