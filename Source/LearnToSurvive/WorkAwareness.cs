@@ -142,6 +142,11 @@ namespace LearnToSurvive
                                 "queued next " + chainedJob.def.defName + " at " + chainedJob.targetA.Cell,
                                 "chaining same-type work before hauling");
                         }
+                        else
+                        {
+                            // No more chaining -- restore bill store mode if we changed it
+                            RestoreBillStoreMode(curJob.bill);
+                        }
                     }
                 }
             }
@@ -197,7 +202,88 @@ namespace LearnToSurvive
                     DesignationDefOf.SmoothFloor, JobDefOf.SmoothFloor);
             }
 
+            // DoBill (cooking, crafting) -> chain another iteration of the same bill
+            if (finishedJob.def == JobDefOf.DoBill && finishedJob.bill != null)
+            {
+                return TryChainBill(pawn, finishedJob);
+            }
+
             return null;
+        }
+
+        // Track original bill store modes so we can restore after chaining
+        private static Dictionary<int, BillStoreModeDef> originalStoreModes = new Dictionary<int, BillStoreModeDef>();
+
+        /// <summary>
+        /// Chain another iteration of the same crafting bill.
+        /// Products drop on floor during chaining, then get batch-hauled after.
+        /// </summary>
+        private static Job TryChainBill(Pawn pawn, Job finishedJob)
+        {
+            try
+            {
+                Bill bill = finishedJob.bill;
+                if (bill == null || bill.deleted) return null;
+
+                // Bill still needs more iterations?
+                if (bill is Bill_Production prod && !prod.ShouldDoNow()) return null;
+
+                // Workstation still exists and usable?
+                Thing workstation = finishedJob.targetA.Thing;
+                if (workstation == null || workstation.Destroyed || !workstation.Spawned) return null;
+                if (!pawn.CanReserve(workstation)) return null;
+
+                // Find ingredients for the next iteration via WorkGiver_DoBill
+                var method = typeof(WorkGiver_DoBill).GetMethod("TryFindBestBillIngredients",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+                if (method == null) return null;
+
+                var chosen = new List<ThingCount>();
+                object[] args = new object[] { bill, pawn, workstation, chosen };
+                bool found = (bool)method.Invoke(null, args);
+
+                if (!found || chosen.Count == 0) return null;
+
+                // Create the DoBill job
+                Job newJob = JobMaker.MakeJob(JobDefOf.DoBill, workstation);
+                newJob.targetQueueB = new List<LocalTargetInfo>(chosen.Count);
+                newJob.countQueue = new List<int>(chosen.Count);
+                foreach (ThingCount tc in chosen)
+                {
+                    newJob.targetQueueB.Add(tc.Thing);
+                    newJob.countQueue.Add(tc.Count);
+                }
+                newJob.bill = bill;
+                newJob.haulMode = HaulMode.ToCellNonStorage;
+
+                // Force DropOnFloor so products accumulate near the stove
+                // Save original mode so we can restore when chaining ends
+                int billID = bill.GetHashCode();
+                if (!originalStoreModes.ContainsKey(billID))
+                    originalStoreModes[billID] = bill.GetStoreMode();
+                bill.SetStoreMode(BillStoreModeDefOf.DropOnFloor);
+
+                return newJob;
+            }
+            catch (Exception ex)
+            {
+                LTSLog.Error("TryChainBill failed", ex);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Restore bill store mode after crafting chain ends.
+        /// </summary>
+        private static void RestoreBillStoreMode(Bill bill)
+        {
+            if (bill == null) return;
+            int billID = bill.GetHashCode();
+            if (originalStoreModes.TryGetValue(billID, out BillStoreModeDef original))
+            {
+                bill.SetStoreMode(original);
+                originalStoreModes.Remove(billID);
+            }
         }
 
         /// <summary>
