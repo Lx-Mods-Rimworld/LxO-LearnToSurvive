@@ -2,6 +2,12 @@
 
 All notable changes to this mod will be documented in this file.
 
+## [1.0.2] - 2026-03-26
+
+### Fixes
+- Fixed a crash (10 jobs in one tick) caused by SmartHaul trying to haul corpses. Corpses are now skipped during inventory hauling.
+- Fixed errors when pawns die: intelligence stats no longer run on corpses, preventing crashes during pawn death and caravan loading.
+
 ## [1.0.1] - 2026-03-26
 
 ### Fixes
