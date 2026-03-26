@@ -6,7 +6,7 @@
     <label>intelligence book</label>
     <description>A handwritten book containing practical knowledge about colony life. Reading it provides both joy and learning. Written by an experienced colonist who mastered one of the five intelligence disciplines.</description>
     <graphicData>
-      <texPath>Things/Item/Resource/Shell/Shell_EMP</texPath>
+      <texPath>Things/Item/Special/SubpersonaCoreTechprof</texPath>
       <graphicClass>Graphic_Single</graphicClass>
     </graphicData>
     <resourceReadoutPriority>Middle</resourceReadoutPriority>

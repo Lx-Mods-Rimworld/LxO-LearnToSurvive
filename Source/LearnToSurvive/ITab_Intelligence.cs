@@ -6,6 +6,7 @@ using Verse;
 
 namespace LearnToSurvive
 {
+    [StaticConstructorOnStartup]
     public class ITab_Intelligence : ITab
     {
         private Vector2 scrollPosition;

@@ -62,19 +62,38 @@ namespace LearnToSurvive
                 AccessTools.Method(typeof(PathGrid), "CalculatedCostAt"),
                 postfix: typeof(Patch_PathCost).GetMethod("Postfix", BindingFlags.Public | BindingFlags.Static));
 
-            // FindPath - search all overloads for one that takes TraverseParms
-            var findPathMethods = AccessTools.GetDeclaredMethods(typeof(PathFinder))
-                .FindAll(m => m.Name == "FindPath");
+            // FindPath - search across all PathFinder types (1.6 split into WalkPathFinder, etc.)
             MethodInfo findPathMethod = null;
-            foreach (var m in findPathMethods)
+            string[] pathFinderTypeNames = {
+                "Verse.PathFinder", "Verse.AI.PathFinder",
+                "Verse.WalkPathFinder", "Verse.SwimPathFinder", "Verse.SimplePathFinder"
+            };
+            string[] methodNames = { "FindPath", "FindPathNow" };
+
+            foreach (string typeName in pathFinderTypeNames)
             {
-                var parms = m.GetParameters();
-                if (parms.Any(p => p.ParameterType == typeof(TraverseParms)))
+                Type pfType = AccessTools.TypeByName(typeName);
+                if (pfType == null) continue;
+
+                foreach (string methodName in methodNames)
                 {
-                    findPathMethod = m;
-                    break;
+                    var methods = AccessTools.GetDeclaredMethods(pfType)
+                        .FindAll(m => m.Name == methodName);
+                    foreach (var m in methods)
+                    {
+                        var parms = m.GetParameters();
+                        if (parms.Any(p => p.ParameterType == typeof(TraverseParms)))
+                        {
+                            findPathMethod = m;
+                            Log.Message("[LearnToSurvive] Found pathfinder method: " + typeName + "." + methodName);
+                            break;
+                        }
+                    }
+                    if (findPathMethod != null) break;
                 }
+                if (findPathMethod != null) break;
             }
+
             if (findPathMethod != null)
             {
                 TryPatch(harmony, "FindPath_SetPawn",
@@ -84,7 +103,7 @@ namespace LearnToSurvive
             }
             else
             {
-                Log.Warning("[LearnToSurvive] Could not find PathFinder.FindPath with TraverseParms. Path memory cost modifiers disabled.");
+                Log.Warning("[LearnToSurvive] Could not find any PathFinder.FindPath method. Path memory cost modifiers disabled. This is expected on RimWorld 1.6+ if pathfinding was restructured.");
             }
 
             // --- Hauling proximity patch ---

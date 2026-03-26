@@ -7,23 +7,23 @@
     <li>1.6</li>
   </supportedVersions>
   <packageId>Lexxers.LearnToSurvive</packageId>
-  <description>Your colonists are no longer static. They learn from experience.
+  <description>Your colonists learn from experience. Five new intelligence stats grow over time as pawns perform activities.
 
-Five new intelligence stats that grow over time as pawns perform activities. Level 0 is vanilla behavior. Each level unlocks smarter decisions -- from batch hauling to tactical combat coordination.
+HAULING SENSE - Stack merging, proximity hauling, construction staging, hauler coordination
+WORK AWARENESS - Pre-task cleaning, ingredient gathering, task chaining, workstation loyalty
+PATH MEMORY - Shortcut discovery, room avoidance, danger memory, weather routing
+COMBAT INSTINCT - Cover seeking, friendly fire prevention, target priority, auto-retreat
+SELF-PRESERVATION - Food preference, table seeking, need anticipation, medicine matching
 
-HAULING SENSE - Efficient item transport, multi-item carrying, route optimization
-WORK AWARENESS - Task chaining, pre-cleaning, proximity-aware work selection
-PATH MEMORY - Learned shortcuts, room avoidance, weather routing
-COMBAT INSTINCT - Cover seeking, friendly fire avoidance, tactical coordination
-SELF-PRESERVATION - Smart food choices, need anticipation, medicine matching
+Level 0 = vanilla behavior. Each level adds one improvement. Skills never decay.
+Level 20 masters write books to teach other colonists.
 
-Skills never decay. Veteran colonists become irreplaceable. Losing one means losing years of learned intelligence.
+Backstory and traits affect starting levels and learning speed.
 
-Level 20 masters can write books to teach others.
+Compatible with Pick Up And Haul, Common Sense, Combat Extended, and modded races.
+Safe to add mid-save. 7 languages included.
 
-Compatible with Pick Up And Haul, Common Sense, Combat Extended, and most other mods.
-
-Free forever. Donations welcome at ko-fi.com/lexxers</description>
+Free forever. Donations: ko-fi.com/lexxers</description>
   <modDependencies>
     <li>
       <packageId>brrainz.harmony</packageId>

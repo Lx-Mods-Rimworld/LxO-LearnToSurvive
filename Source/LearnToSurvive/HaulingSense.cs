@@ -14,17 +14,11 @@ namespace LearnToSurvive
         public static float GetGrabRadius(int level)
         {
             if (level <= 0) return 0f;
-            if (level == 1) return 3f;
-            return 6f;
-        }
-
-        // Max extra items to grab at levels 1-3 (stack merge mode)
-        public static int GetMaxExtraItems(int level)
-        {
-            if (level <= 0) return 0;
-            if (level == 1) return 1;
-            if (level == 2) return 2;
-            return 3; // Lv3+
+            if (level <= 1) return 5f;
+            if (level <= 3) return 10f;
+            if (level <= 6) return 15f;
+            if (level <= 10) return 25f;
+            return 40f; // Lv11+: entire base
         }
 
         public static bool UseInventory(int level) => level >= 4;
@@ -57,7 +51,6 @@ namespace LearnToSurvive
             if (level <= 0 || pawn.Map == null) return result;
 
             float radius = GetGrabRadius(level);
-            int maxExtra = GetMaxExtraItems(level);
             bool mixedTypes = level >= 3;
             bool useInv = UseInventory(level);
 
@@ -81,7 +74,6 @@ namespace LearnToSurvive
 
             foreach (Thing candidate in candidates)
             {
-                if (result.Count >= maxExtra && !useInv) break;
                 if (useInv && !MassUtility.CanEverCarryAnything(pawn)) break;
 
                 // Check if another pawn is already going for this
@@ -231,22 +223,24 @@ namespace LearnToSurvive
                 int space = carried.def.stackLimit - carried.stackCount;
                 if (space <= 0) return;
 
-                // Build list of nearby same-type items to walk to
+                // Build list of nearby same-type items to walk to.
+                // Only limit: carry capacity. Pawn walks to every nearby stack until full.
                 float radius = HaulingSense.GetGrabRadius(level);
-                int maxExtra = HaulingSense.GetMaxExtraItems(level);
                 nearbyItems.Clear();
                 nearbyIndex = 0;
 
+                int spaceRemaining = space;
                 foreach (Thing nearby in GenRadial.RadialDistinctThingsAround(
                     pawn.Position, pawn.Map, radius, true))
                 {
-                    if (nearbyItems.Count >= maxExtra) break;
+                    if (spaceRemaining <= 0) break;
                     if (nearby == carried) continue;
                     if (nearby.def != carried.def) continue;
                     if (nearby.Destroyed || !nearby.Spawned) continue;
                     if (nearby.IsForbidden(pawn)) continue;
                     if (!pawn.CanReserve(nearby)) continue;
                     nearbyItems.Add(nearby);
+                    spaceRemaining -= nearby.stackCount;
                 }
             };
             postPickup.defaultCompleteMode = ToilCompleteMode.Instant;
