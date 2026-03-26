@@ -222,6 +222,14 @@ namespace LearnToSurvive
 
         protected override IEnumerable<Toil> MakeNewToils()
         {
+            // Safety: if job is interrupted for ANY reason, drop all haul items
+            // back on the ground so they don't stay in inventory forever
+            this.AddFinishAction((JobCondition _) =>
+            {
+                if (haulItemIDs.Count > 0)
+                    UnloadHaulItems();
+            });
+
             // Fail conditions for initial target only
             this.FailOnDestroyedOrNull(ItemInd);
             this.FailOnBurningImmobile(ItemInd);
@@ -654,8 +662,8 @@ namespace LearnToSurvive
                 if (ModCompat.PUAHLoaded && LTSSettings.respectPUAH) return;
                 // Don't use inventory hauling for items that can't go in inventory
                 if (t.def.IsWeapon || t.def.IsApparel) return;
-                if (t is Corpse) return; // Corpses are too large for inventory
-                if (t.def.minifiedDef != null) return; // Buildings/furniture
+                if (t is Corpse) return;
+                if (t.def.minifiedDef != null) return;
                 if (!MassUtility.CanEverCarryAnything(p)) return;
 
                 var comp = p.GetComp<CompIntelligence>();
