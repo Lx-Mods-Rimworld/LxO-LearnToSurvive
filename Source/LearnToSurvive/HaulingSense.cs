@@ -337,6 +337,11 @@ namespace LearnToSurvive
             };
             mergeItem.defaultCompleteMode = ToilCompleteMode.Instant;
 
+            // Forward-declare wait toil so checkNextItem can reference it
+            Toil waitForProduction = new Toil();
+            waitForProduction.defaultCompleteMode = ToilCompleteMode.Delay;
+            waitForProduction.defaultDuration = 180; // ~3 seconds game time
+
             // -- Check: set up the next target or jump to findCell --
             Toil checkNextItem = new Toil();
             checkNextItem.initAction = () =>
@@ -397,14 +402,26 @@ namespace LearnToSurvive
                     return;
                 }
 
-                // Nothing nearby - go to storage
+                // Nothing nearby right now. Check if a worker is producing more nearby.
+                if (IsWorkerProducingNearby(pawn, carried.def, radius))
+                {
+                    // Worker is active -- wait briefly then rescan
+                    JumpToToil(waitForProduction);
+                    return;
+                }
+
+                // Nobody producing, go to storage
                 JumpToToil(findCell);
             };
             checkNextItem.defaultCompleteMode = ToilCompleteMode.Instant;
 
-            yield return checkNextItem;
-            yield return gotoNextItem;
-            yield return mergeItem;
+            // Post-wait: rescan after waiting
+            Toil postWait = new Toil();
+            postWait.initAction = () =>
+            {
+                JumpToToil(checkNextItem);
+            };
+            postWait.defaultCompleteMode = ToilCompleteMode.Instant;
 
             // After merging, loop back to check for more
             Toil loopBack = new Toil();
@@ -413,7 +430,14 @@ namespace LearnToSurvive
                 JumpToToil(checkNextItem);
             };
             loopBack.defaultCompleteMode = ToilCompleteMode.Instant;
-            yield return loopBack;
+
+            // Yield all toils in execution order
+            yield return checkNextItem;       // 0: check for next item or wait or go to storage
+            yield return gotoNextItem;        // 1: walk to next item
+            yield return mergeItem;           // 2: absorb item
+            yield return loopBack;            // 3: jump back to check
+            yield return waitForProduction;   // 4: wait 3 seconds
+            yield return postWait;            // 5: rescan after wait
 
             // 5. Find best storage cell (findCell was forward-declared above)
             findCell.initAction = () =>
@@ -550,6 +574,62 @@ namespace LearnToSurvive
             }
             // Cell is empty of storable items = has room
             return !hasItem;
+        }
+
+        /// <summary>
+        /// Check if any pawn nearby is actively deconstructing, mining, or harvesting
+        /// something that would produce items of the given type. If so, it's worth
+        /// waiting for them to finish before hauling.
+        /// </summary>
+        private static bool IsWorkerProducingNearby(Pawn hauler, ThingDef itemDef, float radius)
+        {
+            if (hauler.Map == null) return false;
+
+            foreach (Pawn worker in hauler.Map.mapPawns.FreeColonistsSpawned)
+            {
+                if (worker == hauler) continue;
+                if (worker.Dead || worker.Downed) continue;
+                if (worker.Position.DistanceTo(hauler.Position) > radius) continue;
+
+                var curJob = worker.CurJob;
+                if (curJob == null) continue;
+
+                // Is this worker deconstructing, mining, or harvesting?
+                bool isProducing = curJob.def == JobDefOf.Deconstruct
+                    || curJob.def == JobDefOf.Mine
+                    || curJob.def == JobDefOf.Harvest
+                    || curJob.def == JobDefOf.CutPlant;
+
+                if (!isProducing) continue;
+
+                // Check if their target would yield the same item type
+                Thing target = curJob.targetA.Thing;
+                if (target == null) continue;
+
+                // Deconstruct: check if building yields this material
+                if (curJob.def == JobDefOf.Deconstruct && target.def.CostList != null)
+                {
+                    foreach (var cost in target.def.CostList)
+                    {
+                        if (cost.thingDef == itemDef)
+                            return true;
+                    }
+                    // Also check stuff type (e.g., steel wall yields steel)
+                    if (target.Stuff == itemDef)
+                        return true;
+                }
+
+                // Mine: check if mineable yields this
+                if (curJob.def == JobDefOf.Mine && target.def.building?.mineableThing == itemDef)
+                    return true;
+
+                // Harvest/CutPlant: check plant yield
+                if ((curJob.def == JobDefOf.Harvest || curJob.def == JobDefOf.CutPlant)
+                    && target.def.plant?.harvestedThingDef == itemDef)
+                    return true;
+            }
+
+            return false;
         }
     }
 
