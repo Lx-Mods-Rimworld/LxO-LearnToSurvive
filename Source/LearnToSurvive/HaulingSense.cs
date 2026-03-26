@@ -311,6 +311,8 @@ namespace LearnToSurvive
                     if (nearby.IsForbidden(pawn)) continue;
                     if (nearby.IsInValidBestStorage()) continue;
                     if (!pawn.CanReserve(nearby)) continue;
+                    // Don't haul weapons/apparel to inventory -- they cause equip conflicts
+                    if (nearby.def.IsWeapon || nearby.def.IsApparel) continue;
 
                     // Check mass: can we pick up at least 1?
                     int canTake = MassUtility.CountToPickUpUntilOverEncumbered(pawn, nearby);
@@ -646,7 +648,9 @@ namespace LearnToSurvive
             {
                 if (!LTSSettings.enableHaulingSense) return;
                 if (__result == null || t == null || p == null) return;
-                if (ModCompat.PUAHLoaded && LTSSettings.respectPUAH) return; // Let PUAH handle it
+                if (ModCompat.PUAHLoaded && LTSSettings.respectPUAH) return;
+                // Don't use inventory hauling for weapons/apparel -- causes equip conflicts
+                if (t.def.IsWeapon || t.def.IsApparel) return;
 
                 var comp = p.GetComp<CompIntelligence>();
                 if (comp == null) return;
