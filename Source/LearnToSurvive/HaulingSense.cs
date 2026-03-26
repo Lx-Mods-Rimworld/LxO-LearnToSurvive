@@ -244,7 +244,8 @@ namespace LearnToSurvive
                 int canTake = MassUtility.CountToPickUpUntilOverEncumbered(pawn, target);
                 if (canTake <= 0)
                 {
-                    EndJobWith(JobCondition.Incompletable);
+                    // Can't carry -- end gracefully (Succeeded prevents retry loop)
+                    EndJobWith(JobCondition.Succeeded);
                     return;
                 }
                 int toTake = UnityEngine.Mathf.Min(canTake, target.stackCount);
@@ -266,9 +267,9 @@ namespace LearnToSurvive
                 }
                 else
                 {
-                    // Failed to add to inventory -- drop it back
+                    // Failed to add to inventory -- drop it back, end gracefully
                     GenPlace.TryPlaceThing(taken, pawn.Position, pawn.Map, ThingPlaceMode.Near);
-                    EndJobWith(JobCondition.Incompletable);
+                    EndJobWith(JobCondition.Succeeded); // Succeeded prevents retry loop
                     return;
                 }
 
@@ -311,8 +312,10 @@ namespace LearnToSurvive
                     if (nearby.IsForbidden(pawn)) continue;
                     if (nearby.IsInValidBestStorage()) continue;
                     if (!pawn.CanReserve(nearby)) continue;
-                    // Don't haul weapons/apparel to inventory -- they cause equip conflicts
+                    // Skip items that can't go in inventory
                     if (nearby.def.IsWeapon || nearby.def.IsApparel) continue;
+                    if (nearby is Corpse) continue;
+                    if (nearby.def.minifiedDef != null) continue;
 
                     // Check mass: can we pick up at least 1?
                     int canTake = MassUtility.CountToPickUpUntilOverEncumbered(pawn, nearby);
@@ -649,8 +652,11 @@ namespace LearnToSurvive
                 if (!LTSSettings.enableHaulingSense) return;
                 if (__result == null || t == null || p == null) return;
                 if (ModCompat.PUAHLoaded && LTSSettings.respectPUAH) return;
-                // Don't use inventory hauling for weapons/apparel -- causes equip conflicts
+                // Don't use inventory hauling for items that can't go in inventory
                 if (t.def.IsWeapon || t.def.IsApparel) return;
+                if (t is Corpse) return; // Corpses are too large for inventory
+                if (t.def.minifiedDef != null) return; // Buildings/furniture
+                if (!MassUtility.CanEverCarryAnything(p)) return;
 
                 var comp = p.GetComp<CompIntelligence>();
                 if (comp == null) return;
