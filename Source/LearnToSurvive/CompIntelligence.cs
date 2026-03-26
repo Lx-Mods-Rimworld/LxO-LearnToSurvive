@@ -188,6 +188,7 @@ namespace LearnToSurvive
 
             if ((Find.TickManager.TicksGame + tickOffset) % TickInterval != 0) return;
 
+            if (!(parent is Pawn)) return; // Skip corpses
             if (!initialized) InitializeStats();
             if (Pawn.Dead || Pawn.Downed) return;
 
@@ -297,6 +298,7 @@ namespace LearnToSurvive
 
         public override string CompInspectStringExtra()
         {
+            if (!(parent is Pawn)) return null;
             if (!initialized || Pawn.Dead) return null;
 
             int avg = 0;
