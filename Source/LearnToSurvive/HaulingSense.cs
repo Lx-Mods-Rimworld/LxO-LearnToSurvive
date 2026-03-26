@@ -349,34 +349,55 @@ namespace LearnToSurvive
                 }
 
                 // Check both stack limit AND mass capacity
-                bool stackFull = carried.stackCount >= carried.def.stackLimit;
+                int stackSpace = carried.def.stackLimit - carried.stackCount;
                 float massCarried = MassUtility.GearAndInventoryMass(pawn)
                     + carried.GetStatValue(StatDefOf.Mass) * carried.stackCount;
                 float massRemaining = MassUtility.Capacity(pawn) - massCarried;
                 float massPerItem = carried.def.GetStatValueAbstract(StatDefOf.Mass);
-                bool massFull = massPerItem > 0f && massRemaining < massPerItem;
+                int massSpace = massPerItem > 0f ? (int)(massRemaining / massPerItem) : stackSpace;
+                int canCarryMore = Math.Min(stackSpace, massSpace);
 
-                if (stackFull || massFull)
+                if (canCarryMore <= 0)
                 {
                     JumpToToil(findCell);
                     return;
                 }
 
-                // Find next valid item in our list
-                while (nearbyIndex < nearbyItems.Count)
+                // RESCAN from current position every time (not a stale list).
+                // The pawn may have walked to a new area with different nearby items.
+                var comp = pawn.GetComp<CompIntelligence>();
+                int level = comp?.GetLevel(StatType.HaulingSense) ?? 0;
+                float radius = HaulingSense.GetGrabRadius(level);
+
+                Thing bestNext = null;
+                float bestDist = float.MaxValue;
+
+                foreach (Thing nearby in GenRadial.RadialDistinctThingsAround(
+                    pawn.Position, pawn.Map, radius, true))
                 {
-                    Thing next = nearbyItems[nearbyIndex];
-                    if (next != null && !next.Destroyed && next.Spawned
-                        && next.def == carried.def && pawn.CanReserve(next))
+                    if (nearby == carried) continue;
+                    if (nearby.def != carried.def) continue;
+                    if (nearby.Destroyed || !nearby.Spawned) continue;
+                    if (nearby.IsForbidden(pawn)) continue;
+                    if (!pawn.CanReserve(nearby)) continue;
+
+                    float dist = nearby.Position.DistanceTo(pawn.Position);
+                    if (dist < bestDist)
                     {
-                        job.targetC = next;
-                        pawn.Reserve(next, job);
-                        JumpToToil(gotoNextItem);
-                        return;
+                        bestDist = dist;
+                        bestNext = nearby;
                     }
-                    nearbyIndex++;
                 }
-                // No more items - go to storage
+
+                if (bestNext != null)
+                {
+                    job.targetC = bestNext;
+                    pawn.Reserve(bestNext, job);
+                    JumpToToil(gotoNextItem);
+                    return;
+                }
+
+                // Nothing nearby - go to storage
                 JumpToToil(findCell);
             };
             checkNextItem.defaultCompleteMode = ToilCompleteMode.Instant;
