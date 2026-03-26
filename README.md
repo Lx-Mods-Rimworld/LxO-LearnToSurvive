@@ -111,7 +111,7 @@ Subscribe on Steam Workshop, or download and extract to your RimWorld `Mods` fol
 Developed by **Lexxers** ([Lx-Mods-Rimworld](https://github.com/Lx-Mods-Rimworld))
 
 Free forever. If you enjoy this mod, consider supporting development:
-**[Ko-fi](https://ko-fi.com/lexxers)**
+**[Ko-fi](https://ko-fi.com/lexxes)**
 
 ## License
 

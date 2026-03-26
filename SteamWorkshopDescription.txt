@@ -124,6 +124,6 @@ Full decision logging system for debugging and tuning. Enable in mod settings:
 
 [h1]Support Development[/h1]
 This mod is free forever. No paywalls. If you enjoy it, consider buying me a coffee:
-[url=https://ko-fi.com/lexxers]Ko-fi[/url]
+[url=https://ko-fi.com/lexxes]Ko-fi[/url]
 
 [i]Developed by Lexxers[/i]
