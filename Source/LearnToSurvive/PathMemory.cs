@@ -140,14 +140,25 @@ namespace LearnToSurvive
     // Manually patched in HarmonyInit - Pawn_PathFollower.PatherTick
     public static class Patch_PathFollower_Track
     {
+        // Track last known cell per pawn to detect actual cell changes
+        private static Dictionary<int, IntVec3> lastCellPerPawn = new Dictionary<int, IntVec3>();
+
         public static void Postfix(Pawn_PathFollower __instance)
         {
             try
             {
                 if (!LTSSettings.enablePathMemory) return;
+                if (!__instance.Moving) return;
 
                 Pawn pawn = Traverse.Create(__instance).Field("pawn").GetValue<Pawn>();
                 if (pawn == null || !pawn.IsColonist) return;
+
+                // Only increment when pawn actually enters a NEW cell
+                int id = pawn.thingIDNumber;
+                IntVec3 curCell = pawn.Position;
+                if (lastCellPerPawn.TryGetValue(id, out IntVec3 prevCell) && prevCell == curCell)
+                    return; // Same cell, don't count
+                lastCellPerPawn[id] = curCell;
 
                 var comp = pawn.GetComp<CompIntelligence>();
                 if (comp == null) return;
