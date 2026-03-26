@@ -2,6 +2,14 @@
 
 All notable changes to this mod will be documented in this file.
 
+## [1.1.0] - 2026-03-27
+
+### Features
+- Crafting task chaining (WorkAwareness Level 8+): pawns now cook/craft multiple bill iterations before hauling results. Products drop near the workstation and get batch-hauled after the last iteration. Example: need 6 meals? Cook all 6, then haul all at once.
+
+### Fixes
+- Fixed items permanently stuck in pawn inventory after SmartHaul is interrupted. Hauled items are now dropped back on the ground if the hauling job is interrupted for any reason (combat, recreation, priority change).
+
 ## [1.0.2] - 2026-03-26
 
 ### Fixes
