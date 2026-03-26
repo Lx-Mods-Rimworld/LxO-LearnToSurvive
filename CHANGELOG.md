@@ -2,6 +2,11 @@
 
 All notable changes to this mod will be documented in this file.
 
+## [1.0.1] - 2026-03-26
+
+### Fixes
+- Fixed Path Memory XP being awarded constantly even when pawns were standing still. XP now only increases when actually walking to a new tile.
+
 ## [1.0.0] - 2026-03-26
 
 ### Features
