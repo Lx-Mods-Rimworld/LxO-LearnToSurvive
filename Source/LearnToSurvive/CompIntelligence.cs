@@ -61,7 +61,7 @@ namespace LearnToSurvive
             {
                 if (!stats.ContainsKey(type))
                 {
-                    int startLevel = BackstoryMapper.GetStartingLevel(Pawn, type);
+                    int startLevel = (parent is Pawn) ? BackstoryMapper.GetStartingLevel(Pawn, type) : 0;
                     stats[type] = new IntelligenceData(type, startLevel);
                 }
             }
@@ -291,7 +291,10 @@ namespace LearnToSurvive
                 foreach (StatType type in Enum.GetValues(typeof(StatType)))
                 {
                     if (!stats.ContainsKey(type))
-                        stats[type] = new IntelligenceData(type, BackstoryMapper.GetStartingLevel(Pawn, type));
+                    {
+                        int lvl = (parent is Pawn) ? BackstoryMapper.GetStartingLevel(Pawn, type) : 0;
+                        stats[type] = new IntelligenceData(type, lvl);
+                    }
                 }
             }
         }
