@@ -337,7 +337,26 @@ namespace LearnToSurvive
                 visitedRegions = trimmed;
             }
 
-            Scribe_Collections.Look(ref visitedRegions, "lts_visitedRegions", LookMode.Value, LookMode.Value);
+            // Save as Dictionary<int,int> under new key. Old saves had HashSet<int> under the old key.
+            // On load: try new format first, fall back to empty if old format or missing.
+            if (Scribe.mode == LoadSaveMode.Saving)
+            {
+                Scribe_Collections.Look(ref visitedRegions, "lts_visitedRegionsV2", LookMode.Value, LookMode.Value);
+            }
+            else if (Scribe.mode == LoadSaveMode.LoadingVars)
+            {
+                try
+                {
+                    Scribe_Collections.Look(ref visitedRegions, "lts_visitedRegionsV2", LookMode.Value, LookMode.Value);
+                }
+                catch
+                {
+                    visitedRegions = new Dictionary<int, int>();
+                }
+                // If null (key not found -- old save), just start fresh
+                if (visitedRegions == null)
+                    visitedRegions = new Dictionary<int, int>();
+            }
             Scribe_Collections.Look(ref dangerMemory, "lts_dangerMemory", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref booksReadCount, "lts_booksReadCount", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref preferredStations, "lts_preferredStations", LookMode.Value, LookMode.Value);
