@@ -138,7 +138,7 @@ namespace LearnToSurvive
     /// but low priority means other mods get first say.
     /// </summary>
     // Manually patched in HarmonyInit - Verb_LaunchProjectile.TryCastShot
-    [HarmonyPriority(Priority.Low)]
+    // NO [HarmonyPatch] attribute -- this is registered manually with Priority.Low
     public static class Patch_FriendlyFire
     {
         public static bool Prefix(Verb_LaunchProjectile __instance, ref bool __result)
