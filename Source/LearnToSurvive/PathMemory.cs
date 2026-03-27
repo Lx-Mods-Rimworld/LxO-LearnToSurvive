@@ -128,7 +128,7 @@ namespace LearnToSurvive
             if (level >= 1 && comp != null)
             {
                 Region region = cell.GetRegion(pawn.Map);
-                if (region != null && comp.visitedRegions.Contains(region.id))
+                if (region != null && comp.IsRegionFamiliar(region.id))
                 {
                     int familiarityBonus = Math.Min(level, 4); // 1-4 reduction
                     extra -= familiarityBonus;
@@ -194,7 +194,7 @@ namespace LearnToSurvive
                 {
                     var region = pawn.Position.GetRegion(pawn.Map);
                     if (region != null)
-                        comp.visitedRegions.Add(region.id);
+                        comp.visitedRegions[region.id] = Find.TickManager.TicksGame;
                 }
             }
             catch (Exception) { }

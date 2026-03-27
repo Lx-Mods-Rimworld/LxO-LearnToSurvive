@@ -19,8 +19,9 @@ namespace LearnToSurvive
         private Dictionary<StatType, IntelligenceData> stats = new Dictionary<StatType, IntelligenceData>();
         private bool initialized;
 
-        // Path memory: track visited cells (region IDs for efficiency)
-        public HashSet<int> visitedRegions = new HashSet<int>();
+        // Path memory: track visited regions (regionID -> lastVisitedTick)
+        // Region IDs are recycled on rebuild, so entries expire after 60000 ticks (~1 day)
+        public Dictionary<int, int> visitedRegions = new Dictionary<int, int>();
 
         // Hauling inventory tracking: thingIDs of items we're hauling in inventory
         public HashSet<int> haulInventoryItems = new HashSet<int>();
@@ -206,6 +207,16 @@ namespace LearnToSurvive
                 booksReadCount[bookThingID] = 1;
         }
 
+        /// <summary>
+        /// Check if a region was visited recently (within 60000 ticks / ~1 in-game day).
+        /// Handles region ID recycling by expiring old entries.
+        /// </summary>
+        public bool IsRegionFamiliar(int regionId)
+        {
+            if (!visitedRegions.TryGetValue(regionId, out int visitTick)) return false;
+            return Find.TickManager.TicksGame - visitTick < 60000;
+        }
+
         public override void CompTick()
         {
             base.CompTick();
@@ -237,7 +248,7 @@ namespace LearnToSurvive
             {
                 var region = Pawn.Position.GetRegion(Pawn.Map);
                 if (region != null)
-                    visitedRegions.Add(region.id);
+                    visitedRegions[region.id] = Find.TickManager.TicksGame;
             }
 
             // Clean up old danger memory (every 2500 ticks = ~42 seconds)
@@ -263,6 +274,13 @@ namespace LearnToSurvive
                 if (tick - kvp.Value > 300000) keysToRemove.Add(kvp.Key);
             for (int i = 0; i < keysToRemove.Count; i++)
                 dangerMemory.Remove(keysToRemove[i]);
+
+            // Clean stale visited regions (>1 day / 60000 ticks old)
+            keysToRemove.Clear();
+            foreach (var kvp in visitedRegions)
+                if (tick - kvp.Value > 60000) keysToRemove.Add(kvp.Key);
+            for (int i = 0; i < keysToRemove.Count; i++)
+                visitedRegions.Remove(keysToRemove[i]);
         }
 
         private void CheckNeedSatisfaction()
@@ -309,7 +327,17 @@ namespace LearnToSurvive
                 }
             }
 
-            Scribe_Collections.Look(ref visitedRegions, "lts_visitedRegions", LookMode.Value);
+            // Cap visitedRegions before saving to limit save bloat
+            if (Scribe.mode == LoadSaveMode.Saving && visitedRegions.Count > 200)
+            {
+                var sorted = visitedRegions.OrderByDescending(kvp => kvp.Value).Take(200);
+                var trimmed = new Dictionary<int, int>();
+                foreach (var kvp in sorted)
+                    trimmed[kvp.Key] = kvp.Value;
+                visitedRegions = trimmed;
+            }
+
+            Scribe_Collections.Look(ref visitedRegions, "lts_visitedRegions", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref dangerMemory, "lts_dangerMemory", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref booksReadCount, "lts_booksReadCount", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref preferredStations, "lts_preferredStations", LookMode.Value, LookMode.Value);
@@ -317,7 +345,7 @@ namespace LearnToSurvive
 
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
-                if (visitedRegions == null) visitedRegions = new HashSet<int>();
+                if (visitedRegions == null) visitedRegions = new Dictionary<int, int>();
                 if (dangerMemory == null) dangerMemory = new Dictionary<int, int>();
                 if (booksReadCount == null) booksReadCount = new Dictionary<int, int>();
                 if (preferredStations == null) preferredStations = new Dictionary<string, int>();

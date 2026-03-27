@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -30,11 +29,25 @@ namespace LearnToSurvive
         public static float RetreatHealthPct(int level) => level >= 12 ? 0.25f : (level >= 9 ? 0.40f : 0f);
 
         /// <summary>
-        /// Find the best cover cell near the pawn's current position.
+        /// Find the best cover cell near the pawn's current position,
+        /// using directional cover from the nearest enemy.
         /// </summary>
         public static IntVec3 FindBestCover(Pawn pawn, int level)
         {
             if (pawn.Map == null) return IntVec3.Invalid;
+
+            // Find nearest enemy to evaluate cover direction
+            Thing nearestEnemy = null;
+            float nearestDist = 999f;
+            foreach (var target in pawn.Map.attackTargetsCache.TargetsHostileToFaction(Faction.OfPlayer))
+            {
+                if (target is Pawn enemy && !enemy.Dead && !enemy.Downed)
+                {
+                    float d = pawn.Position.DistanceTo(enemy.Position);
+                    if (d < nearestDist) { nearestDist = d; nearestEnemy = enemy; }
+                }
+            }
+            if (nearestEnemy == null) return IntVec3.Invalid;
 
             float searchRadius = level >= 4 ? 5f : 3f;
             IntVec3 bestCell = IntVec3.Invalid;
@@ -46,7 +59,8 @@ namespace LearnToSurvive
                 if (!cell.Standable(pawn.Map)) continue;
                 if (!pawn.CanReach(cell, PathEndMode.OnCell, Danger.Some)) continue;
 
-                float coverScore = CoverUtility.TotalSurroundingCoverScore(cell, pawn.Map);
+                // Score by directional cover FROM the nearest enemy
+                float coverScore = CoverUtility.CalculateOverallBlockChance(cell, nearestEnemy.Position, pawn.Map);
                 if (coverScore > bestCover)
                 {
                     bestCover = coverScore;
@@ -55,6 +69,45 @@ namespace LearnToSurvive
             }
 
             return bestCell;
+        }
+
+        /// <summary>
+        /// Get directional cover score from nearest enemy for a given cell.
+        /// Returns 0 if no enemies found.
+        /// </summary>
+        public static float GetDirectionalCoverScore(IntVec3 cell, Map map)
+        {
+            Thing nearestEnemy = null;
+            float nearestDist = 999f;
+            foreach (var target in map.attackTargetsCache.TargetsHostileToFaction(Faction.OfPlayer))
+            {
+                if (target is Pawn enemy && !enemy.Dead && !enemy.Downed)
+                {
+                    float d = cell.DistanceTo(enemy.Position);
+                    if (d < nearestDist) { nearestDist = d; nearestEnemy = enemy; }
+                }
+            }
+            if (nearestEnemy == null) return 0f;
+            return CoverUtility.CalculateOverallBlockChance(cell, nearestEnemy.Position, map);
+        }
+
+        /// <summary>
+        /// Find position of nearest enemy to the pawn. Returns pawn's own position if none found.
+        /// </summary>
+        public static IntVec3 FindNearestEnemyPos(Pawn pawn)
+        {
+            if (pawn.Map == null) return pawn.Position;
+            IntVec3 bestPos = pawn.Position;
+            float nearestDist = 999f;
+            foreach (var target in pawn.Map.attackTargetsCache.TargetsHostileToFaction(Faction.OfPlayer))
+            {
+                if (target is Pawn enemy && !enemy.Dead && !enemy.Downed)
+                {
+                    float d = pawn.Position.DistanceTo(enemy.Position);
+                    if (d < nearestDist) { nearestDist = d; bestPos = enemy.Position; }
+                }
+            }
+            return bestPos;
         }
 
         /// <summary>
@@ -121,7 +174,12 @@ namespace LearnToSurvive
 
                 // Check if actually in combat (enemies nearby)
                 if (__instance.Map == null) return;
-                bool inCombat = __instance.Map.attackTargetsCache.GetPotentialTargetsFor(__instance).Any();
+                bool inCombat = false;
+                foreach (var t in __instance.Map.attackTargetsCache.TargetsHostileToFaction(Faction.OfPlayer))
+                {
+                    if (t is Pawn enemy && !enemy.Dead && !enemy.Downed)
+                    { inCombat = true; break; }
+                }
                 if (!inCombat) return;
 
                 var comp = __instance.GetComp<CompIntelligence>();
@@ -252,18 +310,19 @@ namespace LearnToSurvive
                 }
 
                 // Cover seeking (Lv3+): if not in cover, try to find cover
-                if (CombatInstinctUtil.BasicCover(level) && pawn.Drafted)
+                // Only auto-reposition undrafted pawns -- drafted = player control
+                if (CombatInstinctUtil.BasicCover(level) && !pawn.Drafted)
                 {
-                    float currentCover = CoverUtility.TotalSurroundingCoverScore(pawn.Position, pawn.Map);
-                    if (currentCover < 0.5f) // Not in good cover
+                    float currentCover = CombatInstinctUtil.GetDirectionalCoverScore(pawn.Position, pawn.Map);
+                    if (currentCover < 0.4f) // Not in good directional cover
                     {
                         IntVec3 coverCell = CombatInstinctUtil.FindBestCover(pawn, level);
                         if (coverCell.IsValid && coverCell != pawn.Position)
                         {
-                            float newCover = CoverUtility.TotalSurroundingCoverScore(coverCell, pawn.Map);
-                            if (newCover > currentCover + 0.3f) // Significantly better cover
+                            float newCover = CoverUtility.CalculateOverallBlockChance(coverCell,
+                                CombatInstinctUtil.FindNearestEnemyPos(pawn), pawn.Map);
+                            if (newCover > currentCover + 0.2f) // Significantly better cover
                             {
-                                // Suggest cover position (don't force - pawn is drafted, player has control)
                                 // Only auto-move if Lv10+ (combat repositioning)
                                 if (CombatInstinctUtil.CombatReposition(level))
                                 {
@@ -272,8 +331,8 @@ namespace LearnToSurvive
                                     pawn.jobs.TryTakeOrderedJob(moveJob);
 
                                     LTSLog.Decision(pawn, StatType.CombatInstinct, level, "COVER_REPOSITION",
-                                        "current_cover=" + currentCover.ToString("F1"),
-                                        "moving to " + coverCell + " (cover=" + newCover.ToString("F1") + ")",
+                                        "current_cover=" + currentCover.ToString("F2"),
+                                        "moving to " + coverCell + " (cover=" + newCover.ToString("F2") + ")",
                                         "level=" + level);
                                 }
                             }
