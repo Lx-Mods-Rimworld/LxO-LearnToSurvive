@@ -2,6 +2,37 @@
 
 All notable changes to this mod will be documented in this file.
 
+## [2.0.0] - 2026-03-27 -- Engine Overhaul
+
+**Major internal rework. Every system audited against RimWorld 1.6 engine docs and rebuilt correctly.**
+
+### Behavioral Redesign
+- Removed proximity sorting of work items -- was actively slowing down work assignment. Vanilla's region search is already optimal.
+- Crafting task chaining no longer modifies bill settings. Products haul normally between iterations. Safe for multiplayer and shared bills.
+- Pre-clean now uses a proper queued Clean job instead of injecting toils (which broke vanilla crafting). Pawns get cleaning skill XP and animation.
+- Workstation speed bonus now uses RimWorld's StatPart system instead of patching every stat calculation. Shows bonus in stat tooltip.
+- Path cost modification removed (was silently doing nothing in 1.6 due to Burst async pathfinding). Tile walking XP and danger memory still work.
+- Friendly fire check rewritten to match vanilla's actual projectile intercept model (body size, distance, prone factor) instead of cone approximation.
+- Cover seeking now uses directional cover from the enemy position instead of general surrounding cover score.
+
+### Fixes
+- Fixed crash on pawn death: intelligence comp now safely handles corpses (reported by multiple users)
+- Fixed task chaining causing starvation: colonists now stop chaining when food/rest/joy is critical (reported by @Yaximbahps)
+- Fixed books getting stuck in pawn inventory from SmartHaul. Books now use vanilla carry. (reported by @Yaximbahps)
+- Fixed stone chunks causing pawns to stand still. Heavy items (>8kg) now use vanilla carry. (reported by @Yaximbahps)
+- Fixed cover repositioning overriding player's drafted commands
+- Fixed guest/visitor/prisoner pawns incorrectly receiving intelligence behaviors
+- Fixed save file bloat from unbounded region memory. Now expires after 1 day and caps at 200 entries.
+- Fixed region ID recycling causing stale path familiarity data
+- Fixed save compatibility with old saves (visitedRegions format migration)
+
+### Performance
+- Replaced all Traverse reflection calls with cached FieldRef delegates (3 hot paths)
+- Fixed O(n^2) mass calculation in item batching (running total instead of re-sum)
+- Removed LINQ from all hot paths (combat tick, danger cleanup)
+- Cached mentor bonus calculation (500-tick expiry instead of per-XP-event)
+- Staggered combat XP ticks across pawns to prevent frame spikes
+
 ## [1.1.0] - 2026-03-27
 
 ### Features
