@@ -329,10 +329,12 @@ namespace LearnToSurvive
                     if (nearby.IsForbidden(pawn)) continue;
                     if (nearby.IsInValidBestStorage()) continue;
                     if (!pawn.CanReserve(nearby)) continue;
-                    // Skip items that can't go in inventory
+                    // Skip items that shouldn't go in inventory (vanilla haul handles them fine)
                     if (nearby.def.IsWeapon || nearby.def.IsApparel) continue;
                     if (nearby is Corpse) continue;
                     if (nearby.def.minifiedDef != null) continue;
+                    if (nearby.TryGetComp<CompBook>() != null) continue; // Books get lost in inventory
+                    if (nearby.GetStatValue(StatDefOf.Mass) > 8f) continue; // Chunks/heavy items: vanilla carry
 
                     // Check mass: can we pick up at least 1?
                     int canTake = MassUtility.CountToPickUpUntilOverEncumbered(pawn, nearby);
@@ -677,10 +679,13 @@ namespace LearnToSurvive
                 if (!LTSSettings.enableHaulingSense) return;
                 if (__result == null || t == null || p == null) return;
                 if (ModCompat.PUAHLoaded && LTSSettings.respectPUAH) return;
-                // Don't use inventory hauling for items that can't go in inventory
+                // Don't use inventory hauling for items that shouldn't go in inventory
+                // These get hauled normally via vanilla carry (one at a time, straight to storage)
                 if (t.def.IsWeapon || t.def.IsApparel) return;
                 if (t is Corpse) return;
                 if (t.def.minifiedDef != null) return;
+                if (t.TryGetComp<CompBook>() != null) return; // Books get lost in inventory
+                if (t.GetStatValue(StatDefOf.Mass) > 8f) return; // Chunks/heavy: vanilla carry is correct
                 if (!MassUtility.CanEverCarryAnything(p)) return;
 
                 var comp = p.GetComp<CompIntelligence>();

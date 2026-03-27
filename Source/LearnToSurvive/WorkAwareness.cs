@@ -142,9 +142,18 @@ namespace LearnToSurvive
 
                     // Task chaining (Lv8+): after completing deconstruct/harvest/mine,
                     // queue the next nearby same-type job so we batch the work before hauling
+                    // BUT: never chain if pawn has critical needs -- let ThinkTree handle food/rest/joy
                     if (WorkAwareness.TaskChaining(level))
                     {
-                        Job chainedJob = TryFindChainJob(pawn, curJob, level);
+                        bool needsCritical = false;
+                        if (pawn.needs?.food != null && pawn.needs.food.CurLevelPercentage < 0.25f)
+                            needsCritical = true;
+                        if (pawn.needs?.rest != null && pawn.needs.rest.CurLevelPercentage < 0.25f)
+                            needsCritical = true;
+                        if (pawn.needs?.joy != null && pawn.needs.joy.CurLevelPercentage < 0.05f)
+                            needsCritical = true;
+
+                        Job chainedJob = needsCritical ? null : TryFindChainJob(pawn, curJob, level);
                         if (chainedJob != null)
                         {
                             // Pre-clean before chained DoBill (Lv4+)
