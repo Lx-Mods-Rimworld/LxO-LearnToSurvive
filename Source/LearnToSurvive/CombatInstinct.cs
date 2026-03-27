@@ -116,8 +116,8 @@ namespace LearnToSurvive
                 if (__instance == null || __instance.Dead || !__instance.IsColonist) return;
                 if (!__instance.Drafted) return;
 
-                // Only every 60 ticks
-                if (Find.TickManager.TicksGame % 60 != 0) return;
+                // Only every 60 ticks (staggered per pawn)
+                if ((Find.TickManager.TicksGame + __instance.thingIDNumber) % 60 != 0) return;
 
                 // Check if actually in combat (enemies nearby)
                 if (__instance.Map == null) return;

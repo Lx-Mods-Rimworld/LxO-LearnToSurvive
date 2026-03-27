@@ -45,7 +45,15 @@ namespace LearnToSurvive
         private int tickOffset = -1;
         private const int TickInterval = 250;
 
-        public Pawn Pawn => (Pawn)parent;
+        public Pawn Pawn
+        {
+            get
+            {
+                if (parent is Pawn p) return p;
+                if (parent is Corpse c) return c.InnerPawn;
+                return null;
+            }
+        }
 
         public override void Initialize(CompProperties props)
         {
@@ -86,9 +94,11 @@ namespace LearnToSurvive
             if (!LTSSettings.IsStatEnabled(type)) return;
             if (!stats.TryGetValue(type, out var data)) return;
             if (data.level >= IntelligenceData.MaxLevel) return;
+            Pawn pawn = Pawn;
+            if (pawn == null) return;
 
             float modifier = GetTraitModifier(type);
-            float intellectBonus = 1f + (Pawn.skills?.GetSkill(SkillDefOf.Intellectual)?.Level ?? 0) * 0.02f;
+            float intellectBonus = 1f + (pawn.skills?.GetSkill(SkillDefOf.Intellectual)?.Level ?? 0) * 0.02f;
             float mentorBonus = GetMentorBonus(type);
 
             float totalXP = baseAmount * LTSSettings.xpMultiplier * modifier * intellectBonus * mentorBonus;
@@ -96,12 +106,12 @@ namespace LearnToSurvive
             int oldLevel = data.level;
             bool leveledUp = data.TryAddXP(totalXP);
 
-            LTSLog.XPGain(Pawn, type, baseAmount, totalXP, data.XPProgress, data.level);
+            LTSLog.XPGain(pawn, type, baseAmount, totalXP, data.XPProgress, data.level);
 
             if (leveledUp)
             {
                 string tierName = IntelligenceData.GetTierName(type, data.level);
-                LTSLog.LevelUp(Pawn, type, oldLevel, data.level, tierName);
+                LTSLog.LevelUp(pawn, type, oldLevel, data.level, tierName);
             }
         }
 
@@ -116,15 +126,32 @@ namespace LearnToSurvive
             return traitModifierCache.TryGetValue(type, out float mod) ? mod : 1f;
         }
 
+        // Mentor bonus cache (iterates all colonists -- expensive)
+        private float cachedMentorBonus = 0f;
+        private int mentorBonusCacheTick = -999;
+        private StatType cachedMentorBonusType;
+
         private float GetMentorBonus(StatType type)
         {
-            if (Pawn.Map == null) return 1f;
+            int tick = Find.TickManager.TicksGame;
+            if (tick - mentorBonusCacheTick < 500 && cachedMentorBonusType == type)
+                return cachedMentorBonus;
+            mentorBonusCacheTick = tick;
+            cachedMentorBonusType = type;
+            cachedMentorBonus = ComputeMentorBonus(type);
+            return cachedMentorBonus;
+        }
+
+        private float ComputeMentorBonus(StatType type)
+        {
+            Pawn pawn = Pawn;
+            if (pawn?.Map == null) return 1f;
 
             float bonus = 1f;
-            foreach (Pawn other in Pawn.Map.mapPawns.FreeColonistsSpawned)
+            foreach (Pawn other in pawn.Map.mapPawns.FreeColonistsSpawned)
             {
-                if (other == Pawn) continue;
-                if (other.Position.DistanceTo(Pawn.Position) > 10f) continue;
+                if (other == pawn) continue;
+                if (other.Position.DistanceTo(pawn.Position) > 10f) continue;
 
                 var otherComp = other.GetComp<CompIntelligence>();
                 if (otherComp == null) continue;
@@ -140,7 +167,7 @@ namespace LearnToSurvive
                     if (other.story?.traits?.allTraits?.Any(t => t.def.defName == "Abrasive") == true)
                         mentorRadius = 5f;
 
-                    if (other.Position.DistanceTo(Pawn.Position) <= mentorRadius)
+                    if (other.Position.DistanceTo(pawn.Position) <= mentorRadius)
                     {
                         bonus = 1.25f;
                         break;
@@ -152,14 +179,14 @@ namespace LearnToSurvive
 
         public void RecordDanger(IntVec3 cell)
         {
-            if (Pawn.Map == null) return;
+            if (Pawn?.Map == null) return;
             int index = Pawn.Map.cellIndices.CellToIndex(cell);
             dangerMemory[index] = Find.TickManager.TicksGame;
         }
 
         public bool IsDangerCell(IntVec3 cell)
         {
-            if (Pawn.Map == null) return false;
+            if (Pawn?.Map == null) return false;
             int index = Pawn.Map.cellIndices.CellToIndex(cell);
             if (!dangerMemory.TryGetValue(index, out int injuryTick)) return false;
             // Remember danger for 5 days (300,000 ticks)
@@ -192,6 +219,11 @@ namespace LearnToSurvive
             if (!initialized) InitializeStats();
             if (Pawn.Dead || Pawn.Downed) return;
 
+            // Skip non-player pawns (guests, prisoners), allow slaves
+            Faction playerFaction = Find.FactionManager?.OfPlayer;
+            if (playerFaction == null || (Pawn.Faction != playerFaction && !Pawn.IsSlave)) return;
+            if (Pawn.IsPrisoner) return;
+
             // Award passive path XP
             if (LTSSettings.enablePathMemory && tilesWalkedAccumulator >= 10)
             {
@@ -221,12 +253,16 @@ namespace LearnToSurvive
             }
         }
 
+        private static readonly List<int> keysToRemove = new List<int>();
+
         private void CleanDangerMemory()
         {
-            int currentTick = Find.TickManager.TicksGame;
-            var expired = dangerMemory.Where(kv => currentTick - kv.Value > 300000).Select(kv => kv.Key).ToList();
-            foreach (var key in expired)
-                dangerMemory.Remove(key);
+            keysToRemove.Clear();
+            int tick = Find.TickManager.TicksGame;
+            foreach (var kvp in dangerMemory)
+                if (tick - kvp.Value > 300000) keysToRemove.Add(kvp.Key);
+            for (int i = 0; i < keysToRemove.Count; i++)
+                dangerMemory.Remove(keysToRemove[i]);
         }
 
         private void CheckNeedSatisfaction()
@@ -251,6 +287,7 @@ namespace LearnToSurvive
         public override void PostExposeData()
         {
             base.PostExposeData();
+            if (!(parent is Pawn) && !(parent is Corpse)) return;
 
             Scribe_Values.Look(ref initialized, "lts_initialized", false);
 

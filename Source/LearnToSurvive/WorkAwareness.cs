@@ -116,6 +116,9 @@ namespace LearnToSurvive
     [HarmonyPatch(typeof(Pawn_JobTracker), nameof(Pawn_JobTracker.EndCurrentJob))]
     public static class Patch_EndJob_WorkXP
     {
+        private static readonly AccessTools.FieldRef<Pawn_JobTracker, Pawn> jobTrackerPawn =
+            AccessTools.FieldRefAccess<Pawn_JobTracker, Pawn>("pawn");
+
         public static void Prefix(Pawn_JobTracker __instance, JobCondition condition)
         {
             try
@@ -123,7 +126,7 @@ namespace LearnToSurvive
                 if (!LTSSettings.enableWorkAwareness) return;
                 if (condition != JobCondition.Succeeded) return;
 
-                Pawn pawn = Traverse.Create(__instance).Field("pawn").GetValue<Pawn>();
+                Pawn pawn = jobTrackerPawn(__instance);
                 if (pawn == null || pawn.Map == null) return;
 
                 var curJob = __instance.curJob;

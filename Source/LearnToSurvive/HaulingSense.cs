@@ -72,6 +72,9 @@ namespace LearnToSurvive
             if (AvoidDuplicates(level))
                 claimedItems = GetClaimedHaulItems(pawn.Map, pawn);
 
+            float runningMass = primary.GetStatValue(StatDefOf.Mass);
+            float massCapacity = useInv ? MassUtility.Capacity(pawn) * 0.9f : float.MaxValue;
+
             foreach (Thing candidate in candidates)
             {
                 if (useInv && !MassUtility.CanEverCarryAnything(pawn)) break;
@@ -94,15 +97,17 @@ namespace LearnToSurvive
                         continue;
                 }
 
-                result.Add(candidate);
+                float candidateMass = candidate.GetStatValue(StatDefOf.Mass);
 
                 // Inventory mode: limit by carry capacity
                 if (useInv)
                 {
-                    float totalMass = result.Sum(t => t.GetStatValue(StatDefOf.Mass)) + primary.GetStatValue(StatDefOf.Mass);
-                    if (totalMass > MassUtility.Capacity(pawn) * 0.9f)
+                    if (runningMass + candidateMass > massCapacity)
                         break;
                 }
+
+                result.Add(candidate);
+                runningMass += candidateMass;
             }
 
             // Sort: perishables first if level 7+
@@ -725,6 +730,9 @@ namespace LearnToSurvive
     [HarmonyPatch(typeof(Pawn_JobTracker), nameof(Pawn_JobTracker.EndCurrentJob))]
     public static class Patch_EndJob_HaulingXP
     {
+        private static readonly AccessTools.FieldRef<Pawn_JobTracker, Pawn> jobTrackerPawn =
+            AccessTools.FieldRefAccess<Pawn_JobTracker, Pawn>("pawn");
+
         public static void Prefix(Pawn_JobTracker __instance, JobCondition condition)
         {
             try
@@ -732,7 +740,7 @@ namespace LearnToSurvive
                 if (!LTSSettings.enableHaulingSense) return;
                 if (condition != JobCondition.Succeeded) return;
 
-                Pawn pawn = Traverse.Create(__instance).Field("pawn").GetValue<Pawn>();
+                Pawn pawn = jobTrackerPawn(__instance);
                 if (pawn == null) return;
 
                 var curJob = __instance.curJob;
