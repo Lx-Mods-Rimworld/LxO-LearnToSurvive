@@ -14,13 +14,8 @@ namespace LearnToSurvive
         public static bool BasicCover(int level) => level >= 3;
         public static bool CoverEvaluation(int level) => level >= 4;
         public static bool BasicFFCheck(int level) => level >= 5;
-        public static float FFConeAngle(int level)
-        {
-            if (level < 5) return 0f;
-            if (level == 5) return 0f; // Direct line only
-            if (level == 6) return 10f;
-            return 20f; // Lv7+
-        }
+        // FFConeAngle removed: friendly fire now uses vanilla-accurate ShootLine intercept check
+        // instead of cone-based approximation. BasicFFCheck(level >= 5) is the only gate.
         public static bool SmartTargeting(int level) => level >= 8;
         public static bool WoundedFallback(int level) => level >= 9;
         public static bool CombatReposition(int level) => level >= 10;
@@ -64,110 +59,45 @@ namespace LearnToSurvive
 
         /// <summary>
         /// Check if firing at a target would risk hitting a friendly pawn.
+        /// Uses vanilla-accurate intercept check based on ShootLine cells.
         /// </summary>
-        public static bool WouldHitFriendly(Pawn shooter, LocalTargetInfo target, float coneAngle)
+        public static bool WouldHitFriendly(Pawn shooter, LocalTargetInfo target, Verb verb)
         {
-            if (!target.HasThing || shooter.Map == null) return false;
+            if (!target.HasThing || shooter.Map == null || verb == null) return false;
 
-            IntVec3 shooterPos = shooter.Position;
-            IntVec3 targetPos = target.Cell;
+            // Overhead projectiles (mortars) skip en-route interception entirely
+            if (verb.verbProps != null && !verb.verbProps.requireLineOfSight) return false;
 
-            foreach (Pawn ally in shooter.Map.mapPawns.FreeColonistsSpawned)
+            // Get the actual shoot line the verb would use
+            if (!verb.TryFindShootLineFromTo(shooter.Position, target, out ShootLine shootLine, false))
+                return false;
+
+            // Walk each cell on the shoot line, check for friendly pawns
+            float totalRisk = 0f;
+            foreach (IntVec3 cell in shootLine.Points())
             {
-                if (ally == shooter) continue;
-                if (ally.Dead || ally.Downed) continue;
+                // Skip the shooter's own cell and the target cell
+                if (cell == shooter.Position) continue;
+                if (cell == target.Cell) continue;
 
-                IntVec3 allyPos = ally.Position;
-
-                // Direct line check (Lv5)
-                if (coneAngle <= 0f)
+                List<Thing> things = cell.GetThingList(shooter.Map);
+                for (int i = 0; i < things.Count; i++)
                 {
-                    if (GenSight.PointsOnLineOfSight(shooterPos, targetPos).Contains(allyPos))
-                        return true;
-                    continue;
-                }
+                    Pawn ally = things[i] as Pawn;
+                    if (ally == null || ally == shooter) continue;
+                    if (ally.Dead) continue;
+                    if (ally.Faction == null || !ally.Faction.IsPlayer) continue;
 
-                // Cone check (Lv6-7)
-                float angleToTarget = (targetPos - shooterPos).AngleFlat;
-                float angleToAlly = (allyPos - shooterPos).AngleFlat;
-                float angleDiff = Mathf.Abs(Mathf.DeltaAngle(angleToTarget, angleToAlly));
-
-                float distToAlly = shooterPos.DistanceTo(allyPos);
-                float distToTarget = shooterPos.DistanceTo(targetPos);
-
-                // Only check allies between shooter and target
-                if (distToAlly < distToTarget && angleDiff < coneAngle)
-                    return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Select the best target based on combat instinct level.
-        /// </summary>
-        public static Thing PrioritizeTarget(Pawn pawn, List<Thing> threats, int level)
-        {
-            if (threats == null || threats.Count == 0) return null;
-            if (!SmartTargeting(level)) return null; // Use vanilla targeting
-
-            // Score each threat
-            Thing best = null;
-            float bestScore = float.MinValue;
-
-            foreach (Thing threat in threats)
-            {
-                if (threat == null || threat.Destroyed) continue;
-
-                Pawn enemy = threat as Pawn;
-                float score = 0f;
-                float dist = threat.Position.DistanceTo(pawn.Position);
-
-                // Base: prefer closer targets
-                score -= dist * 2f;
-
-                if (enemy != null)
-                {
-                    // Prefer breachers/sappers
-                    if (enemy.CurJob?.def == JobDefOf.Mine || enemy.CurJob?.def == JobDefOf.AttackMelee)
-                        score += 50f;
-
-                    // Prefer melee chargers (they're about to reach us)
-                    if (enemy.equipment?.Primary == null || enemy.equipment.Primary.def.IsMeleeWeapon)
-                        score += 30f + (20f - dist); // More urgent when close
-
-                    // Don't waste shots on nearly-dead enemies
-                    float healthPct = enemy.health?.summaryHealth?.SummaryHealthPercent ?? 1f;
-                    if (healthPct < 0.15f) score -= 40f;
-
-                    // Threat assessment (Lv11+): prioritize high-DPS enemies
-                    if (ThreatAssessment(level) && enemy.equipment?.Primary != null)
-                    {
-                        float dps = enemy.equipment.Primary.GetStatValue(StatDefOf.RangedWeapon_DamageMultiplier, true, -1);
-                        score += dps * 10f;
-                    }
-                }
-
-                if (score > bestScore)
-                {
-                    bestScore = score;
-                    best = threat;
+                    // Vanilla intercept chance: 0.4f * BodySize * (downed ? 0.1f : 1f)
+                    float interceptChance = 0.4f * ally.BodySize * (ally.Downed ? 0.1f : 1f);
+                    totalRisk += interceptChance;
                 }
             }
 
-            return best;
+            // 5% total risk threshold
+            return totalRisk > 0.05f;
         }
-    }
 
-    // Helper for angle math (not available in .NET 4.7.2 Mathf)
-    internal static class Mathf
-    {
-        public static float Abs(float f) => Math.Abs(f);
-        public static float DeltaAngle(float a, float b)
-        {
-            float diff = ((b - a) + 180f) % 360f - 180f;
-            return diff < -180f ? diff + 360f : diff;
-        }
     }
 
     // ========== HARMONY PATCHES ==========
@@ -203,8 +133,12 @@ namespace LearnToSurvive
 
     /// <summary>
     /// Friendly fire prevention: hold fire if ally is in the way.
+    /// Uses low priority so other mods' patches run first.
+    /// Compatibility note: this prefix can still block the shot (return false),
+    /// but low priority means other mods get first say.
     /// </summary>
     // Manually patched in HarmonyInit - Verb_LaunchProjectile.TryCastShot
+    [HarmonyPriority(Priority.Low)]
     public static class Patch_FriendlyFire
     {
         public static bool Prefix(Verb_LaunchProjectile __instance, ref bool __result)
@@ -223,14 +157,13 @@ namespace LearnToSurvive
                 if (!CombatInstinctUtil.BasicFFCheck(level)) return true;
 
                 LocalTargetInfo target = __instance.CurrentTarget;
-                float cone = CombatInstinctUtil.FFConeAngle(level);
 
-                if (CombatInstinctUtil.WouldHitFriendly(shooter, target, cone))
+                if (CombatInstinctUtil.WouldHitFriendly(shooter, target, __instance))
                 {
                     LTSLog.Decision(shooter, StatType.CombatInstinct, level, "FF_HOLD",
                         "target=" + target.Thing?.LabelShort,
-                        "holding fire - ally in cone",
-                        "cone=" + cone + "deg");
+                        "holding fire - ally in shoot line",
+                        "level=" + level);
 
                     __result = false;
                     return false; // Skip original - don't fire

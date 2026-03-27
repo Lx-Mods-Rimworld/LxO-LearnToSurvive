@@ -58,63 +58,15 @@ namespace LearnToSurvive
         private static void ApplyManualPatches(Harmony harmony)
         {
             // --- Path Memory patches ---
+            // NOTE: Patch_PathCost and Patch_FindPath_SetPawn REMOVED.
+            // RimWorld 1.6 uses Burst-compiled async pathfinding. ThreadStatic pawn
+            // references don't propagate to Burst worker threads. Path cost modification
+            // requires IPathFindCostProvider which only supports building-based costs
+            // (e.g., traps), not pawn-specific routing preferences.
+            // Tile walking XP tracking and danger recording still work fine.
             TryPatch(harmony, "PathFollower_Track",
                 AccessTools.Method(typeof(Pawn_PathFollower), "PatherTick"),
                 postfix: typeof(Patch_PathFollower_Track).GetMethod("Postfix", BindingFlags.Public | BindingFlags.Static));
-
-            TryPatch(harmony, "PathCost",
-                AccessTools.Method(typeof(PathGrid), "CalculatedCostAt"),
-                postfix: typeof(Patch_PathCost).GetMethod("Postfix", BindingFlags.Public | BindingFlags.Static));
-
-            // FindPath - search across all PathFinder types (1.6 split into WalkPathFinder, etc.)
-            MethodInfo findPathMethod = null;
-            string[] pathFinderTypeNames = {
-                "Verse.PathFinder", "Verse.AI.PathFinder",
-                "Verse.WalkPathFinder", "Verse.SwimPathFinder", "Verse.SimplePathFinder"
-            };
-            string[] methodNames = { "FindPath", "FindPathNow" };
-
-            foreach (string typeName in pathFinderTypeNames)
-            {
-                Type pfType = AccessTools.TypeByName(typeName);
-                if (pfType == null) continue;
-
-                foreach (string methodName in methodNames)
-                {
-                    var methods = AccessTools.GetDeclaredMethods(pfType)
-                        .FindAll(m => m.Name == methodName);
-                    foreach (var m in methods)
-                    {
-                        var parms = m.GetParameters();
-                        if (parms.Any(p => p.ParameterType == typeof(TraverseParms)))
-                        {
-                            findPathMethod = m;
-                            Log.Message("[LearnToSurvive] Found pathfinder method: " + typeName + "." + methodName);
-                            break;
-                        }
-                    }
-                    if (findPathMethod != null) break;
-                }
-                if (findPathMethod != null) break;
-            }
-
-            if (findPathMethod != null)
-            {
-                TryPatch(harmony, "FindPath_SetPawn",
-                    findPathMethod,
-                    prefix: typeof(Patch_FindPath_SetPawn).GetMethod("Prefix", BindingFlags.Public | BindingFlags.Static),
-                    postfix: typeof(Patch_FindPath_SetPawn).GetMethod("Postfix", BindingFlags.Public | BindingFlags.Static));
-            }
-            else
-            {
-                Log.Warning("[LearnToSurvive] Could not find any PathFinder.FindPath method. Path memory cost modifiers disabled. This is expected on RimWorld 1.6+ if pathfinding was restructured.");
-            }
-
-            // --- Hauling proximity patch ---
-            var haulWorkThings = AccessTools.Method(typeof(WorkGiver_Scanner), "PotentialWorkThingsGlobal");
-            TryPatch(harmony, "HaulWorkThings_Proximity",
-                haulWorkThings,
-                postfix: typeof(Patch_HaulWorkThings_Proximity).GetMethod("Postfix", BindingFlags.Public | BindingFlags.Static));
 
             // --- Construction batch delivery ---
             var constructDeliver = AccessTools.Method(
@@ -129,14 +81,29 @@ namespace LearnToSurvive
                 AccessTools.Method(typeof(Pawn), "Tick"),
                 postfix: typeof(Patch_PawnTick_CombatXP).GetMethod("Postfix", BindingFlags.Public | BindingFlags.Static));
 
-            TryPatch(harmony, "FriendlyFire",
-                AccessTools.Method(typeof(Verb_LaunchProjectile), "TryCastShot"),
-                prefix: typeof(Patch_FriendlyFire).GetMethod("Prefix", BindingFlags.Public | BindingFlags.Static));
+            // FriendlyFire uses low priority so other mods' patches run first
+            try
+            {
+                var ffMethod = AccessTools.Method(typeof(Verb_LaunchProjectile), "TryCastShot");
+                if (ffMethod != null)
+                {
+                    var ffPrefix = new HarmonyMethod(
+                        typeof(Patch_FriendlyFire).GetMethod("Prefix", BindingFlags.Public | BindingFlags.Static))
+                    { priority = Priority.Low };
+                    harmony.Patch(ffMethod, prefix: ffPrefix);
+                    Log.Message("[LearnToSurvive] Manual patch applied: FriendlyFire (Priority.Low)");
+                }
+                else
+                {
+                    Log.Warning("[LearnToSurvive] Could not find method for patch: FriendlyFire. Skipping.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warning("[LearnToSurvive] Failed to apply patch FriendlyFire: " + ex.Message);
+            }
 
-            // --- Work patches ---
-            TryPatch(harmony, "DoBill_PreClean",
-                AccessTools.Method(typeof(JobDriver_DoBill), "MakeNewToils"),
-                postfix: typeof(Patch_DoBill_PreClean).GetMethod("Postfix", BindingFlags.Public | BindingFlags.Static));
+            // Pre-clean is now handled inside Patch_EndJob_WorkXP via job queue
         }
 
         private static void TryPatch(Harmony harmony, string name, MethodInfo original,

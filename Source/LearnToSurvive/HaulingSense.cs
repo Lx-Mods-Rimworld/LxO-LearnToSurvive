@@ -203,21 +203,30 @@ namespace LearnToSurvive
         /// </summary>
         private void UnloadHaulItems()
         {
-            var inv = pawn.inventory.innerContainer;
-            // Iterate backwards to safely remove during iteration
-            for (int i = inv.Count - 1; i >= 0; i--)
+            try
             {
-                Thing item = inv[i];
-                if (!haulItemIDs.Contains(item.thingIDNumber)) continue;
-
-                Thing dropped;
-                if (inv.TryDrop(item, pawn.Position, pawn.Map, ThingPlaceMode.Near, out dropped))
+                if (pawn.Map == null) return;
+                var inv = pawn.inventory.innerContainer;
+                // Iterate backwards to safely remove during iteration
+                for (int i = inv.Count - 1; i >= 0; i--)
                 {
-                    if (dropped != null && dropped.Spawned)
-                        dropped.SetForbidden(false, false);
+                    Thing item = inv[i];
+                    if (!haulItemIDs.Contains(item.thingIDNumber)) continue;
+
+                    Thing dropped;
+                    if (inv.TryDrop(item, pawn.Position, pawn.Map, ThingPlaceMode.Near, out dropped))
+                    {
+                        if (dropped != null && dropped.Spawned)
+                            dropped.SetForbidden(false, false);
+                    }
                 }
+                haulItemIDs.Clear();
             }
-            haulItemIDs.Clear();
+            catch (Exception ex)
+            {
+                LTSLog.Error("UnloadHaulItems failed", ex);
+                haulItemIDs.Clear();
+            }
         }
 
         protected override IEnumerable<Toil> MakeNewToils()
@@ -339,8 +348,16 @@ namespace LearnToSurvive
 
                 if (bestNext != null)
                 {
-                    job.targetC = bestNext;
-                    pawn.Reserve(bestNext, job);
+                    if (!pawn.Reserve(bestNext, job, 1, -1, null, false))
+                    {
+                        // Item grabbed by someone else between scan and reserve -- re-scan
+                        JumpToToil(rescan);
+                        return;
+                    }
+                    if (job.targetC.Thing != null && job.targetC.Thing.Spawned)
+                        pawn.Map.reservationManager.Release(job.targetC, pawn, job);
+                    // TODO: Items of different types may end up in wrong storage. Need per-type destination finding.
+                    job.targetC = new LocalTargetInfo(bestNext);
                     JumpToToil(gotoNextItem);
                     return;
                 }
@@ -731,67 +748,4 @@ namespace LearnToSurvive
         }
     }
 
-    /// <summary>
-    /// Proximity-based hauling preference: intelligent pawns prefer nearby haul targets.
-    /// </summary>
-    // Manually patched in HarmonyInit - WorkGiver_HaulGeneral.PotentialWorkThingsGlobal
-    public static class Patch_HaulWorkThings_Proximity
-    {
-        public static void Postfix(WorkGiver_HaulGeneral __instance, Pawn pawn, ref IEnumerable<Thing> __result)
-        {
-            try
-            {
-                if (!LTSSettings.enableHaulingSense) return;
-                if (pawn == null || __result == null) return;
-
-                var comp = pawn.GetComp<CompIntelligence>();
-                if (comp == null) return;
-
-                int level = comp.GetLevel(StatType.HaulingSense);
-                float weight = HaulingSense.GetProximityWeight(level);
-                if (weight <= 0f) return;
-
-                // Sort by proximity-weighted score
-                IntVec3 pawnPos = pawn.Position;
-                var items = __result.ToList();
-
-                // Construction priority (Lv13+)
-                bool priConstruction = HaulingSense.PrioritizeConstruction(level);
-                Map map = pawn.Map;
-
-                items.Sort((a, b) =>
-                {
-                    float scoreA = a.Position.DistanceTo(pawnPos);
-                    float scoreB = b.Position.DistanceTo(pawnPos);
-
-                    // Perishable priority (Lv7+)
-                    if (HaulingSense.PrioritizePerishables(level))
-                    {
-                        if (a.TryGetComp<CompRottable>() != null) scoreA *= 0.5f;
-                        if (b.TryGetComp<CompRottable>() != null) scoreB *= 0.5f;
-                    }
-
-                    // Construction material priority (Lv13+)
-                    if (priConstruction)
-                    {
-                        if (HaulingSense.IsNeededForConstruction(a, map)) scoreA *= 0.3f;
-                        if (HaulingSense.IsNeededForConstruction(b, map)) scoreB *= 0.3f;
-                    }
-
-                    return scoreA.CompareTo(scoreB);
-                });
-
-                __result = items;
-
-                LTSLog.Decision(pawn, StatType.HaulingSense, level, "PROXIMITY_SORT",
-                    items.Count + " candidates",
-                    "sorted by proximity (weight=" + weight + ")",
-                    "level=" + level);
-            }
-            catch (Exception ex)
-            {
-                LTSLog.Error("HaulWorkThings proximity patch failed", ex);
-            }
-        }
-    }
 }

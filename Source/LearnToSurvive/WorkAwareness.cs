@@ -93,6 +93,18 @@ namespace LearnToSurvive
             string key = station.def.defName;
             return comp.preferredStations.TryGetValue(key, out int id) && id == station.thingIDNumber;
         }
+
+        /// <summary>
+        /// Check if the pawn is currently working at their preferred station.
+        /// Used by StatPart_WorkstationLoyalty.
+        /// </summary>
+        public static bool IsPreferredStation(Pawn pawn, CompIntelligence comp)
+        {
+            if (pawn == null || comp == null) return false;
+            var curJob = pawn.CurJob;
+            if (curJob?.targetA.Thing == null) return false;
+            return IsPreferredStation(comp, curJob.targetA.Thing);
+        }
     }
 
     // ========== HARMONY PATCHES ==========
@@ -135,17 +147,54 @@ namespace LearnToSurvive
                         Job chainedJob = TryFindChainJob(pawn, curJob, level);
                         if (chainedJob != null)
                         {
+                            // Pre-clean before chained DoBill (Lv4+)
+                            if (WorkAwareness.PreCleanCooking(level) && chainedJob.def == JobDefOf.DoBill)
+                            {
+                                bool shouldClean = false;
+                                if (chainedJob.bill?.recipe?.workSkill == SkillDefOf.Cooking)
+                                    shouldClean = true;
+                                if (WorkAwareness.PreCleanAllPrecision(level))
+                                {
+                                    var skill = chainedJob.bill?.recipe?.workSkill;
+                                    if (skill == SkillDefOf.Crafting || skill == SkillDefOf.Artistic
+                                        || skill == SkillDefOf.Intellectual)
+                                        shouldClean = true;
+                                }
+
+                                if (shouldClean && !(ModCompat.CommonSenseLoaded && LTSSettings.respectCommonSense))
+                                {
+                                    Thing station = chainedJob.targetA.Thing;
+                                    if (station != null && station.Spawned)
+                                    {
+                                        var filthList = WorkAwareness.FindFilthToClean(pawn, station.Position, level);
+                                        if (filthList != null && filthList.Count > 0)
+                                        {
+                                            Thing filth = filthList[0];
+                                            if (pawn.CanReserve(filth))
+                                            {
+                                                Job cleanJob = JobMaker.MakeJob(JobDefOf.Clean, filth);
+                                                __instance.jobQueue.EnqueueFirst(chainedJob);
+                                                __instance.jobQueue.EnqueueFirst(cleanJob);
+
+                                                LTSLog.Decision(pawn, StatType.WorkAwareness, level, "PRE_CLEAN",
+                                                    "queued Clean before " + chainedJob.def.defName, "", "");
+
+                                                // Skip normal enqueue below -- we already handled it
+                                                goto doneChaining;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                             __instance.jobQueue.EnqueueFirst(chainedJob);
 
                             LTSLog.Decision(pawn, StatType.WorkAwareness, level, "TASK_CHAIN",
                                 "finished " + curJob.def.defName,
                                 "queued next " + chainedJob.def.defName + " at " + chainedJob.targetA.Cell,
                                 "chaining same-type work before hauling");
-                        }
-                        else
-                        {
-                            // No more chaining -- restore bill store mode if we changed it
-                            RestoreBillStoreMode(curJob.bill);
+
+                            doneChaining:;
                         }
                     }
                 }
@@ -211,8 +260,10 @@ namespace LearnToSurvive
             return null;
         }
 
-        // Track original bill store modes so we can restore after chaining
-        private static Dictionary<int, BillStoreModeDef> originalStoreModes = new Dictionary<int, BillStoreModeDef>();
+        // Cached MethodInfo for TryFindBestBillIngredients (used by TryChainBill)
+        private static readonly System.Reflection.MethodInfo tryFindBestBillIngredientsMethod =
+            typeof(WorkGiver_DoBill).GetMethod("TryFindBestBillIngredients",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
 
         /// <summary>
         /// Chain another iteration of the same crafting bill.
@@ -233,18 +284,16 @@ namespace LearnToSurvive
                 if (workstation == null || workstation.Destroyed || !workstation.Spawned) return null;
                 if (!pawn.CanReserve(workstation)) return null;
 
-                // Find ingredients for the next iteration via WorkGiver_DoBill
-                var method = typeof(WorkGiver_DoBill).GetMethod("TryFindBestBillIngredients",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-                if (method == null) return null;
+                // Use cached MethodInfo
+                if (tryFindBestBillIngredientsMethod == null) return null;
 
                 var chosen = new List<ThingCount>();
                 object[] args = new object[] { bill, pawn, workstation, chosen };
-                bool found = (bool)method.Invoke(null, args);
+                bool found = (bool)tryFindBestBillIngredientsMethod.Invoke(null, args);
 
                 if (!found || chosen.Count == 0) return null;
 
-                // Create the DoBill job
+                // Create the DoBill job -- do not modify bill store mode
                 Job newJob = JobMaker.MakeJob(JobDefOf.DoBill, workstation);
                 newJob.targetQueueB = new List<LocalTargetInfo>(chosen.Count);
                 newJob.countQueue = new List<int>(chosen.Count);
@@ -256,33 +305,12 @@ namespace LearnToSurvive
                 newJob.bill = bill;
                 newJob.haulMode = HaulMode.ToCellNonStorage;
 
-                // Force DropOnFloor so products accumulate near the stove
-                // Save original mode so we can restore when chaining ends
-                int billID = bill.GetHashCode();
-                if (!originalStoreModes.ContainsKey(billID))
-                    originalStoreModes[billID] = bill.GetStoreMode();
-                bill.SetStoreMode(BillStoreModeDefOf.DropOnFloor);
-
                 return newJob;
             }
             catch (Exception ex)
             {
                 LTSLog.Error("TryChainBill failed", ex);
                 return null;
-            }
-        }
-
-        /// <summary>
-        /// Restore bill store mode after crafting chain ends.
-        /// </summary>
-        private static void RestoreBillStoreMode(Bill bill)
-        {
-            if (bill == null) return;
-            int billID = bill.GetHashCode();
-            if (originalStoreModes.TryGetValue(billID, out BillStoreModeDef original))
-            {
-                bill.SetStoreMode(original);
-                originalStoreModes.Remove(billID);
             }
         }
 
@@ -361,155 +389,6 @@ namespace LearnToSurvive
     }
 
     /// <summary>
-    /// Modify work scanner to prefer nearby work items for intelligent pawns.
-    /// This affects how WorkGiver_Scanner picks potential work targets.
-    /// </summary>
-    [HarmonyPatch(typeof(WorkGiver_Scanner), nameof(WorkGiver_Scanner.PotentialWorkThingsGlobal))]
-    public static class Patch_WorkThings_Proximity
-    {
-        public static void Postfix(WorkGiver_Scanner __instance, Pawn pawn, ref IEnumerable<Thing> __result)
-        {
-            try
-            {
-                if (!LTSSettings.enableWorkAwareness) return;
-                if (pawn == null || __result == null) return;
-
-                var comp = pawn.GetComp<CompIntelligence>();
-                if (comp == null) return;
-
-                int level = comp.GetLevel(StatType.WorkAwareness);
-                if (level <= 0) return;
-
-                float radius = WorkAwareness.GetLocalScanRadius(level);
-                if (radius <= 0f) return;
-
-                // Sort by distance to pawn
-                IntVec3 pos = pawn.Position;
-                var items = __result.ToList();
-                if (items.Count <= 1) return;
-
-                items.Sort((a, b) =>
-                {
-                    float distA = a.Position.DistanceTo(pos);
-                    float distB = b.Position.DistanceTo(pos);
-
-                    // Workstation loyalty bonus (Lv12+)
-                    if (WorkAwareness.WorkstationLoyalty(level))
-                    {
-                        if (WorkAwareness.IsPreferredStation(comp, a)) distA *= 0.5f;
-                        if (WorkAwareness.IsPreferredStation(comp, b)) distB *= 0.5f;
-                    }
-
-                    // Passion leaning (Lv15+): slight preference for passion-matching work
-                    if (WorkAwareness.PassionLeaning(level) && __instance.def?.workType?.relevantSkills != null)
-                    {
-                        foreach (var skill in __instance.def.workType.relevantSkills)
-                        {
-                            var pawnSkill = pawn.skills?.GetSkill(skill);
-                            if (pawnSkill != null && pawnSkill.passion != Passion.None)
-                            {
-                                distA *= 0.8f;
-                                distB *= 0.8f;
-                            }
-                        }
-                    }
-
-                    return distA.CompareTo(distB);
-                });
-
-                __result = items;
-            }
-            catch (Exception ex)
-            {
-                LTSLog.Error("WorkThings proximity patch failed", ex);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Pre-clean before precision work (cooking, crafting, research, art).
-    /// Inject a cleaning toil before the main work toil.
-    /// </summary>
-    // Manually patched in HarmonyInit - JobDriver_DoBill.MakeNewToils
-    public static class Patch_DoBill_PreClean
-    {
-        public static void Postfix(JobDriver_DoBill __instance, ref IEnumerable<Toil> __result)
-        {
-            try
-            {
-                if (!LTSSettings.enableWorkAwareness) return;
-                if (ModCompat.CommonSenseLoaded && LTSSettings.respectCommonSense) return;
-
-                Pawn pawn = __instance.pawn;
-                if (pawn == null) return;
-
-                var comp = pawn.GetComp<CompIntelligence>();
-                if (comp == null) return;
-
-                int level = comp.GetLevel(StatType.WorkAwareness);
-                if (!WorkAwareness.PreCleanCooking(level)) return;
-
-                // Check if this is precision work
-                var bill = __instance.job?.bill;
-                if (bill == null) return;
-
-                bool isPrecision = false;
-                if (bill.recipe?.workSkill == SkillDefOf.Cooking) isPrecision = true;
-                if (level >= 5) // Pre-clean for all precision work
-                {
-                    if (bill.recipe?.workSkill == SkillDefOf.Crafting) isPrecision = true;
-                    if (bill.recipe?.workSkill == SkillDefOf.Artistic) isPrecision = true;
-                    if (bill.recipe?.workSkill == SkillDefOf.Intellectual) isPrecision = true;
-                }
-
-                if (!isPrecision) return;
-
-                // Prepend cleaning toils
-                var toils = __result.ToList();
-
-                Toil cleanToil = new Toil();
-                cleanToil.initAction = () =>
-                {
-                    Thing station = __instance.job.targetA.Thing;
-                    if (station == null) return;
-
-                    // Record workstation use for loyalty
-                    if (WorkAwareness.WorkstationLoyalty(level))
-                        WorkAwareness.RecordStationUse(comp, station);
-
-                    var filth = WorkAwareness.FindFilthToClean(pawn, station.Position, level);
-                    if (filth == null || filth.Count == 0) return;
-
-                    // Clean up to 3 filth items
-                    int cleaned = 0;
-                    foreach (var f in filth.Take(3))
-                    {
-                        if (f.Destroyed) continue;
-                        f.Destroy();
-                        cleaned++;
-                    }
-
-                    if (cleaned > 0)
-                    {
-                        comp.AddXP(StatType.WorkAwareness, 4f, "pre_clean");
-                        LTSLog.Decision(pawn, StatType.WorkAwareness, level, "PRE_TASK_CLEAN",
-                            "Cleaned " + cleaned + " filth before " + (bill.recipe?.label ?? "work"),
-                            "cleaning", "level=" + level);
-                    }
-                };
-                cleanToil.defaultCompleteMode = ToilCompleteMode.Instant;
-
-                toils.Insert(0, cleanToil);
-                __result = toils;
-            }
-            catch (Exception ex)
-            {
-                LTSLog.Error("DoBill pre-clean patch failed", ex);
-            }
-        }
-    }
-
-    /// <summary>
     /// Need check before starting long work (Lv9+):
     /// Don't start a bill if hunger/rest is critical.
     /// </summary>
@@ -547,39 +426,6 @@ namespace LearnToSurvive
             {
                 LTSLog.Error("DoBill need check patch failed", ex);
             }
-        }
-    }
-
-    /// <summary>
-    /// Workstation speed bonus for loyal workers (Lv12+).
-    /// </summary>
-    [HarmonyPatch(typeof(StatWorker), nameof(StatWorker.GetValueUnfinalized))]
-    public static class Patch_WorkSpeed_StationBonus
-    {
-        public static void Postfix(StatWorker __instance, StatRequest req, ref float __result)
-        {
-            try
-            {
-                if (!LTSSettings.enableWorkAwareness) return;
-                StatDef stat = Traverse.Create(__instance).Field("stat").GetValue<StatDef>();
-                if (stat != StatDefOf.WorkSpeedGlobal) return;
-                if (!req.HasThing || !(req.Thing is Pawn pawn)) return;
-
-                var comp = pawn.GetComp<CompIntelligence>();
-                if (comp == null) return;
-
-                int level = comp.GetLevel(StatType.WorkAwareness);
-                float bonus = WorkAwareness.WorkstationSpeedBonus(level);
-                if (bonus <= 0f) return;
-
-                // Check if at preferred station
-                var curJob = pawn.CurJob;
-                if (curJob?.targetA.Thing != null && WorkAwareness.IsPreferredStation(comp, curJob.targetA.Thing))
-                {
-                    __result += bonus;
-                }
-            }
-            catch (Exception) { }
         }
     }
 

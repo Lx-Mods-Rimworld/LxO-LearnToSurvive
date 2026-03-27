@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -21,7 +22,13 @@ namespace LearnToSurvive
 
         /// <summary>
         /// Calculate extra path cost for a cell based on pawn's Path Memory level.
-        /// Returns additional cost (0 = no change). Used by pathfinding cost patch.
+        /// Returns additional cost (0 = no change).
+        /// NOTE: This method is no longer called from pathfinding patches.
+        /// RimWorld 1.6 uses Burst-compiled async pathfinding. ThreadStatic pawn references
+        /// don't propagate to Burst worker threads. Path cost modification requires
+        /// IPathFindCostProvider, which only supports building-based costs (e.g., traps),
+        /// not pawn-specific routing preferences. Kept for potential future use or
+        /// non-pathfinding cost evaluation.
         /// </summary>
         public static int GetExtraPathCost(Pawn pawn, IntVec3 cell, int level, CompIntelligence comp)
         {
@@ -140,8 +147,13 @@ namespace LearnToSurvive
     // Manually patched in HarmonyInit - Pawn_PathFollower.PatherTick
     public static class Patch_PathFollower_Track
     {
+        // Cached FieldRef for Pawn_PathFollower.pawn (avoids Traverse overhead every tick)
+        private static readonly AccessTools.FieldRef<Pawn_PathFollower, Pawn> patherPawn =
+            AccessTools.FieldRefAccess<Pawn_PathFollower, Pawn>("pawn");
+
         // Track last known cell per pawn to detect actual cell changes
         private static Dictionary<int, IntVec3> lastCellPerPawn = new Dictionary<int, IntVec3>();
+        private static int lastCleanupTick;
 
         public static void Postfix(Pawn_PathFollower __instance)
         {
@@ -150,15 +162,27 @@ namespace LearnToSurvive
                 if (!LTSSettings.enablePathMemory) return;
                 if (!__instance.Moving) return;
 
-                Pawn pawn = Traverse.Create(__instance).Field("pawn").GetValue<Pawn>();
+                Pawn pawn = patherPawn(__instance);
                 if (pawn == null || !pawn.IsColonist) return;
 
+                // Periodic cleanup of lastCellPerPawn: remove entries for dead/despawned pawns
+                int currentTick = Find.TickManager.TicksGame;
+                if (currentTick - lastCleanupTick > 10000)
+                {
+                    lastCleanupTick = currentTick;
+                    var deadIds = lastCellPerPawn.Keys
+                        .Where(id => !PawnIdIsAlive(id, pawn.Map))
+                        .ToList();
+                    foreach (int deadId in deadIds)
+                        lastCellPerPawn.Remove(deadId);
+                }
+
                 // Only increment when pawn actually enters a NEW cell
-                int id = pawn.thingIDNumber;
+                int thingId = pawn.thingIDNumber;
                 IntVec3 curCell = pawn.Position;
-                if (lastCellPerPawn.TryGetValue(id, out IntVec3 prevCell) && prevCell == curCell)
+                if (lastCellPerPawn.TryGetValue(thingId, out IntVec3 prevCell) && prevCell == curCell)
                     return; // Same cell, don't count
-                lastCellPerPawn[id] = curCell;
+                lastCellPerPawn[thingId] = curCell;
 
                 var comp = pawn.GetComp<CompIntelligence>();
                 if (comp == null) return;
@@ -175,80 +199,27 @@ namespace LearnToSurvive
             }
             catch (Exception) { }
         }
-    }
 
-    /// <summary>
-    /// Modify pathfinding costs based on Path Memory.
-    /// Patches the path grid cost calculation.
-    /// </summary>
-    // Manually patched in HarmonyInit - PathGrid.CalculatedCostAt
-    public static class Patch_PathCost
-    {
-        public static void Postfix(PathGrid __instance, IntVec3 c, bool perceivedStatic,
-            IntVec3 prevCell, ref int __result)
+        private static bool PawnIdIsAlive(int thingId, Map map)
         {
-            try
+            if (map == null) return false;
+            foreach (Pawn p in map.mapPawns.FreeColonistsSpawned)
             {
-                if (!LTSSettings.enablePathMemory) return;
-
-                // We need to find the pawn currently pathfinding
-                // PathGrid doesn't have a pawn reference, so we use a threadlocal
-                Pawn pawn = CurrentPathfindingPawn.Value;
-                if (pawn == null) return;
-
-                var comp = pawn.GetComp<CompIntelligence>();
-                if (comp == null) return;
-
-                int level = comp.GetLevel(StatType.PathMemory);
-                if (level <= 0) return;
-
-                int extra = PathMemoryUtil.GetExtraPathCost(pawn, c, level, comp);
-                if (extra != 0)
-                {
-                    __result = Math.Max(1, __result + extra);
-                }
+                if (p.thingIDNumber == thingId) return true;
             }
-            catch (Exception) { }
+            return false;
         }
-
-        // ThreadLocal to track which pawn is currently pathfinding
-        [ThreadStatic]
-        public static Pawn Value;
     }
 
-    /// <summary>
-    /// Set the current pathfinding pawn before FindPath runs.
-    /// </summary>
-    // Manually patched in HarmonyInit - PathFinder.FindPath
-    public static class Patch_FindPath_SetPawn
-    {
-        public static void Prefix(TraverseParms traverseParms)
-        {
-            try
-            {
-                CurrentPathfindingPawn.Value = traverseParms.pawn;
-            }
-            catch (Exception) { }
-        }
+    // Patch_PathCost REMOVED: RimWorld 1.6 uses Burst-compiled async pathfinding.
+    // ThreadStatic pawn references don't propagate to Burst worker threads.
+    // Path cost modification requires IPathFindCostProvider which only supports
+    // building-based costs (traps), not pawn-specific routing preferences.
 
-        public static void Postfix()
-        {
-            CurrentPathfindingPawn.Value = null;
-        }
+    // Patch_FindPath_SetPawn REMOVED: Same Burst threading issue as above.
+    // ThreadStatic fields set in prefix are not visible to Burst worker threads.
 
-        // Shared with Patch_PathCost - stores pawn during pathfinding
-        [ThreadStatic]
-        public static Pawn Value;
-    }
-
-    /// <summary>
-    /// Bridge between FindPath and PathCost patches.
-    /// </summary>
-    public static class CurrentPathfindingPawn
-    {
-        [ThreadStatic]
-        public static Pawn Value;
-    }
+    // CurrentPathfindingPawn REMOVED: No longer needed without the above patches.
 
     /// <summary>
     /// Record danger when a pawn takes damage.
