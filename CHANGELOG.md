@@ -2,6 +2,15 @@
 
 All notable changes to this mod will be documented in this file.
 
+## [2.0.1] - 2026-03-29
+
+### Fixes
+- Fixed hauling items to wrong stockpile: pawns now track their target stockpile and only pick up items matching that storage filter
+- Fixed books getting stuck in pawn inventory when reading is interrupted. Books are now properly dropped.
+- Fixed task chaining starvation: raised food/rest/joy thresholds so pawns eat and sleep before chaining another task
+- Fixed infinite waiting near miners with no haulable output (now retries 3 times then moves on)
+- Fixed valid stacking cells being incorrectly rejected, preventing items from being stored
+
 ## [2.0.0] - 2026-03-27 -- Engine Overhaul
 
 **Major internal rework. Every system audited against RimWorld 1.6 engine docs and rebuilt correctly.**
