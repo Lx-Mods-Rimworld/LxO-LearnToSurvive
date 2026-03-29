@@ -43,6 +43,16 @@ namespace LearnToSurvive
             pickUp.defaultCompleteMode = ToilCompleteMode.Instant;
             yield return pickUp;
 
+            // Drop the book if the job is interrupted after pickup
+            this.AddFinishAction((JobCondition condition) =>
+            {
+                Thing droppedBook;
+                if (pawn.carryTracker.CarriedThing != null)
+                {
+                    pawn.carryTracker.TryDropCarriedThing(pawn.Position, ThingPlaceMode.Near, out droppedBook);
+                }
+            });
+
             // Find a comfortable spot to read (preferably a chair/table area)
             Toil findSeat = new Toil();
             findSeat.initAction = () =>

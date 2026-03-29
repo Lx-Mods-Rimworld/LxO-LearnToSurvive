@@ -193,6 +193,12 @@ namespace LearnToSurvive
         // Track which inventory items are haul-items vs personal gear
         private HashSet<int> haulItemIDs = new HashSet<int>();
 
+        // Storage filter for this batch — only pick up items accepted by the same stockpile
+        private SlotGroup targetSlotGroup;
+
+        // Limit wait-for-production retries to prevent infinite waiting near miners
+        private int waitRetries;
+
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
             return pawn.Reserve(job.targetA, job, 1, -1, null, errorOnFailed);
@@ -295,6 +301,14 @@ namespace LearnToSurvive
                     return;
                 }
 
+                // Cache the target storage so we only pick up compatible items
+                IntVec3 storageCell;
+                if (StoreUtility.TryFindBestBetterStoreCellFor(taken, pawn, pawn.Map,
+                    StoragePriority.Unstored, pawn.Faction, out storageCell))
+                {
+                    targetSlotGroup = storageCell.GetSlotGroup(pawn.Map);
+                }
+
                 var comp = pawn.GetComp<CompIntelligence>();
                 if (comp != null)
                     comp.AddXP(StatType.HaulingSense, 10f, "haul_pickup");
@@ -341,6 +355,10 @@ namespace LearnToSurvive
                     if (nearby.TryGetComp<CompBook>() != null) continue; // Books get lost in inventory
                     if (nearby.GetStatValue(StatDefOf.Mass) > 8f) continue; // Chunks/heavy items: vanilla carry
 
+                    // Only pick up items compatible with our target stockpile
+                    if (targetSlotGroup != null && !targetSlotGroup.Settings.AllowedToAccept(nearby))
+                        continue;
+
                     // Check mass: can we pick up at least 1?
                     int canTake = MassUtility.CountToPickUpUntilOverEncumbered(pawn, nearby);
                     if (canTake <= 0) continue;
@@ -363,7 +381,6 @@ namespace LearnToSurvive
                     }
                     if (job.targetC.Thing != null && job.targetC.Thing.Spawned)
                         pawn.Map.reservationManager.Release(job.targetC, pawn, job);
-                    // TODO: Items of different types may end up in wrong storage. Need per-type destination finding.
                     job.targetC = new LocalTargetInfo(bestNext);
                     JumpToToil(gotoNextItem);
                     return;
@@ -386,8 +403,9 @@ namespace LearnToSurvive
                     }
                 }
 
-                if (workerNearby)
+                if (workerNearby && waitRetries < 3)
                 {
+                    waitRetries++;
                     JumpToToil(waitForProduction);
                     return;
                 }
@@ -604,8 +622,7 @@ namespace LearnToSurvive
                 {
                     if (t.def == item.def && t.stackCount < t.def.stackLimit)
                         return true; // Same type with room
-                    if (t.def.EverStorable(false))
-                        hasItem = true; // Cell occupied by something
+                    hasItem = true; // Cell occupied by something
                 }
             }
             // Cell is empty of storable items = has room

@@ -149,11 +149,11 @@ namespace LearnToSurvive
                     if (WorkAwareness.TaskChaining(level))
                     {
                         bool needsCritical = false;
-                        if (pawn.needs?.food != null && pawn.needs.food.CurLevelPercentage < 0.25f)
+                        if (pawn.needs?.food != null && pawn.needs.food.CurLevelPercentage < 0.35f)
                             needsCritical = true;
-                        if (pawn.needs?.rest != null && pawn.needs.rest.CurLevelPercentage < 0.25f)
+                        if (pawn.needs?.rest != null && pawn.needs.rest.CurLevelPercentage < 0.35f)
                             needsCritical = true;
-                        if (pawn.needs?.joy != null && pawn.needs.joy.CurLevelPercentage < 0.05f)
+                        if (pawn.needs?.joy != null && pawn.needs.joy.CurLevelPercentage < 0.15f)
                             needsCritical = true;
 
                         Job chainedJob = needsCritical ? null : TryFindChainJob(pawn, curJob, level);
