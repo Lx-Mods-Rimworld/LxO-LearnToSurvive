@@ -7,6 +7,7 @@ namespace LearnToSurvive
     public static class LTSDefOf
     {
         public static JobDef LTS_SmartHaul;
+        public static JobDef LTS_UnloadHauledItems;
         public static JobDef LTS_WriteBook;
         public static JobDef LTS_ReadBook;
         public static ThingDef LTS_Book;

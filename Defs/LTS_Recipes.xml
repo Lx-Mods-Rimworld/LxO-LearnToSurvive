@@ -8,8 +8,8 @@
     <jobString>writing a hauling manual.</jobString>
     <workAmount>12000</workAmount>
     <workSkill>Intellectual</workSkill>
-    <effectWorking>Smith</effectWorking>
-    <soundWorking>Recipe_Smith</soundWorking>
+    <effectWorking>Research</effectWorking>
+    <soundWorking>Recipe_Machining</soundWorking>
     <products>
       <LTS_Book>1</LTS_Book>
     </products>
@@ -25,8 +25,8 @@
     <jobString>writing a work efficiency manual.</jobString>
     <workAmount>12000</workAmount>
     <workSkill>Intellectual</workSkill>
-    <effectWorking>Smith</effectWorking>
-    <soundWorking>Recipe_Smith</soundWorking>
+    <effectWorking>Research</effectWorking>
+    <soundWorking>Recipe_Machining</soundWorking>
     <products>
       <LTS_Book>1</LTS_Book>
     </products>
@@ -42,8 +42,8 @@
     <jobString>writing a navigation guide.</jobString>
     <workAmount>12000</workAmount>
     <workSkill>Intellectual</workSkill>
-    <effectWorking>Smith</effectWorking>
-    <soundWorking>Recipe_Smith</soundWorking>
+    <effectWorking>Research</effectWorking>
+    <soundWorking>Recipe_Machining</soundWorking>
     <products>
       <LTS_Book>1</LTS_Book>
     </products>
@@ -59,8 +59,8 @@
     <jobString>writing a combat field manual.</jobString>
     <workAmount>12000</workAmount>
     <workSkill>Intellectual</workSkill>
-    <effectWorking>Smith</effectWorking>
-    <soundWorking>Recipe_Smith</soundWorking>
+    <effectWorking>Research</effectWorking>
+    <soundWorking>Recipe_Machining</soundWorking>
     <products>
       <LTS_Book>1</LTS_Book>
     </products>
@@ -76,8 +76,8 @@
     <jobString>writing a survival handbook.</jobString>
     <workAmount>12000</workAmount>
     <workSkill>Intellectual</workSkill>
-    <effectWorking>Smith</effectWorking>
-    <soundWorking>Recipe_Smith</soundWorking>
+    <effectWorking>Research</effectWorking>
+    <soundWorking>Recipe_Machining</soundWorking>
     <products>
       <LTS_Book>1</LTS_Book>
     </products>

@@ -190,14 +190,13 @@ namespace LearnToSurvive
         private const TargetIndex DestInd = TargetIndex.B;
         private const TargetIndex NextInd = TargetIndex.C;
 
-        // Track which inventory items are haul-items vs personal gear
-        private HashSet<int> haulItemIDs = new HashSet<int>();
-
-        // Storage filter for this batch — only pick up items accepted by the same stockpile
+        // Storage filter for this batch -- only pick up items accepted by the same stockpile
         private SlotGroup targetSlotGroup;
 
         // Limit wait-for-production retries to prevent infinite waiting near miners
         private int waitRetries;
+
+        private CompHauledItems HaulComp => pawn.GetComp<CompHauledItems>();
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
@@ -209,46 +208,17 @@ namespace LearnToSurvive
             return MassUtility.Capacity(pawn) - MassUtility.GearAndInventoryMass(pawn);
         }
 
-        /// <summary>
-        /// Drop all tracked haul items from inventory onto the ground near the pawn.
-        /// </summary>
-        private void UnloadHaulItems()
+        private bool HasRemainingHaulItems()
         {
-            try
-            {
-                if (pawn.Map == null) return;
-                var inv = pawn.inventory.innerContainer;
-                // Iterate backwards to safely remove during iteration
-                for (int i = inv.Count - 1; i >= 0; i--)
-                {
-                    Thing item = inv[i];
-                    if (!haulItemIDs.Contains(item.thingIDNumber)) continue;
-
-                    Thing dropped;
-                    if (inv.TryDrop(item, pawn.Position, pawn.Map, ThingPlaceMode.Near, out dropped))
-                    {
-                        if (dropped != null && dropped.Spawned)
-                            dropped.SetForbidden(false, false);
-                    }
-                }
-                haulItemIDs.Clear();
-            }
-            catch (Exception ex)
-            {
-                LTSLog.Error("UnloadHaulItems failed", ex);
-                haulItemIDs.Clear();
-            }
+            var comp = HaulComp;
+            return comp != null && comp.HasItems;
         }
 
         protected override IEnumerable<Toil> MakeNewToils()
         {
-            // Safety: if job is interrupted for ANY reason, drop all haul items
-            // back on the ground so they don't stay in inventory forever
-            this.AddFinishAction((JobCondition _) =>
-            {
-                if (haulItemIDs.Count > 0)
-                    UnloadHaulItems();
-            });
+            // Items stay in inventory on interruption -- the CompHauledItems
+            // tracks them and they'll be unloaded by the next unload job trigger
+            // (idle, haul complete, or rottable check). No emergency dump needed.
 
             // Fail conditions for initial target only
             this.FailOnDestroyedOrNull(ItemInd);
@@ -265,14 +235,17 @@ namespace LearnToSurvive
                 Thing target = job.targetA.Thing;
                 if (target == null || target.Destroyed || !target.Spawned)
                 {
+                    Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: pickupFirst target invalid (null={target == null}), ending Incompletable");
                     EndJobWith(JobCondition.Incompletable);
                     return;
                 }
 
+                Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: pickupFirst target={target.LabelShort} x{target.stackCount} at {target.Position}");
+
                 int canTake = MassUtility.CountToPickUpUntilOverEncumbered(pawn, target);
                 if (canTake <= 0)
                 {
-                    // Can't carry -- end gracefully (Succeeded prevents retry loop)
+                    Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: pickupFirst canTake=0, too heavy, ending Succeeded");
                     EndJobWith(JobCondition.Succeeded);
                     return;
                 }
@@ -281,23 +254,24 @@ namespace LearnToSurvive
                 Thing taken = target.SplitOff(toTake);
                 if (taken == null)
                 {
+                    Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: pickupFirst SplitOff returned null, ending Incompletable");
                     EndJobWith(JobCondition.Incompletable);
                     return;
                 }
 
+                Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: pickupFirst split off {taken.LabelShort} x{toTake} (canTake={canTake}, stack={target.stackCount})");
+
                 int idBefore = taken.thingIDNumber;
                 if (pawn.inventory.innerContainer.TryAdd(taken))
                 {
-                    haulItemIDs.Add(taken.thingIDNumber);
-                    // If the item merged into an existing stack, track original ID too
-                    if (taken.thingIDNumber != idBefore)
-                        haulItemIDs.Add(idBefore);
+                    Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: pickupFirst TryAdd SUCCESS, registering with comp");
+                    HaulComp?.RegisterHauledItem(taken);
                 }
                 else
                 {
-                    // Failed to add to inventory -- drop it back, end gracefully
+                    Log.Warning($"[LTS-SmartHaul] {pawn.LabelShort}: pickupFirst TryAdd FAILED for {taken.LabelShort}, dropping back");
                     GenPlace.TryPlaceThing(taken, pawn.Position, pawn.Map, ThingPlaceMode.Near);
-                    EndJobWith(JobCondition.Succeeded); // Succeeded prevents retry loop
+                    EndJobWith(JobCondition.Succeeded);
                     return;
                 }
 
@@ -307,6 +281,11 @@ namespace LearnToSurvive
                     StoragePriority.Unstored, pawn.Faction, out storageCell))
                 {
                     targetSlotGroup = storageCell.GetSlotGroup(pawn.Map);
+                    Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: pickupFirst cached target stockpile at {storageCell}");
+                }
+                else
+                {
+                    Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: pickupFirst no target stockpile found, will accept any compatible items");
                 }
 
                 var comp = pawn.GetComp<CompIntelligence>();
@@ -329,6 +308,7 @@ namespace LearnToSurvive
                 float massLeft = MassRemaining();
                 if (massLeft <= 0.01f)
                 {
+                    Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: rescan massLeft={massLeft:F2}, full -> findCell");
                     JumpToToil(findCell);
                     return;
                 }
@@ -339,6 +319,7 @@ namespace LearnToSurvive
 
                 Thing bestNext = null;
                 float bestDist = float.MaxValue;
+                int candidateCount = 0;
 
                 foreach (Thing nearby in GenRadial.RadialDistinctThingsAround(
                     pawn.Position, pawn.Map, radius, true))
@@ -350,6 +331,7 @@ namespace LearnToSurvive
                     if (!pawn.CanReserve(nearby)) continue;
                     // Skip items that shouldn't go in inventory (vanilla haul handles them fine)
                     if (nearby.def.IsWeapon || nearby.def.IsApparel) continue;
+                    if (nearby.def.IsMedicine) continue;
                     if (nearby is Corpse) continue;
                     if (nearby.def.minifiedDef != null) continue;
                     if (nearby.TryGetComp<CompBook>() != null) continue; // Books get lost in inventory
@@ -363,6 +345,7 @@ namespace LearnToSurvive
                     int canTake = MassUtility.CountToPickUpUntilOverEncumbered(pawn, nearby);
                     if (canTake <= 0) continue;
 
+                    candidateCount++;
                     float dist = nearby.Position.DistanceTo(pawn.Position);
                     if (dist < bestDist)
                     {
@@ -371,11 +354,13 @@ namespace LearnToSurvive
                     }
                 }
 
+                Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: rescan massLeft={massLeft:F2}, radius={radius}, candidates={candidateCount}, best={bestNext?.LabelShort ?? "none"}{(bestNext != null ? $" x{bestNext.stackCount} at {bestNext.Position} dist={bestDist:F1}" : "")}");
+
                 if (bestNext != null)
                 {
                     if (!pawn.Reserve(bestNext, job, 1, -1, null, false))
                     {
-                        // Item grabbed by someone else between scan and reserve -- re-scan
+                        Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: rescan reserve FAILED for {bestNext.LabelShort}, re-scanning");
                         JumpToToil(rescan);
                         return;
                     }
@@ -406,11 +391,12 @@ namespace LearnToSurvive
                 if (workerNearby && waitRetries < 3)
                 {
                     waitRetries++;
+                    Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: rescan worker nearby, waiting (retry {waitRetries}/3)");
                     JumpToToil(waitForProduction);
                     return;
                 }
 
-                // Nothing to pick up, go deliver
+                Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: rescan nothing found, going to deliver");
                 JumpToToil(findCell);
             };
             rescan.defaultCompleteMode = ToilCompleteMode.Instant;
@@ -422,10 +408,12 @@ namespace LearnToSurvive
                 Thing target = job.targetC.Thing;
                 if (target == null || target.Destroyed || !target.Spawned)
                 {
+                    Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: gotoNextItem target invalid, re-scanning");
                     JumpToToil(rescan);
                 }
                 else
                 {
+                    Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: gotoNextItem walking to {target.LabelShort} x{target.stackCount} at {target.Position}");
                     pawn.pather.StartPath(target, PathEndMode.ClosestTouch);
                 }
             };
@@ -443,6 +431,7 @@ namespace LearnToSurvive
                 Thing target = job.targetC.Thing;
                 if (target == null || target.Destroyed || !target.Spawned)
                 {
+                    Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: pickupNext target invalid, re-scanning");
                     JumpToToil(rescan);
                     return;
                 }
@@ -450,6 +439,7 @@ namespace LearnToSurvive
                 int canTake = MassUtility.CountToPickUpUntilOverEncumbered(pawn, target);
                 if (canTake <= 0)
                 {
+                    Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: pickupNext canTake=0 for {target.LabelShort}, full -> findCell");
                     JumpToToil(findCell);
                     return;
                 }
@@ -458,20 +448,22 @@ namespace LearnToSurvive
                 Thing taken = target.SplitOff(toTake);
                 if (taken == null)
                 {
+                    Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: pickupNext SplitOff returned null for {target.LabelShort}, re-scanning");
                     JumpToToil(rescan);
                     return;
                 }
 
-                int idBefore = taken.thingIDNumber;
                 if (pawn.inventory.innerContainer.TryAdd(taken))
                 {
-                    haulItemIDs.Add(taken.thingIDNumber);
-                    if (taken.thingIDNumber != idBefore)
-                        haulItemIDs.Add(idBefore);
+                    Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: pickupNext SUCCESS {taken.LabelShort} x{toTake} (canTake={canTake}, stack={target.stackCount})");
+                    HaulComp?.RegisterHauledItem(taken);
                 }
                 else
                 {
+                    Log.Warning($"[LTS-SmartHaul] {pawn.LabelShort}: pickupNext TryAdd FAILED for {taken.LabelShort}, dropping back -> findCell");
                     GenPlace.TryPlaceThing(taken, pawn.Position, pawn.Map, ThingPlaceMode.Near);
+                    JumpToToil(findCell);
+                    return;
                 }
 
                 var comp = pawn.GetComp<CompIntelligence>();
@@ -491,6 +483,10 @@ namespace LearnToSurvive
             yield return loopBack;
 
             // === 7. Wait for production (~3 seconds), then rescan ===
+            waitForProduction.initAction = () =>
+            {
+                Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: waitForProduction entering wait (retry {waitRetries}/3)");
+            };
             waitForProduction.defaultCompleteMode = ToilCompleteMode.Delay;
             waitForProduction.defaultDuration = 180;
             yield return waitForProduction;
@@ -498,77 +494,36 @@ namespace LearnToSurvive
             Toil postWait = new Toil();
             postWait.initAction = () =>
             {
+                Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: waitForProduction done, re-scanning");
                 JumpToToil(rescan);
             };
             postWait.defaultCompleteMode = ToilCompleteMode.Instant;
             yield return postWait;
 
-            // === 8. Find storage cell ===
+            // === 8. Queue separate unload job and end ===
+            // Delivery MUST be a separate job because SmartHaul's FailOnDestroyedOrNull(ItemInd)
+            // checks every tick across ALL toils. When PlaceHauledThingInCell places an item
+            // that merges with an existing stack, the original Thing is destroyed, FailOn fires,
+            // and kills the job mid-delivery. This is why PUAH uses a separate unload job.
             findCell.initAction = () =>
             {
-                // Need a representative item to find storage for.
-                // Pick the first haul item in inventory.
-                Thing representative = null;
-                var inv = pawn.inventory.innerContainer;
-                for (int i = 0; i < inv.Count; i++)
-                {
-                    if (haulItemIDs.Contains(inv[i].thingIDNumber))
-                    {
-                        representative = inv[i];
-                        break;
-                    }
-                }
+                var hComp = HaulComp;
+                int itemCount = hComp?.Count ?? 0;
+                Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: pickup phase done, {itemCount} items in comp, inventory={pawn.inventory.innerContainer.Count}");
 
-                if (representative == null)
+                if (HasRemainingHaulItems())
                 {
-                    // No haul items in inventory -- nothing to deliver
-                    EndJobWith(JobCondition.Succeeded);
-                    return;
+                    Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: queuing LTS_UnloadHauledItems");
+                    Job unloadJob = JobMaker.MakeJob(LTSDefOf.LTS_UnloadHauledItems);
+                    pawn.jobs.jobQueue.EnqueueFirst(unloadJob, null);
                 }
-
-                IntVec3 storeCell = FindCellWithRoom(representative, pawn);
-                if (!storeCell.IsValid)
+                else
                 {
-                    // No valid storage -- dump everything here
-                    UnloadHaulItems();
-                    EndJobWith(JobCondition.Succeeded);
-                    return;
+                    Log.Message($"[LTS-SmartHaul] {pawn.LabelShort}: no remaining haul items, ending");
                 }
-                job.targetB = storeCell;
             };
             findCell.defaultCompleteMode = ToilCompleteMode.Instant;
             yield return findCell;
-
-            // === 9. Walk to storage ===
-            yield return Toils_Goto.GotoCell(DestInd, PathEndMode.OnCell);
-
-            // === 10. Unload all haul-items from inventory ===
-            Toil unloadToil = new Toil();
-            unloadToil.initAction = () =>
-            {
-                IntVec3 destCell = job.targetB.Cell;
-                var inv = pawn.inventory.innerContainer;
-
-                for (int i = inv.Count - 1; i >= 0; i--)
-                {
-                    Thing item = inv[i];
-                    if (!haulItemIDs.Contains(item.thingIDNumber)) continue;
-
-                    Thing dropped;
-                    if (inv.TryDrop(item, destCell, pawn.Map, ThingPlaceMode.Near, out dropped))
-                    {
-                        if (dropped != null && dropped.Spawned)
-                            dropped.SetForbidden(false, false);
-                    }
-                }
-                haulItemIDs.Clear();
-
-                var comp = pawn.GetComp<CompIntelligence>();
-                if (comp != null)
-                    comp.AddXP(StatType.HaulingSense, 5f, "haul_deliver");
-            };
-            unloadToil.defaultCompleteMode = ToilCompleteMode.Instant;
-            yield return unloadToil;
         }
 
         /// <summary>
@@ -694,27 +649,33 @@ namespace LearnToSurvive
     [HarmonyPatch(typeof(HaulAIUtility), nameof(HaulAIUtility.HaulToStorageJob))]
     public static class Patch_HaulToStorageJob
     {
+        public static bool Prepare() => LTSSettings.enableHaulingSense;
+
         public static void Postfix(Pawn p, Thing t, ref Job __result)
         {
             try
             {
-                if (!LTSSettings.enableHaulingSense) return;
                 if (__result == null || t == null || p == null) return;
-                if (ModCompat.PUAHLoaded && LTSSettings.respectPUAH) return;
+                if (ModCompat.PUAHLoaded && LTSSettings.respectPUAH)
+                {
+                    Log.Message($"[LTS-HaulPatch] {p.LabelShort}: skip {t.LabelShort}, PUAH active");
+                    return;
+                }
                 // Don't use inventory hauling for items that shouldn't go in inventory
                 // These get hauled normally via vanilla carry (one at a time, straight to storage)
-                if (t.def.IsWeapon || t.def.IsApparel) return;
-                if (t is Corpse) return;
-                if (t.def.minifiedDef != null) return;
-                if (t.TryGetComp<CompBook>() != null) return; // Books get lost in inventory
-                if (t.GetStatValue(StatDefOf.Mass) > 8f) return; // Chunks/heavy: vanilla carry is correct
-                if (!MassUtility.CanEverCarryAnything(p)) return;
+                if (t.def.IsWeapon || t.def.IsApparel) { Log.Message($"[LTS-HaulPatch] {p.LabelShort}: skip {t.LabelShort}, weapon/apparel"); return; }
+                if (t.def.IsMedicine) { Log.Message($"[LTS-HaulPatch] {p.LabelShort}: skip {t.LabelShort}, medicine"); return; }
+                if (t is Corpse) { Log.Message($"[LTS-HaulPatch] {p.LabelShort}: skip {t.LabelShort}, corpse"); return; }
+                if (t.def.minifiedDef != null) { Log.Message($"[LTS-HaulPatch] {p.LabelShort}: skip {t.LabelShort}, minified"); return; }
+                if (t.TryGetComp<CompBook>() != null) { Log.Message($"[LTS-HaulPatch] {p.LabelShort}: skip {t.LabelShort}, book"); return; }
+                if (t.GetStatValue(StatDefOf.Mass) > 8f) { Log.Message($"[LTS-HaulPatch] {p.LabelShort}: skip {t.LabelShort}, too heavy ({t.GetStatValue(StatDefOf.Mass):F1}kg)"); return; }
+                if (!MassUtility.CanEverCarryAnything(p)) { Log.Message($"[LTS-HaulPatch] {p.LabelShort}: skip {t.LabelShort}, pawn can't carry"); return; }
 
                 var comp = p.GetComp<CompIntelligence>();
                 if (comp == null) return;
 
                 int level = comp.GetLevel(StatType.HaulingSense);
-                if (level <= 0) return;
+                if (level <= 0) { Log.Message($"[LTS-HaulPatch] {p.LabelShort}: skip {t.LabelShort}, hauling level=0"); return; }
 
                 // Replace vanilla haul job with our smart haul
                 if (LTSDefOf.LTS_SmartHaul == null) return;
@@ -727,12 +688,13 @@ namespace LearnToSurvive
                     StoreUtility.TryFindBestBetterStoreCellFor(t, p, p.Map,
                         StoreUtility.CurrentStoragePriorityOf(t), p.Faction, out storeCell);
                 }
-                if (!storeCell.IsValid) return;
+                if (!storeCell.IsValid) { Log.Message($"[LTS-HaulPatch] {p.LabelShort}: skip {t.LabelShort}, no valid storage cell"); return; }
 
                 Job smartJob = JobMaker.MakeJob(LTSDefOf.LTS_SmartHaul, t, storeCell);
                 smartJob.count = t.stackCount;
                 smartJob.haulOpportunisticDuplicates = true;
                 __result = smartJob;
+                Log.Message($"[LTS-HaulPatch] {p.LabelShort}: replaced vanilla haul with SmartHaul for {t.LabelShort} x{t.stackCount} -> {storeCell} (level={level})");
             }
             catch (Exception ex)
             {
@@ -750,6 +712,8 @@ namespace LearnToSurvive
         private static readonly AccessTools.FieldRef<Pawn_JobTracker, Pawn> jobTrackerPawn =
             AccessTools.FieldRefAccess<Pawn_JobTracker, Pawn>("pawn");
 
+        public static bool Prepare() => LTSSettings.enableHaulingSense;
+
         public static void Prefix(Pawn_JobTracker __instance, JobCondition condition)
         {
             try
@@ -758,7 +722,7 @@ namespace LearnToSurvive
                 if (condition != JobCondition.Succeeded) return;
 
                 Pawn pawn = jobTrackerPawn(__instance);
-                if (pawn == null) return;
+                if (pawn == null || !pawn.IsColonistPlayerControlled) return;
 
                 var curJob = __instance.curJob;
                 if (curJob == null) return;
@@ -775,6 +739,293 @@ namespace LearnToSurvive
             {
                 LTSLog.Error("EndJob hauling XP patch failed", ex);
             }
+        }
+    }
+
+    /// <summary>
+    /// Global inventory return on job interruption:
+    /// When a pawn is carrying something from our smart haul system and gets interrupted,
+    /// put it back in inventory instead of dropping on the ground.
+    /// Pattern: Prefix saves what's being carried, Postfix picks it up from ground after vanilla drops it.
+    /// This avoids fighting with vanilla's CleanupCurrentJob which always calls TryDropCarriedThing.
+    /// </summary>
+    [HarmonyPatch(typeof(Pawn_JobTracker), "CleanupCurrentJob")]
+    public static class Patch_CleanupJob_InventoryReturn
+    {
+        private static readonly AccessTools.FieldRef<Pawn_JobTracker, Pawn> jobTrackerPawn =
+            AccessTools.FieldRefAccess<Pawn_JobTracker, Pawn>("pawn");
+
+        // ThreadStatic: prefix saves carried thing ID, postfix retrieves it
+        [ThreadStatic] private static int savedThingId;
+        [ThreadStatic] private static bool shouldRecover;
+
+        public static bool Prepare() => LTSSettings.enableHaulingSense;
+
+        public static void Prefix(Pawn_JobTracker __instance, JobCondition condition)
+        {
+            shouldRecover = false;
+            try
+            {
+                if (condition == JobCondition.Succeeded) return;
+
+                Pawn pawn = jobTrackerPawn(__instance);
+                if (pawn == null || pawn.Map == null) return;
+                if (!pawn.IsColonistPlayerControlled) return;
+
+                Thing carried = pawn.carryTracker?.CarriedThing;
+                if (carried == null) return;
+
+                var haulComp = pawn.GetComp<CompHauledItems>();
+                if (haulComp == null || !haulComp.IsTracked(carried)) return;
+
+                // Item is tracked by our haul system
+                {
+                    Log.Message($"[LTS-InvReturn] {pawn.LabelShort}: saving carried item {carried.LabelShort} x{carried.stackCount} (id={carried.thingIDNumber}) for recovery after cleanup (condition={condition})");
+                    savedThingId = carried.thingIDNumber;
+                    shouldRecover = true;
+                }
+            }
+            catch (Exception) { }
+        }
+
+        public static void Postfix(Pawn_JobTracker __instance)
+        {
+            try
+            {
+                if (!shouldRecover) return;
+                shouldRecover = false;
+
+                Pawn pawn = jobTrackerPawn(__instance);
+                if (pawn == null || pawn.Map == null) return;
+
+                Log.Message($"[LTS-InvReturn] {pawn.LabelShort}: searching for dropped item id={savedThingId} near {pawn.Position}");
+
+                // Vanilla already dropped it. Find it near the pawn and move to inventory.
+                foreach (Thing t in pawn.Position.GetThingList(pawn.Map))
+                {
+                    if (t.thingIDNumber == savedThingId && t.Spawned)
+                    {
+                        if (t.def.EverHaulable && pawn.inventory.innerContainer.TryAdd(t))
+                        {
+                            Log.Message($"[LTS-InvReturn] {pawn.LabelShort}: recovered {t.LabelShort} x{t.stackCount} from pawn cell {pawn.Position}");
+                            var comp = pawn.GetComp<CompIntelligence>();
+                            LTSLog.Decision(pawn, StatType.HaulingSense,
+                                comp?.GetLevel(StatType.HaulingSense) ?? 0, "INV_RETURN",
+                                "recovered " + t.LabelShort + " from ground",
+                                "returned to inventory after job interruption",
+                                "preventing ground drop");
+                        }
+                        else
+                        {
+                            Log.Warning($"[LTS-InvReturn] {pawn.LabelShort}: found item id={savedThingId} but TryAdd failed");
+                        }
+                        return;
+                    }
+                }
+
+                // Check adjacent cells too (TryDropCarriedThing uses ThingPlaceMode.Near)
+                foreach (IntVec3 cell in GenAdj.CellsAdjacent8Way(pawn))
+                {
+                    if (!cell.InBounds(pawn.Map)) continue;
+                    foreach (Thing t in cell.GetThingList(pawn.Map))
+                    {
+                        if (t.thingIDNumber == savedThingId && t.Spawned)
+                        {
+                            if (t.def.EverHaulable && pawn.inventory.innerContainer.TryAdd(t))
+                            {
+                                Log.Message($"[LTS-InvReturn] {pawn.LabelShort}: recovered {t.LabelShort} x{t.stackCount} from adjacent cell {cell}");
+                                var comp = pawn.GetComp<CompIntelligence>();
+                                LTSLog.Decision(pawn, StatType.HaulingSense,
+                                    comp?.GetLevel(StatType.HaulingSense) ?? 0, "INV_RETURN",
+                                    "recovered " + t.LabelShort + " from adjacent cell",
+                                    "returned to inventory after job interruption",
+                                    "preventing ground drop");
+                            }
+                            else
+                            {
+                                Log.Warning($"[LTS-InvReturn] {pawn.LabelShort}: found item id={savedThingId} at {cell} but TryAdd failed");
+                            }
+                            return;
+                        }
+                    }
+                }
+                Log.Warning($"[LTS-InvReturn] {pawn.LabelShort}: could NOT find dropped item id={savedThingId} anywhere near pawn");
+            }
+            catch (Exception) { }
+        }
+    }
+
+    /// <summary>
+    /// Unload trigger: when pawn goes idle and has hauled items, start unloading.
+    /// Pattern from PUAH.
+    /// </summary>
+    [HarmonyPatch(typeof(JobGiver_Idle), "TryGiveJob")]
+    public static class Patch_IdleUnloadTrigger
+    {
+        public static bool Prepare() => LTSSettings.enableHaulingSense;
+
+        public static void Postfix(Pawn pawn, ref Job __result)
+        {
+            try
+            {
+                if (pawn == null || !pawn.IsColonistPlayerControlled) return;
+
+                // Don't trigger if already doing or queued for unload
+                if (pawn.CurJobDef == LTSDefOf.LTS_UnloadHauledItems) return;
+
+                var comp = pawn.GetComp<CompHauledItems>();
+                if (comp == null || !comp.HasItems) return;
+
+                // Verify items are actually still in inventory (not just stale references)
+                Thing firstItem = comp.FirstUnloadableThing(pawn);
+                if (firstItem == null) return;
+
+                Log.Message($"[LTS-IdleUnload] {pawn.LabelShort}: idle with {comp.Count} hauled items, triggering unload (first={firstItem.LabelShort} x{firstItem.stackCount})");
+                // Force unload when idle
+                __result = JobMaker.MakeJob(LTSDefOf.LTS_UnloadHauledItems);
+            }
+            catch (Exception) { }
+        }
+    }
+
+    /// <summary>
+    /// Unload trigger: when pawn completes a normal haul-to-cell and has hauled items,
+    /// queue an unload job. Also triggers if perishables are about to rot.
+    /// </summary>
+    [HarmonyPatch(typeof(Pawn_JobTracker), nameof(Pawn_JobTracker.EndCurrentJob))]
+    public static class Patch_HaulCompleteUnloadTrigger
+    {
+        private static readonly AccessTools.FieldRef<Pawn_JobTracker, Pawn> jobTrackerPawn =
+            AccessTools.FieldRefAccess<Pawn_JobTracker, Pawn>("pawn");
+
+        public static bool Prepare() => LTSSettings.enableHaulingSense;
+
+        [HarmonyPriority(Priority.Low)] // Run after other EndJob patches
+        public static void Prefix(Pawn_JobTracker __instance, JobCondition condition)
+        {
+            try
+            {
+                if (condition != JobCondition.Succeeded) return;
+
+                Pawn pawn = jobTrackerPawn(__instance);
+                if (pawn == null || pawn.Map == null || !pawn.IsColonistPlayerControlled) return;
+
+                var comp = pawn.GetComp<CompHauledItems>();
+                if (comp == null || !comp.HasItems) return;
+
+                var curJob = __instance.curJob;
+                if (curJob == null) return;
+
+                // Don't re-trigger if current job is already an unload or our smart haul
+                if (curJob.def == LTSDefOf.LTS_UnloadHauledItems) return;
+                if (curJob.def == LTSDefOf.LTS_SmartHaul) return;
+
+                // Trigger unload after normal haul, or if perishables are about to rot
+                bool shouldUnload = false;
+                string reason = null;
+                if (curJob.def == JobDefOf.HaulToCell || curJob.def == JobDefOf.HaulToContainer)
+                {
+                    shouldUnload = true;
+                    reason = "haul complete";
+                }
+                if (comp.HasPerishableSoon(pawn))
+                {
+                    shouldUnload = true;
+                    reason = "perishable about to rot";
+                }
+
+                if (shouldUnload)
+                {
+                    Log.Message($"[LTS-HaulUnload] {pawn.LabelShort}: triggering unload after job {curJob.def.defName}, reason={reason}, tracked={comp.Count}");
+                    Job unloadJob = JobMaker.MakeJob(LTSDefOf.LTS_UnloadHauledItems);
+                    __instance.jobQueue.EnqueueFirst(unloadJob, null);
+                }
+            }
+            catch (Exception) { }
+        }
+    }
+
+    /// <summary>
+    /// Drop protection: prevent vanilla from dropping our hauled items as "unused inventory".
+    /// Without this, JobGiver_DropUnusedInventory will periodically drop hauled items.
+    /// Pattern from PUAH.
+    /// </summary>
+    [HarmonyPatch(typeof(JobGiver_DropUnusedInventory), "Drop")]
+    public static class Patch_PreventDropHauledItems
+    {
+        public static bool Prepare() => LTSSettings.enableHaulingSense;
+
+        public static bool Prefix(Pawn pawn, Thing thing)
+        {
+            try
+            {
+                var comp = pawn.GetComp<CompHauledItems>();
+                if (comp != null && comp.IsTracked(thing))
+                {
+                    Log.Message($"[LTS-DropProtect] {pawn.LabelShort}: preventing vanilla drop of tracked item {thing.LabelShort} x{thing.stackCount}");
+                    return false; // Don't drop -- it's a hauled item
+                }
+            }
+            catch (Exception) { }
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// Inventory sync: when any item is removed from inventory by any means,
+    /// remove it from our tracking. Keeps CompHauledItems in sync automatically.
+    /// Pattern from PUAH.
+    /// </summary>
+    [HarmonyPatch(typeof(Pawn_InventoryTracker), nameof(Pawn_InventoryTracker.Notify_ItemRemoved))]
+    public static class Patch_InventorySync
+    {
+        public static bool Prepare() => LTSSettings.enableHaulingSense;
+
+        public static void Postfix(Pawn_InventoryTracker __instance, Thing item)
+        {
+            try
+            {
+                Pawn pawn = __instance.pawn;
+                if (pawn == null) return;
+
+                var comp = pawn.GetComp<CompHauledItems>();
+                if (comp != null && comp.IsTracked(item))
+                {
+                    Log.Message($"[LTS-InvSync] {pawn.LabelShort}: auto-removing tracked item {item?.LabelShort ?? "NULL"} (removed from inventory)");
+                    comp.UnregisterHauledItem(item);
+                }
+            }
+            catch (Exception) { }
+        }
+    }
+
+    /// <summary>
+    /// Remove vanilla pickup limit for our haul system.
+    /// Vanilla PawnUtility.GetMaxAllowedToPickUp limits stack pickup counts.
+    /// Pattern from PUAH.
+    /// </summary>
+    [HarmonyPatch(typeof(PawnUtility), nameof(PawnUtility.GetMaxAllowedToPickUp),
+        new Type[] { typeof(Pawn), typeof(ThingDef) })]
+    public static class Patch_RemovePickupLimit
+    {
+        public static bool Prepare() => LTSSettings.enableHaulingSense;
+
+        public static void Postfix(Pawn pawn, ref int __result)
+        {
+            try
+            {
+                // Only boost limit when our system is active (pawn has smart haul capability)
+                var comp = pawn.GetComp<CompIntelligence>();
+                if (comp == null) return;
+
+                int level = comp.GetLevel(StatType.HaulingSense);
+                if (HaulingSense.UseInventory(level)) // Lv4+
+                {
+                    Log.Message($"[LTS-PickupLimit] {pawn.LabelShort}: boosting pickup limit from {__result} to MaxValue (level={level})");
+                    __result = int.MaxValue;
+                }
+            }
+            catch (Exception) { }
         }
     }
 

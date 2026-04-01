@@ -119,6 +119,8 @@ namespace LearnToSurvive
         private static readonly AccessTools.FieldRef<Pawn_JobTracker, Pawn> jobTrackerPawn =
             AccessTools.FieldRefAccess<Pawn_JobTracker, Pawn>("pawn");
 
+        public static bool Prepare() => LTSSettings.enableWorkAwareness;
+
         public static void Prefix(Pawn_JobTracker __instance, JobCondition condition)
         {
             try
@@ -128,6 +130,7 @@ namespace LearnToSurvive
 
                 Pawn pawn = jobTrackerPawn(__instance);
                 if (pawn == null || pawn.Map == null) return;
+                if (!pawn.IsColonistPlayerControlled) return;
 
                 var curJob = __instance.curJob;
                 if (curJob == null) return;
@@ -143,6 +146,8 @@ namespace LearnToSurvive
 
                     int level = comp.GetLevel(StatType.WorkAwareness);
 
+                    Log.Message($"[LTS-Work] {pawn.LabelShort}: awarded 8 XP for completing {curJob.def.defName} (Lv{level})");
+
                     // Task chaining (Lv8+): after completing deconstruct/harvest/mine,
                     // queue the next nearby same-type job so we batch the work before hauling
                     // BUT: never chain if pawn has critical needs -- let ThinkTree handle food/rest/joy
@@ -156,48 +161,14 @@ namespace LearnToSurvive
                         if (pawn.needs?.joy != null && pawn.needs.joy.CurLevelPercentage < 0.15f)
                             needsCritical = true;
 
+                        if (needsCritical)
+                            Log.Message($"[LTS-Work] {pawn.LabelShort}: task chaining skipped, critical needs (food={pawn.needs?.food?.CurLevelPercentage:P0} rest={pawn.needs?.rest?.CurLevelPercentage:P0} joy={pawn.needs?.joy?.CurLevelPercentage:P0})");
+
                         Job chainedJob = needsCritical ? null : TryFindChainJob(pawn, curJob, level);
                         if (chainedJob != null)
                         {
-                            // Pre-clean before chained DoBill (Lv4+)
-                            if (WorkAwareness.PreCleanCooking(level) && chainedJob.def == JobDefOf.DoBill)
-                            {
-                                bool shouldClean = false;
-                                if (chainedJob.bill?.recipe?.workSkill == SkillDefOf.Cooking)
-                                    shouldClean = true;
-                                if (WorkAwareness.PreCleanAllPrecision(level))
-                                {
-                                    var skill = chainedJob.bill?.recipe?.workSkill;
-                                    if (skill == SkillDefOf.Crafting || skill == SkillDefOf.Artistic
-                                        || skill == SkillDefOf.Intellectual)
-                                        shouldClean = true;
-                                }
-
-                                if (shouldClean && !(ModCompat.CommonSenseLoaded && LTSSettings.respectCommonSense))
-                                {
-                                    Thing station = chainedJob.targetA.Thing;
-                                    if (station != null && station.Spawned)
-                                    {
-                                        var filthList = WorkAwareness.FindFilthToClean(pawn, station.Position, level);
-                                        if (filthList != null && filthList.Count > 0)
-                                        {
-                                            Thing filth = filthList[0];
-                                            if (pawn.CanReserve(filth))
-                                            {
-                                                Job cleanJob = JobMaker.MakeJob(JobDefOf.Clean, filth);
-                                                __instance.jobQueue.EnqueueFirst(chainedJob);
-                                                __instance.jobQueue.EnqueueFirst(cleanJob);
-
-                                                LTSLog.Decision(pawn, StatType.WorkAwareness, level, "PRE_CLEAN",
-                                                    "queued Clean before " + chainedJob.def.defName, "", "");
-
-                                                // Skip normal enqueue below -- we already handled it
-                                                goto doneChaining;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            // Pre-cleaning now handled by Patch_StartJob_PreClean (StartJob prefix pattern)
+                            Log.Message($"[LTS-Work] {pawn.LabelShort}: task chaining {curJob.def.defName} -> {chainedJob.def.defName} at {chainedJob.targetA.Cell}");
 
                             __instance.jobQueue.EnqueueFirst(chainedJob);
 
@@ -206,7 +177,11 @@ namespace LearnToSurvive
                                 "queued next " + chainedJob.def.defName + " at " + chainedJob.targetA.Cell,
                                 "chaining same-type work before hauling");
 
-                            doneChaining:;
+                            // Pre-cleaning handled by Patch_StartJob_PreClean
+                        }
+                        else if (!needsCritical)
+                        {
+                            Log.Message($"[LTS-Work] {pawn.LabelShort}: task chaining found no nearby {curJob.def.defName} work");
                         }
                     }
                 }
@@ -275,7 +250,10 @@ namespace LearnToSurvive
         // Cached MethodInfo for TryFindBestBillIngredients (used by TryChainBill)
         private static readonly System.Reflection.MethodInfo tryFindBestBillIngredientsMethod =
             typeof(WorkGiver_DoBill).GetMethod("TryFindBestBillIngredients",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static,
+                null,
+                new System.Type[] { typeof(Bill), typeof(Pawn), typeof(Thing), typeof(List<ThingCount>) },
+                null);
 
         /// <summary>
         /// Chain another iteration of the same crafting bill.
@@ -401,12 +379,178 @@ namespace LearnToSurvive
     }
 
     /// <summary>
+    /// Weather-gated snow/sand clearing (Lv10+):
+    /// Don't clear snow while it's snowing, or sand during sandstorms.
+    /// </summary>
+    [HarmonyPatch(typeof(WorkGiver_ClearSnowOrSand), nameof(WorkGiver_ClearSnowOrSand.ShouldSkip))]
+    public static class Patch_SkipSnowInWeather
+    {
+        public static bool Prepare() => LTSSettings.enableWorkAwareness;
+
+        public static bool Prefix(Pawn pawn, ref bool __result)
+        {
+            try
+            {
+                if (!LTSSettings.enableWorkAwareness) return true;
+                if (pawn?.Map == null) return true;
+
+                var comp = pawn.GetComp<CompIntelligence>();
+                if (comp == null) return true;
+
+                int level = comp.GetLevel(StatType.WorkAwareness);
+                if (!WorkAwareness.WeatherAware(level)) return true;
+
+                var weather = pawn.Map.weatherManager;
+                if (weather.SnowRate > 0f || weather.RainRate > 0f)
+                {
+                    Log.Message($"[LTS-Work] {pawn.LabelShort}: skipping snow/sand clearing (weather: {pawn.Map.weatherManager.curWeather.defName}, snow={weather.SnowRate:F2}, rain={weather.RainRate:F2})");
+                    __result = true; // skip = true
+                    return false;    // don't run vanilla
+                }
+            }
+            catch (Exception) { }
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// Pre-clean before precision work (Lv4+):
+    /// When a pawn starts a DoBill job, insert a cleaning job first if there's filth
+    /// near the workstation. Uses the Common Sense StartJob pattern:
+    /// enqueue original job, start clean job first. Original job runs after clean finishes.
+    /// If clean is interrupted, original job stays in queue.
+    /// </summary>
+    [HarmonyPatch(typeof(Pawn_JobTracker), nameof(Pawn_JobTracker.StartJob))]
+    public static class Patch_StartJob_PreClean
+    {
+        private static readonly AccessTools.FieldRef<Pawn_JobTracker, Pawn> jobTrackerPawn =
+            AccessTools.FieldRefAccess<Pawn_JobTracker, Pawn>("pawn");
+
+        // Per-pawn cooldown: don't re-trigger pre-clean within 500 ticks of last trigger
+        private static readonly Dictionary<int, int> lastCleanTick = new Dictionary<int, int>();
+
+        public static bool Prepare() => LTSSettings.enableWorkAwareness;
+
+        public static bool Prefix(Pawn_JobTracker __instance, Job newJob)
+        {
+            try
+            {
+                if (newJob == null || newJob.def != JobDefOf.DoBill) return true;
+
+                Pawn pawn = jobTrackerPawn(__instance);
+                if (pawn == null || pawn.Map == null) return true;
+                if (!pawn.IsColonistPlayerControlled) return true;
+                // Don't intercept if queue already has jobs (we already enqueued, or player-queued)
+                if (__instance.jobQueue?.Count > 0)
+                {
+                    Log.Message($"[LTS-PreClean] {pawn.LabelShort}: skipped, queue has {__instance.jobQueue.Count} jobs");
+                    return true;
+                }
+
+                // Cooldown: don't re-trigger within 500 ticks (~8 sec) of last pre-clean
+                int curTick = Find.TickManager.TicksGame;
+                if (lastCleanTick.TryGetValue(pawn.thingIDNumber, out int last) && curTick - last < 500)
+                {
+                    Log.Message($"[LTS-PreClean] {pawn.LabelShort}: skipped, cooldown ({curTick - last} ticks ago)");
+                    return true;
+                }
+
+                var comp = pawn.GetComp<CompIntelligence>();
+                if (comp == null) return true;
+
+                int level = comp.GetLevel(StatType.WorkAwareness);
+                Log.Message($"[LTS-PreClean] {pawn.LabelShort}: DoBill detected, WorkAwareness={level}, checking clean...");
+                if (!WorkAwareness.PreCleanCooking(level)) return true;
+
+                // Check if this is precision work that benefits from cleaning
+                bool shouldClean = false;
+                if (newJob.bill?.recipe?.workSkill == SkillDefOf.Cooking)
+                    shouldClean = true;
+                if (WorkAwareness.PreCleanAllPrecision(level))
+                {
+                    var skill = newJob.bill?.recipe?.workSkill;
+                    if (skill == SkillDefOf.Crafting || skill == SkillDefOf.Artistic
+                        || skill == SkillDefOf.Intellectual)
+                        shouldClean = true;
+                }
+
+                if (!shouldClean) return true;
+                if (ModCompat.CommonSenseLoaded && LTSSettings.respectCommonSense) return true;
+
+                // Check if pawn can clean
+                if (pawn.WorkTypeIsDisabled(WorkTypeDefOf.Cleaning))
+                {
+                    Log.Message($"[LTS-PreClean] {pawn.LabelShort}: can't clean (disabled work type)");
+                    return true;
+                }
+
+                Thing station = newJob.targetA.Thing;
+                if (station == null || !station.Spawned) return true;
+
+                // Path efficiency: only clean if pawn is reasonably close to station
+                float pawnToStation = pawn.Position.DistanceTo(station.Position);
+                if (pawnToStation > 10f)
+                {
+                    Log.Message($"[LTS-PreClean] {pawn.LabelShort}: too far from station ({pawnToStation:F0} tiles)");
+                    return true;
+                }
+
+                var filthList = WorkAwareness.FindFilthToClean(pawn, station.Position, level);
+                if (filthList == null || filthList.Count == 0)
+                {
+                    Log.Message($"[LTS-PreClean] {pawn.LabelShort}: no filth near {station.LabelShort}");
+                    return true;
+                }
+                Log.Message($"[LTS-PreClean] {pawn.LabelShort}: found {filthList.Count} filth near {station.LabelShort}");
+
+                // Pick filth closest to station (least detour)
+                filthList.SortBy(f => f.Position.DistanceTo(station.Position));
+                Thing filth = filthList[0];
+
+                // Triangle inequality: skip if cleaning adds >30% travel
+                float pawnToFilth = pawn.Position.DistanceTo(filth.Position);
+                float filthToStation = filth.Position.DistanceTo(station.Position);
+                if (pawnToStation > 3f && pawnToFilth + filthToStation > pawnToStation * 1.3f)
+                    return true;
+
+                if (!pawn.CanReserve(filth)) return true;
+
+                // Common Sense pattern: enqueue original DoBill, then enqueue clean in front.
+                // When clean finishes, pawn dequeues DoBill automatically.
+                Job cleanJob = JobMaker.MakeJob(JobDefOf.Clean, filth);
+
+                // Put the original DoBill in queue, then the clean job in front
+                __instance.jobQueue.EnqueueFirst(newJob, null);
+                // Enqueue clean in front -- it runs first, then DoBill dequeues
+                __instance.jobQueue.EnqueueFirst(cleanJob, null);
+
+                // Set cooldown so we don't re-trigger when DoBill dequeues
+                lastCleanTick[pawn.thingIDNumber] = curTick;
+
+                LTSLog.Decision(pawn, StatType.WorkAwareness, level, "PRE_CLEAN",
+                    "cleaning before " + newJob.def.defName + " at " + station.LabelShort,
+                    "filth " + filth.Position.DistanceTo(station.Position).ToString("F1") + " cells from station",
+                    "StartJob pattern");
+
+                return false; // Block original StartJob; TryFindAndStartJob will pick up queue
+            }
+            catch (Exception ex)
+            {
+                LTSLog.Error("StartJob pre-clean patch failed", ex);
+            }
+            return true;
+        }
+    }
+
+    /// <summary>
     /// Need check before starting long work (Lv9+):
     /// Don't start a bill if hunger/rest is critical.
     /// </summary>
     [HarmonyPatch(typeof(WorkGiver_DoBill), nameof(WorkGiver_DoBill.JobOnThing))]
     public static class Patch_DoBill_NeedCheck
     {
+        public static bool Prepare() => LTSSettings.enableWorkAwareness;
+
         public static void Postfix(WorkGiver_DoBill __instance, Pawn pawn, Thing thing, ref Job __result)
         {
             try
@@ -426,6 +570,7 @@ namespace LearnToSurvive
 
                 if (tooHungry || tooTired)
                 {
+                    Log.Message($"[LTS-Work] {pawn.LabelShort}: deferring work due to needs (hungry={tooHungry}, tired={tooTired}, food={pawn.needs?.food?.CurLevelPercentage:P0}, rest={pawn.needs?.rest?.CurLevelPercentage:P0})");
                     LTSLog.Decision(pawn, StatType.WorkAwareness, level, "NEED_CHECK_DEFER",
                         "hunger=" + (pawn.needs?.food?.CurLevelPercentage ?? 1f).ToString("P0") +
                         " rest=" + (pawn.needs?.rest?.CurLevelPercentage ?? 1f).ToString("P0"),
@@ -438,6 +583,83 @@ namespace LearnToSurvive
             {
                 LTSLog.Error("DoBill need check patch failed", ex);
             }
+        }
+    }
+
+    /// <summary>
+    /// Perishable ingredient priority: when a DoBill job is created,
+    /// reorder the ingredient queue to pick up perishable items first.
+    /// Requires WorkAwareness Lv7+ (same threshold as HaulingSense perishables).
+    /// </summary>
+    [HarmonyPatch(typeof(WorkGiver_DoBill), nameof(WorkGiver_DoBill.JobOnThing))]
+    [HarmonyAfter("Lexxers.LearnToSurvive")]
+    public static class Patch_DoBill_PerishableIngredients
+    {
+        public static bool Prepare() => LTSSettings.enableWorkAwareness;
+
+        [HarmonyPriority(Priority.Low)] // Run after NeedCheck
+        public static void Postfix(Pawn pawn, ref Job __result)
+        {
+            try
+            {
+                if (!LTSSettings.enableWorkAwareness) return;
+                if (__result == null || pawn == null) return;
+                if (__result.def != JobDefOf.DoBill) return;
+                if (__result.targetQueueB == null || __result.targetQueueB.Count <= 1) return;
+
+                var comp = pawn.GetComp<CompIntelligence>();
+                if (comp == null) return;
+
+                int level = comp.GetLevel(StatType.WorkAwareness);
+                if (level < 7) return; // Same threshold as perishable hauling
+
+                // Sort ingredients: perishable first (by ticks until rot), then by distance
+                bool anyPerishable = false;
+                for (int i = 0; i < __result.targetQueueB.Count; i++)
+                {
+                    Thing t = __result.targetQueueB[i].Thing;
+                    if (t?.TryGetComp<CompRottable>() != null)
+                    {
+                        anyPerishable = true;
+                        break;
+                    }
+                }
+
+                if (!anyPerishable) return;
+
+                Log.Message($"[LTS-Work] {pawn.LabelShort}: reordering {__result.targetQueueB.Count} ingredients, perishables first (Lv{level})");
+
+                // Capture into locals (ref params can't be used in lambdas)
+                var queue = __result.targetQueueB;
+                var counts = __result.countQueue;
+
+                // Build parallel sort keys
+                var indices = Enumerable.Range(0, queue.Count).ToList();
+                indices.Sort((a, b) =>
+                {
+                    Thing ta = queue[a].Thing;
+                    Thing tb = queue[b].Thing;
+                    var rotA = ta?.TryGetComp<CompRottable>();
+                    var rotB = tb?.TryGetComp<CompRottable>();
+                    int ticksA = rotA != null ? rotA.TicksUntilRotAtCurrentTemp : int.MaxValue;
+                    int ticksB = rotB != null ? rotB.TicksUntilRotAtCurrentTemp : int.MaxValue;
+                    return ticksA.CompareTo(ticksB);
+                });
+
+                var sortedTargets = new List<LocalTargetInfo>(indices.Count);
+                var sortedCounts = counts != null
+                    ? new List<int>(indices.Count) : null;
+
+                foreach (int idx in indices)
+                {
+                    sortedTargets.Add(queue[idx]);
+                    sortedCounts?.Add(counts[idx]);
+                }
+
+                __result.targetQueueB = sortedTargets;
+                if (sortedCounts != null) __result.countQueue = sortedCounts;
+            }
+            catch (Exception) { }
         }
     }
 
@@ -466,7 +688,8 @@ namespace LearnToSurvive
                 // Only modify haul-to-frame jobs
                 if (__result.def != JobDefOf.HaulToContainer) return;
 
-                Thing resource = __result.targetB.Thing;
+                // HaulToContainer: targetA = resource being hauled, targetB = frame/container
+                Thing resource = __result.targetA.Thing;
                 if (resource == null || !resource.Spawned) return;
 
                 // Count how many nearby frames need this same material
@@ -474,7 +697,7 @@ namespace LearnToSurvive
                 if (originalCount <= 0) return;
 
                 int totalNeeded = originalCount;
-                Thing targetFrame = __result.targetA.Thing;
+                Thing targetFrame = __result.targetB.Thing;
                 if (targetFrame == null) return;
 
                 // Scan for more frames of same type nearby that need the same resource
@@ -509,6 +732,7 @@ namespace LearnToSurvive
                 {
                     __result.count = newCount;
 
+                    Log.Message($"[LTS-Work] {pawn.LabelShort}: batching construction delivery - carrying {newCount} {resource.def.label} instead of {originalCount} ({nearbyFrames} nearby frames)");
                     LTSLog.Decision(pawn, StatType.WorkAwareness, level, "CONSTRUCTION_BATCH",
                         nearbyFrames + " nearby frames need " + resource.def.label,
                         "carrying " + newCount + " instead of " + originalCount,

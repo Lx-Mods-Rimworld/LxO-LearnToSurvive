@@ -11,6 +11,14 @@
   </JobDef>
 
   <JobDef>
+    <defName>LTS_UnloadHauledItems</defName>
+    <driverClass>LearnToSurvive.JobDriver_UnloadHauledItems</driverClass>
+    <reportString>unloading hauled items.</reportString>
+    <casualInterruptible>true</casualInterruptible>
+    <collideWithPawns>false</collideWithPawns>
+  </JobDef>
+
+  <JobDef>
     <defName>LTS_WriteBook</defName>
     <driverClass>LearnToSurvive.JobDriver_WriteBook</driverClass>
     <reportString>writing a book.</reportString>

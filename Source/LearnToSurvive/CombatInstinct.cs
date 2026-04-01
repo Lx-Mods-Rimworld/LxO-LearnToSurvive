@@ -218,6 +218,7 @@ namespace LearnToSurvive
 
                 if (CombatInstinctUtil.WouldHitFriendly(shooter, target, __instance))
                 {
+                    Log.Message($"[LTS-Combat] {shooter.LabelShort}: holding fire at {target.Thing?.LabelShort ?? "target"} - ally in shoot line (Lv{level})");
                     LTSLog.Decision(shooter, StatType.CombatInstinct, level, "FF_HOLD",
                         "target=" + target.Thing?.LabelShort,
                         "holding fire - ally in shoot line",
@@ -254,7 +255,11 @@ namespace LearnToSurvive
                 if (killer.Faction == __instance.Faction) return; // Don't reward friendly kills
 
                 var comp = killer.GetComp<CompIntelligence>();
-                comp?.AddXP(StatType.CombatInstinct, 50f, "enemy_kill");
+                if (comp != null)
+                {
+                    Log.Message($"[LTS-Combat] {killer.LabelShort}: awarded 50 XP for killing {__instance.LabelShort} (Lv{comp.GetLevel(StatType.CombatInstinct)})");
+                    comp.AddXP(StatType.CombatInstinct, 50f, "enemy_kill");
+                }
             }
             catch (Exception) { }
         }
@@ -306,6 +311,8 @@ namespace LearnToSurvive
                         Messages.Message(
                             "LTS_WoundedRetreat".Translate(pawn.LabelShort),
                             pawn, MessageTypeDefOf.NeutralEvent, false);
+
+                        continue; // Skip cover-seeking -- pawn should flee, not move toward enemies
                     }
                 }
 

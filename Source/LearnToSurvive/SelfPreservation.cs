@@ -70,8 +70,20 @@ namespace LearnToSurvive
                 CompRottable rot = food.TryGetComp<CompRottable>();
                 if (rot != null && rot.Stage == RotStage.Dessicated)
                     modifier -= 200f;
-                if (rot != null && rot.Stage == RotStage.Rotting)
+                else if (rot != null && rot.Stage == RotStage.Rotting)
                     modifier -= 150f;
+                else if (rot != null && rot.Stage == RotStage.Fresh)
+                {
+                    // Prefer food that's closer to spoiling (eat it before it rots)
+                    int ticksLeft = rot.TicksUntilRotAtCurrentTemp;
+                    float daysLeft = ticksLeft / 60000f;
+                    if (daysLeft < 3f && daysLeft >= 0f)
+                    {
+                        // 0 days left: +36, 1 day: +16, 2 days: +4, 3+: 0
+                        float urgency = 6f - daysLeft * 2f;
+                        modifier += urgency * urgency;
+                    }
+                }
 
                 // Avoid raw meat
                 if (food.def.IsMeat)
@@ -79,24 +91,16 @@ namespace LearnToSurvive
             }
 
             // Table proximity bonus (Lv4+)
-            if (TableSeeking(level) && eater.Map != null)
+            if (TableSeeking(level) && eater.Map != null && food.Spawned && food.Position.IsValid)
             {
-                // Check if there's a table near the food
-                bool tableNear = false;
-                foreach (IntVec3 cell in GenRadial.RadialCellsAround(food.Position, 15f, true))
-                {
-                    if (!cell.InBounds(eater.Map)) continue;
-                    foreach (Thing thing in cell.GetThingList(eater.Map))
-                    {
-                        if (thing.def.surfaceType == SurfaceType.Eat)
-                        {
-                            tableNear = true;
-                            break;
-                        }
-                    }
-                    if (tableNear) break;
-                }
-                if (tableNear) modifier += 15f;
+                Thing nearestTable = GenClosest.ClosestThingReachable(
+                    food.Position, eater.Map,
+                    ThingRequest.ForGroup(ThingRequestGroup.BuildingArtificial),
+                    PathEndMode.ClosestTouch,
+                    TraverseParms.For(eater),
+                    15f,
+                    t => t.def.surfaceType == SurfaceType.Eat);
+                if (nearestTable != null) modifier += 15f;
             }
 
             return modifier;
@@ -148,6 +152,8 @@ namespace LearnToSurvive
     [HarmonyPatch(typeof(FoodUtility), nameof(FoodUtility.FoodOptimality))]
     public static class Patch_FoodOptimality
     {
+        public static bool Prepare() => LTSSettings.enableSelfPreservation;
+
         public static void Postfix(Pawn eater, Thing foodSource, ThingDef foodDef, float dist,
             ref float __result)
         {
@@ -163,6 +169,11 @@ namespace LearnToSurvive
                 if (level <= 0) return;
 
                 float modifier = SelfPreservationUtil.GetFoodScoreModifier(eater, foodSource, level);
+                if (Math.Abs(modifier) > 20f)
+                {
+                    string reason = modifier > 0 ? "preferring" : "avoiding";
+                    Log.Message($"[LTS-Self] {eater.LabelShort}: food score {reason} {foodSource.LabelShort} by {modifier:+0;-0} (Lv{level})");
+                }
                 __result += modifier;
             }
             catch (Exception) { }
@@ -175,6 +186,8 @@ namespace LearnToSurvive
     [HarmonyPatch(typeof(HealthAIUtility), nameof(HealthAIUtility.FindBestMedicine))]
     public static class Patch_FindBestMedicine
     {
+        public static bool Prepare() => LTSSettings.enableSelfPreservation;
+
         public static void Postfix(Pawn healer, Pawn patient, ref Thing __result)
         {
             try
@@ -210,6 +223,7 @@ namespace LearnToSurvive
 
                 if (betterMatch != null)
                 {
+                    Log.Message($"[LTS-Self] {checker.LabelShort}: downgrading medicine for {patient.LabelShort} - using {appropriate.label} instead of {__result.def.label} (Lv{level})");
                     __result = betterMatch;
                     LTSLog.Decision(checker, StatType.SelfPreservation, level, "MEDICINE_MATCH",
                         "patient=" + patient.LabelShort + " severity=various",
@@ -228,6 +242,8 @@ namespace LearnToSurvive
     [HarmonyPatch(typeof(JobGiver_GetFood), nameof(JobGiver_GetFood.GetPriority))]
     public static class Patch_EarlyEating
     {
+        public static bool Prepare() => LTSSettings.enableSelfPreservation;
+
         public static void Postfix(JobGiver_GetFood __instance, Pawn pawn, ref float __result)
         {
             try
@@ -248,6 +264,7 @@ namespace LearnToSurvive
                     // Boost priority so they eat sooner
                     __result = Math.Max(__result, 6f);
 
+                    Log.Message($"[LTS-Self] {pawn.LabelShort}: boosting food priority (food={foodLevel:P0}, Lv{level})");
                     LTSLog.Decision(pawn, StatType.SelfPreservation, level, "EARLY_EAT",
                         "food=" + foodLevel.ToString("P0"),
                         "boosting food priority",
@@ -264,6 +281,8 @@ namespace LearnToSurvive
     [HarmonyPatch(typeof(JobGiver_GetRest), nameof(JobGiver_GetRest.GetPriority))]
     public static class Patch_EarlySleeping
     {
+        public static bool Prepare() => LTSSettings.enableSelfPreservation;
+
         public static void Postfix(JobGiver_GetRest __instance, Pawn pawn, ref float __result)
         {
             try
@@ -282,6 +301,7 @@ namespace LearnToSurvive
                 {
                     __result = Math.Max(__result, 6f);
 
+                    Log.Message($"[LTS-Self] {pawn.LabelShort}: boosting rest priority (rest={restLevel:P0}, Lv{level})");
                     LTSLog.Decision(pawn, StatType.SelfPreservation, level, "EARLY_SLEEP",
                         "rest=" + restLevel.ToString("P0"),
                         "boosting rest priority",
@@ -298,12 +318,14 @@ namespace LearnToSurvive
     [HarmonyPatch(typeof(JoyUtility), nameof(JoyUtility.JoyTickCheckEnd))]
     public static class Patch_RecreationVariety
     {
+        public static bool Prepare() => LTSSettings.enableSelfPreservation;
+
         public static void Postfix(Pawn pawn)
         {
             try
             {
                 if (!LTSSettings.enableSelfPreservation) return;
-                if (pawn == null) return;
+                if (pawn == null || !pawn.IsColonistPlayerControlled) return;
 
                 var comp = pawn.GetComp<CompIntelligence>();
                 if (comp == null) return;
@@ -316,6 +338,83 @@ namespace LearnToSurvive
                 }
             }
             catch (Exception) { }
+        }
+    }
+
+    /// <summary>
+    /// Outdoor recreation seeking (Lv13+): when outdoors need is low,
+    /// prefer joy activities in psychologically-outdoor rooms.
+    /// </summary>
+    [HarmonyPatch(typeof(JobGiver_GetJoy), "TryGiveJob")]
+    public static class Patch_OutdoorRecreation
+    {
+        public static bool Prepare() => LTSSettings.enableSelfPreservation;
+
+        public static bool Prefix(JobGiver_GetJoy __instance, Pawn pawn, ref Job __result)
+        {
+            try
+            {
+                if (!LTSSettings.enableSelfPreservation) return true;
+                if (pawn?.Map == null || pawn.needs?.joy == null) return true;
+
+                var comp = pawn.GetComp<CompIntelligence>();
+                if (comp == null) return true;
+
+                int level = comp.GetLevel(StatType.SelfPreservation);
+                if (!SelfPreservationUtil.RecreationVariety(level)) return true; // Lv13+
+
+                // Only trigger when outdoors need is low
+                Need_Outdoors outdoorsNeed = pawn.needs.TryGetNeed<Need_Outdoors>();
+                if (outdoorsNeed == null || outdoorsNeed.CurLevel >= 0.4f) return true;
+
+                // Try each joy giver and prefer outdoor ones
+                var joyGivers = DefDatabase<JoyGiverDef>.AllDefsListForReading;
+                Job bestOutdoorJob = null;
+
+                foreach (var joyDef in joyGivers)
+                {
+                    if (joyDef.Worker == null) continue;
+                    if (pawn.needs.joy.tolerances.BoredOf(joyDef.joyKind)) continue;
+
+                    Job candidateJob = null;
+                    try
+                    {
+                        candidateJob = joyDef.Worker.TryGiveJob(pawn);
+                    }
+                    catch { continue; }
+
+                    if (candidateJob == null) continue;
+
+                    // Check if the job target is in a psychologically outdoor room
+                    IntVec3 targetPos = candidateJob.targetA.IsValid
+                        ? candidateJob.targetA.Cell : IntVec3.Invalid;
+                    if (!targetPos.IsValid || !targetPos.InBounds(pawn.Map)) continue;
+
+                    Room room = targetPos.GetRoom(pawn.Map);
+                    if (room != null && room.PsychologicallyOutdoors)
+                    {
+                        bestOutdoorJob = candidateJob;
+
+                        Log.Message($"[LTS-Self] {pawn.LabelShort}: redirecting to outdoor joy ({joyDef.defName}, outdoors={outdoorsNeed.CurLevel:P0}, Lv{level})");
+                        LTSLog.Decision(pawn, StatType.SelfPreservation, level, "OUTDOOR_JOY",
+                            "outdoors=" + outdoorsNeed.CurLevel.ToString("P0"),
+                            "chose outdoor " + joyDef.defName,
+                            "RecreationVariety Lv13+");
+                        break;
+                    }
+                }
+
+                if (bestOutdoorJob != null)
+                {
+                    __result = bestOutdoorJob;
+                    return false; // skip vanilla
+                }
+            }
+            catch (Exception ex)
+            {
+                LTSLog.Error("OutdoorRecreation patch failed", ex);
+            }
+            return true; // fall through to vanilla
         }
     }
 
@@ -354,6 +453,7 @@ namespace LearnToSurvive
                     if (pawn.CurJob != null && pawn.CurJob.def != JobDefOf.Wait
                         && pawn.CurJob.def.joyKind == null)
                     {
+                        Log.Message($"[LTS-Self] {pawn.LabelShort}: mood management triggered (mood={mood:P0}, break threshold={breakThreshold:P0}, Lv{level})");
                         LTSLog.Decision(pawn, StatType.SelfPreservation, level, "MOOD_MANAGE",
                             "mood=" + mood.ToString("P0") + " threshold=" + breakThreshold.ToString("P0"),
                             "mood management - needs joy",

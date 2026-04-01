@@ -139,10 +139,14 @@ namespace LearnToSurvive
                     def.comps = new List<CompProperties>();
                     Log.Message("[LearnToSurvive] Created comps list for: " + def.defName);
                 }
-                if (def.comps.Any(c => c is CompProperties_Intelligence)) continue;
+                if (!def.comps.Any(c => c is CompProperties_Intelligence))
+                {
+                    def.comps.Add(new CompProperties_Intelligence());
+                    count++;
+                }
 
-                def.comps.Add(new CompProperties_Intelligence());
-                count++;
+                if (!def.comps.Any(c => c is CompProperties_HauledItems))
+                    def.comps.Add(new CompProperties_HauledItems());
             }
             Log.Message("[LearnToSurvive] CompIntelligence added via C# to " + count + " humanlike ThingDefs.");
         }

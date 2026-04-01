@@ -99,6 +99,17 @@ namespace LearnToSurvive
         public static void LevelUp(Pawn pawn, StatType stat, int oldLevel, int newLevel, string abilityName)
         {
             // Always log level-ups regardless of log level setting
+            string prefix;
+            switch (stat)
+            {
+                case StatType.WorkAwareness: prefix = "[LTS-Work]"; break;
+                case StatType.SelfPreservation: prefix = "[LTS-Self]"; break;
+                case StatType.CombatInstinct: prefix = "[LTS-Combat]"; break;
+                case StatType.PathMemory: prefix = "[LTS-Path]"; break;
+                case StatType.HaulingSense: prefix = "[LTS-Haul]"; break;
+                default: prefix = "[LTS]"; break;
+            }
+            Log.Message($"{prefix} {pawn.LabelShort}: LEVEL UP {stat} {oldLevel} -> {newLevel} ({abilityName})");
             string msg = string.Format("[ColonistAI] [TICK:{0}] [PAWN:{1}] [LEVEL_UP] {2} {3} -> {4} | New: {5}",
                 Find.TickManager.TicksGame, pawn.LabelShort, stat, oldLevel, newLevel, abilityName);
             WriteLine(msg);

@@ -242,6 +242,7 @@ namespace LearnToSurvive
 
                 comp.RecordDanger(__instance.Position);
 
+                Log.Message($"[LTS-Path] {__instance.LabelShort}: recorded danger at {__instance.Position} (damage type={dinfo.Def?.defName ?? "unknown"}, Lv{level})");
                 LTSLog.Decision(__instance, StatType.PathMemory, level, "DANGER_RECORD",
                     "damage at " + __instance.Position,
                     "recorded danger zone",

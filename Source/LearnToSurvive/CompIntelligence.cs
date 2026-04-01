@@ -152,7 +152,7 @@ namespace LearnToSurvive
             foreach (Pawn other in pawn.Map.mapPawns.FreeColonistsSpawned)
             {
                 if (other == pawn) continue;
-                if (other.Position.DistanceTo(pawn.Position) > 10f) continue;
+                if (other.Position.DistanceTo(pawn.Position) > 20f) continue;
 
                 var otherComp = other.GetComp<CompIntelligence>();
                 if (otherComp == null) continue;

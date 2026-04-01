@@ -25,8 +25,8 @@ namespace LearnToSurvive
 
         public override Job TryGiveJobWhileInBed(Pawn pawn)
         {
-            // Can also read while in bed
-            return TryGiveJob(pawn);
+            // Reading requires walking to fetch the book -- not possible in bed
+            return null;
         }
 
         private Thing FindBestBook(Pawn pawn)
