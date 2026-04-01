@@ -2,6 +2,28 @@
 
 All notable changes to this mod will be documented in this file.
 
+## [2.1.0] - 2026-04-01
+
+### Features
+- Redesigned hauling system: items now persist in inventory across job interruptions and save/load. Delivery uses proper vanilla carry-and-place mechanics for each item individually to its correct stockpile.
+- Weather-aware snow clearing (Lv10): pawns stop clearing snow/sand during precipitation
+- Outdoor recreation seeking (Lv13): pawns prefer outdoor joy activities when their outdoors need is low
+- Perishable ingredient priority (Lv7+): crafting bills use ingredients closest to spoiling first
+- Eat-before-it-rots (Lv11+): pawns prefer meals that are about to expire
+- Pre-cleaning uses path efficiency check: only cleans if filth is on the way to the workstation
+
+### Fixes
+- Fixed hauling loop: pawns no longer pick up and drop the same item repeatedly when inventory is full
+- Fixed slaves and prisoners gaining intelligence XP (they shouldn't learn)
+- Fixed food table search crash when evaluating unspawned food items
+- Pre-cleaning no longer triggers in a rapid loop when filth can't be reached
+
+### Improvements
+- All Harmony patches use Prepare() for zero overhead when disabled
+- Hauled items are protected from vanilla's "drop unused inventory" cleanup
+- Inventory tracking auto-syncs when items are consumed, stolen, or removed by any means
+- Comprehensive logging across all systems for easier debugging
+
 ## [2.0.1] - 2026-03-29
 
 ### Fixes
